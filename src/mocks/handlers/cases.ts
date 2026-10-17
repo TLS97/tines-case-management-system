@@ -1,7 +1,13 @@
 import { http, HttpResponse } from 'msw';
 import { z } from 'zod';
 import { can, fieldSchema } from '@/features/auth';
-import { lastSequenceInYear, nextCaseNumber, type SupervisionCase } from '@/features/cases';
+import {
+  lastSequenceInYear,
+  nextCaseNumber,
+  viewCase,
+  type CaseResponse,
+  type SupervisionCase,
+} from '@/features/cases';
 import { recordAudit } from '../auditLog';
 import { currentUser, readDb, writeDb } from '../db';
 
@@ -59,5 +65,50 @@ export const caseHandlers = [
       ),
     );
     return HttpResponse.json(supervisionCase, { status: 201 });
+  }),
+
+  // F-002 / F-004: open a case. Admin gets the restricted view; nobody else without access gets
+  // anything. Every opening is logged as "case opened" (F-005).
+  http.get('/api/cases/:id', ({ params }) => {
+    const db = readDb();
+    const user = currentUser(db);
+    const supervisionCase = db.cases.find((candidate) => candidate.id === params.id);
+    if (!supervisionCase) return new HttpResponse(null, { status: 404 });
+
+    const view = viewCase(user, supervisionCase);
+    if (view.access === 'none') {
+      writeDb(
+        recordAudit(db, {
+          userId: user.id,
+          action: 'CaseOpened',
+          result: 'Denied',
+          supervisionCase,
+        }),
+      );
+      return new HttpResponse(null, { status: 403 });
+    }
+
+    writeDb(
+      recordAudit(db, {
+        userId: user.id,
+        action: 'CaseOpened',
+        result: 'Success',
+        supervisionCase,
+        details: { view: view.access },
+      }),
+    );
+    const caseWorker = db.users.find((candidate) => candidate.id === supervisionCase.assignedTo);
+    const body: CaseResponse = {
+      ...view,
+      assignedCaseWorker: caseWorker
+        ? {
+            id: caseWorker.id,
+            firstName: caseWorker.firstName,
+            surname: caseWorker.surname,
+            isActive: caseWorker.isActive,
+          }
+        : null,
+    };
+    return HttpResponse.json(body);
   }),
 ];

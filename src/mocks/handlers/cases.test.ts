@@ -1,14 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { supervisionCaseSchema } from '@/features/cases';
+import { caseResponseSchema, supervisionCaseSchema } from '@/features/cases';
 import { ApiError, apiRequest } from '@/shared/api/apiRequest';
+import { makeCase, makeCompany, makeHealthPersonnel } from '@/test/factories';
+import { storeCases } from '@/test/mockCases';
 import {
   actAs,
   INGRID_LEADER_DEPT_1,
   KARI_LEADER_DEPT_2,
   LARS_ADMIN,
+  seedUser,
   TINE_CASE_WORKER_DEPT_1,
 } from '@/test/mockUsers';
-import { readDb } from '../db';
+import { readDb, writeDb } from '../db';
 
 function postCase(body: unknown) {
   return apiRequest('/api/cases', {
@@ -113,5 +116,100 @@ describe('F-001 POST /api/cases', () => {
 
     await expect(postCase({ field: 'Space' })).rejects.toEqual(new ApiError(400, '/api/cases'));
     expect(readDb().cases).toEqual([]);
+  });
+});
+
+describe('F-002 GET /api/cases/:id', () => {
+  function getCase(id: string) {
+    return apiRequest(`/api/cases/${id}`, { schema: caseResponseSchema });
+  }
+
+  const tine = seedUser(TINE_CASE_WORKER_DEPT_1);
+  const caseInDepartment1 = makeCase({
+    departmentId: 1,
+    status: 'InProgress',
+    assignedTo: tine.id,
+    healthPersonnel: [makeHealthPersonnel()],
+    companies: [makeCompany()],
+  });
+
+  it.each([
+    ['the assigned case worker', TINE_CASE_WORKER_DEPT_1],
+    ['the leader of the department', INGRID_LEADER_DEPT_1],
+  ])('gives %s the full case and the case worker’s name', async (_label, email) => {
+    storeCases(caseInDepartment1);
+    actAs(email);
+
+    const response = await getCase(caseInDepartment1.id);
+
+    expect(response).toEqual({
+      access: 'full',
+      supervisionCase: caseInDepartment1,
+      assignedCaseWorker: { id: tine.id, firstName: 'Tine', surname: 'Tester', isActive: true },
+    });
+  });
+
+  it('gives Admin the restricted view, without health personnel or companies', async () => {
+    storeCases(caseInDepartment1);
+    actAs(LARS_ADMIN);
+
+    const response = await getCase(caseInDepartment1.id);
+
+    expect(response.access).toBe('restricted');
+    expect(response.supervisionCase).not.toHaveProperty('healthPersonnel');
+    expect(response.supervisionCase).not.toHaveProperty('companies');
+    expect(response.assignedCaseWorker?.surname).toBe('Tester');
+  });
+
+  it('logs "case opened" with Success and which view was given', async () => {
+    storeCases(caseInDepartment1);
+    const admin = actAs(LARS_ADMIN);
+
+    await getCase(caseInDepartment1.id);
+
+    expect(readDb().auditLog).toMatchObject([
+      {
+        userId: admin.id,
+        action: 'CaseOpened',
+        caseId: caseInDepartment1.id,
+        result: 'Success',
+        details: { view: 'restricted' },
+      },
+    ]);
+  });
+
+  it.each([
+    ['a case worker who is not assigned', 'magnus.berg@example.com'],
+    ['a leader of another department', KARI_LEADER_DEPT_2],
+  ])('refuses %s with 403 and logs Denied', async (_label, email) => {
+    storeCases(caseInDepartment1);
+    const user = actAs(email);
+
+    await expect(getCase(caseInDepartment1.id)).rejects.toEqual(
+      new ApiError(403, `/api/cases/${caseInDepartment1.id}`),
+    );
+    expect(readDb().auditLog).toMatchObject([
+      { userId: user.id, action: 'CaseOpened', caseId: caseInDepartment1.id, result: 'Denied' },
+    ]);
+  });
+
+  it('answers 404 for a case that does not exist', async () => {
+    const id = crypto.randomUUID();
+
+    await expect(getCase(id)).rejects.toEqual(new ApiError(404, `/api/cases/${id}`));
+  });
+
+  it('shows a deactivated case worker as inactive', async () => {
+    storeCases(caseInDepartment1);
+    const db = readDb();
+    writeDb({
+      ...db,
+      users: db.users.map((user) => (user.id === tine.id ? { ...user, isActive: false } : user)),
+    });
+    actAs(INGRID_LEADER_DEPT_1);
+
+    const response = await getCase(caseInDepartment1.id);
+
+    expect(response.assignedCaseWorker?.isActive).toBe(false);
   });
 });

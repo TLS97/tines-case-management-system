@@ -15,7 +15,8 @@ test('F-001 a leader creates a case and lands on its page', async ({ page }) => 
   await page.getByRole('button', { name: 'Create case' }).click();
 
   await expect(page).toHaveURL(/\/cases\/[0-9a-f-]{36}$/);
-  await expect(page.getByRole('heading', { level: 1, name: 'Case details' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /^Case \d{4}\/0001$/ })).toBeVisible();
+  await expect(page.getByText('Not assigned')).toBeVisible();
   const cases = await page.evaluate(() => {
     const db = JSON.parse(localStorage.getItem('sak.mockDb') ?? '{}') as {
       cases: { caseNumber: string; field: string; status: string }[];

@@ -56,7 +56,7 @@ describe('F-001 New case page', () => {
     await user.click(screen.getByRole('button', { name: 'Create case' }));
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Case details' }),
+      await screen.findByRole('heading', { level: 1, name: /^Case \d{4}\/0001$/ }),
     ).toBeInTheDocument();
     const [created] = readDb().cases;
     expect(created).toMatchObject({

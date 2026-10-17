@@ -1,9 +1,14 @@
-import { expect, expectNoAccessibilityViolations, gotoApp, test } from './fixtures';
+import {
+  expect,
+  expectNoAccessibilityViolations,
+  failedRequestLine,
+  gotoApp,
+  test,
+} from './fixtures';
 
 const PAGES = [
   { path: '/', title: 'Cases' },
   { path: '/cases/new', title: 'New case' },
-  { path: '/cases/3f2b8c1e-0000-4000-8000-000000000000', title: 'Case details' },
   { path: '/admin/users', title: 'Users' },
   { path: '/admin/audit', title: 'Audit log' },
   { path: '/does-not-exist', title: 'Page not found' },
@@ -18,6 +23,18 @@ for (const { path, title } of PAGES) {
     await expectNoAccessibilityViolations(page);
   });
 }
+
+test.describe('a case that does not exist', () => {
+  // The mock API answers 404, which the browser logs as a failed request.
+  test.use({ expectedConsoleErrors: [failedRequestLine(404)] });
+
+  test('shows "Case not found" with no accessibility violations', async ({ page }) => {
+    await gotoApp(page, '/cases/3f2b8c1e-0000-4000-8000-000000000000');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Case not found' })).toBeVisible();
+    await expectNoAccessibilityViolations(page);
+  });
+});
 
 test('main navigation moves between pages and focuses the new heading', async ({ page }) => {
   await gotoApp(page, '/');

@@ -2,7 +2,7 @@
 
 ## Layers
 Built so far: app shell, routes, the mock API with users, cases and the audit log, the current user, `can()`, and
-creating a case (F-001). Everything else is *(planned)*.
+creating a case (F-001) and the read-only case detail page (F-002). Everything else is *(planned)*.
 
 ```mermaid
 flowchart TD
@@ -26,7 +26,7 @@ flowchart TD
 |---|---|---|---|
 | `/` | Case overview (`CaseOverviewPage`) | F-003 | "New case" button for leaders; no table yet |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
-| `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Empty page |
+| `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin |
 | `/admin/users` | User admin: add, deactivate, change fields and department (`UsersPage`) | F-004 | Empty page |
 | `/admin/audit` | Global audit log (`AuditLogPage`) | F-005 | Empty page |
 | any other | Page not found (`NotFoundPage`) | – | Yes |
@@ -39,6 +39,7 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 |---|---|
 | `GET /api/current-user` | The user the app acts as |
 | `POST /api/cases` | Create a case, body `{ field }` (F-001); 403 and a Denied audit entry if not allowed |
+| `GET /api/cases/:id` | Open a case: full, or restricted for Admin (F-002, F-004); 403 + Denied entry without access; 404 if missing; logs "case opened" |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |

@@ -12,7 +12,10 @@
   `renderRoute(path)` renders the app at an address with the real routes and providers.
   `makeUser`, `makeCase`, `makeHealthPersonnel` and `makeCompany` (`src/test/factories.ts`) build valid fake data;
   every result is checked against its schema. `actAs(email)` (`src/test/mockUsers.ts`) makes the mock API act as a
-  seed user, like the user switcher.
+  seed user, like the user switcher. `storeCases(...)` (`src/test/mockCases.ts`) puts cases into the mock data.
+- The e2e console check fails on any error or warning. A test that expects one (for example the browser's
+  "Failed to load resource … 403" line when it opens a forbidden case) declares it with
+  `test.use({ expectedConsoleErrors: [failedRequestLine(403)] })`.
 - E2E tests: `tests/e2e/*.spec.ts`. Run with `npm run test:e2e`; the first time, run `npm run test:e2e:install` to download Chromium.
 
 ## Rules

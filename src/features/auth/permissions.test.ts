@@ -217,7 +217,21 @@ describe('F-004 permissions: view global audit log', () => {
   });
 });
 
-describe('F-004 permissions: add users, deactivate users, change fields and department', () => {
+describe('F-004 permissions: see the "Lent out" list', () => {
+  it('CaseWorker: never', () => {
+    expect(can(caseWorker, 'seeLentOutCases')).toBe(false);
+  });
+
+  it('Leader: yes, for their own case workers', () => {
+    expect(can(leader, 'seeLentOutCases')).toBe(true);
+  });
+
+  it('Admin: never', () => {
+    expect(can(admin, 'seeLentOutCases')).toBe(false);
+  });
+});
+
+describe('F-004 permissions: add, deactivate and reactivate users, change fields and department', () => {
   it('CaseWorker: never', () => {
     expect(can(caseWorker, 'manageUsers')).toBe(false);
   });

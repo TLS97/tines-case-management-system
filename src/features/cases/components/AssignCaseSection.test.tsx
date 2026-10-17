@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { readDb } from '@/mocks/db';
+import { readDb, writeDb } from '@/mocks/db';
 import { makeCase } from '@/test/factories';
 import { storeCases } from '@/test/mockCases';
 import {
@@ -29,22 +29,49 @@ async function openAsLeader(supervisionCase = unassigned) {
 }
 
 describe('F-004 Assign case (leader)', () => {
-  it('lists the eligible case workers', async () => {
+  it('lists the eligible case workers: own department first, then others to borrow', async () => {
     await openAsLeader();
 
     const select = await screen.findByLabelText<HTMLSelectElement>('Case worker');
-    const options = within(select)
-      .getAllByRole('option')
-      .map((option) => option.textContent);
+    const optionsIn = (group: HTMLElement) =>
+      within(group)
+        .getAllByRole('option')
+        .map((option) => option.textContent);
 
     expect(screen.getByRole('heading', { level: 2, name: 'Assign case' })).toBeInTheDocument();
-    expect(options).toEqual([
-      'Choose a case worker',
+    expect(
+      within(select)
+        .getAllByRole('group')
+        .map((group) => group.getAttribute('label')),
+    ).toEqual(['Your department', 'Other departments (borrow)']);
+    const [own, others] = within(select).getAllByRole('group');
+    expect(optionsIn(own as HTMLElement)).toEqual([
       'Tine Tester',
       'Magnus Berg',
       'Henrik Aasen',
       'Nora Strand',
     ]);
+    expect(optionsIn(others as HTMLElement)).toEqual([
+      'Maja Dahl (Department of Business Management)',
+      'Oskar Ruud (Department of Business Management)',
+      'Hanna Sæther (Department of Business Management)',
+    ]);
+  });
+
+  it('borrows a case worker from another department, shown with their home department', async () => {
+    const { user } = await openAsLeader();
+
+    await user.selectOptions(
+      await screen.findByLabelText('Case worker'),
+      'Maja Dahl (Department of Business Management)',
+    );
+    await user.click(screen.getByRole('button', { name: 'Assign' }));
+
+    expect(await screen.findByText('The case is assigned to Maja Dahl.')).toBeInTheDocument();
+    expect(summaryValue('Case worker')).toHaveTextContent(
+      'Maja Dahl, borrowed from the Department of Business Management',
+    );
+    expect(summaryValue('Department')).toHaveTextContent('Department of Supervision');
   });
 
   it('asks for a case worker before assigning', async () => {
@@ -95,14 +122,21 @@ describe('F-004 Assign case (leader)', () => {
   });
 
   it('says so when nobody can take the case', async () => {
-    // Department 1 has no case worker with Child services.
+    // Nobody in any department has Child services any more.
+    const db = readDb();
+    writeDb({
+      ...db,
+      users: db.users.map((u) =>
+        u.fields.includes('ChildServices') ? { ...u, isActive: false } : u,
+      ),
+    });
     await openAsLeader(
       makeCase({ caseNumber: '2026/0009', departmentId: 1, field: 'ChildServices' }),
     );
 
     expect(
       await screen.findByText(
-        'There are no active case workers in your department with access to the field Child services.',
+        'There are no active case workers with access to the field Child services.',
       ),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Assign' })).not.toBeInTheDocument();

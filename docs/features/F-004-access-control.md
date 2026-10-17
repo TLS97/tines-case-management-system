@@ -1,6 +1,6 @@
 # F-004 Access control
 
-**Status:** In progress
+**Status:** Done
 **Spec:** [SPEC.md](../../SPEC.md#f-004-access-control-approved-2026-10-17), permission table in [SPEC.md, Permissions](../../SPEC.md#permissions)
 
 ## What it does
@@ -11,8 +11,8 @@ cases with sensitive data hidden.
 ## Who can use it
 | Role | Can |
 |---|---|
-| CaseWorker | See, read and edit cases assigned to them (not when closed); close them when in progress; read cases they have been given read access to |
-| Leader | Create cases in own fields; see and read all cases in own department; assign and reassign, give and remove read access (not when closed); reopen closed cases; view the audit log per case |
+| CaseWorker | See, read and edit cases assigned to them (not when closed), also when borrowed by another department; close them when in progress; read cases they have been given read access to |
+| Leader | Create cases in own fields; see and read all cases in own department; assign and reassign, also to case workers borrowed from other departments, give and remove read access (not when closed); reopen closed cases; view the audit log per case; see which of their case workers are lent out |
 | Admin | See all cases and open them with sensitive data hidden; view the global audit log; add, deactivate and reactivate users, change their fields and department |
 
 A deactivated user may do nothing.
@@ -42,6 +42,7 @@ flowchart LR
 | `assignCase` | case | Assign / reassign case |
 | `manageReadAccess` | case | Give / remove read access |
 | `viewCaseAuditLog` | case | View audit log per case |
+| `seeLentOutCases` | – | No row; F-004 criterion: the "Lent out" list for the leader of the home department |
 | `viewGlobalAuditLog` | – | View global audit log |
 | `manageUsers` | – | Add users, deactivate and reactivate users, change fields and department |
 
@@ -58,8 +59,8 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
   rows without reactions (`GET /api/cases`, since T3.1).
 
 ## Assigning a case
-- `isEligibleCaseWorker(candidate, case)` (`features/cases/assignment.ts`): an active case worker in the case's
-  department with the case's field. Checked by the mock API and used for the list on the case page.
+- `isEligibleCaseWorker(candidate, case)` (`features/cases/assignment.ts`): an active case worker with the case's
+  field, from any department. Checked by the mock API and used for the list on the case page.
 - `GET /api/cases/:id/eligible-case-workers` lists them; `PUT /api/cases/:id/assignee` with `{ caseWorkerId }`
   assigns. Unassigned becomes Assigned; a reassigned case keeps its status. 403 + Denied entry if
   `can(user, 'assignCase', case)` says no (also for Closed cases); 400 for a case worker who is not eligible or
@@ -68,6 +69,22 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
   Unassigned becomes Assigned. A deactivated case worker can be replaced like any other.
 - The case page shows "Assign case" / "Reassign case" only to users `can()` lets assign, and does not offer the
   current case worker.
+
+## Borrowing a case worker
+- A case worker from another department is **borrowed** for a case (`isBorrowed`: their department is not the
+  case's). The leader can borrow the same case worker for any number of cases; the home department does not approve.
+- The **Case worker** list groups the candidates: "Your department", then "Other departments (borrow)", each with
+  their home department ("Maja Dahl (Department of Business Management)").
+- The case page shows "*name*, borrowed from the *home department*" as case worker. Every case worker summary from
+  the mock API includes `departmentId` for this.
+- The borrowed case worker works on the case like on their own cases (`can()` checks that the case is assigned to
+  them, not the department). Borrowing gives them nothing else in that department, such as read access.
+- Audit: "case assigned" also has `homeDepartmentId` for a borrowed case worker.
+- **Lent out:** the leader of the home department sees a short read-only list at the bottom of their Cases page:
+  their case workers' cases (not Closed) in other departments, with case number, department and case worker. No
+  links, as they cannot open those cases. `GET /api/lent-out-cases`, only for `can(user, 'seeLentOutCases')`
+  (leaders; 403 otherwise), not logged. Hidden when empty.
+- Moving a user (above) is not blocked by cases they are borrowed for.
 
 ## Reopening a case
 - A leader sees **Reopen case** on a closed case in their department (`can(user, 'reopenCase', case)`); the case
@@ -146,7 +163,7 @@ Checked separately: whether every party has a reaction before closing (`missingF
 | User admin: deactivate; leader notification for cases with a deactivated case worker | T3.5 | Done |
 | User admin: change fields and department (moving blocked while they have open cases in their department) | T3.6 | Done |
 | Reactivate a user | T3.9 | Done |
-| Borrow a case worker from another department; "Lent out" list for the home leader | T3.10 | *(planned)* |
+| Borrow a case worker from another department; "Lent out" list for the home leader | T3.10 | Done |
 | Navigation: Users and Audit log only for those allowed | T3.4 | Done |
 
 ## Data

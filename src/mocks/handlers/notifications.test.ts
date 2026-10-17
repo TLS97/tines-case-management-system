@@ -61,7 +61,13 @@ describe('F-004 GET /api/notifications', () => {
         type: 'DeactivatedCaseWorker',
         caseId: magnusCase.id,
         caseNumber: '2026/0010',
-        caseWorker: { id: magnus.id, firstName: 'Magnus', surname: 'Berg', isActive: false },
+        caseWorker: {
+          id: magnus.id,
+          firstName: 'Magnus',
+          surname: 'Berg',
+          isActive: false,
+          departmentId: 1,
+        },
       },
     ]);
   });

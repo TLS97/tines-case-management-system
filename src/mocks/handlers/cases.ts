@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { z } from 'zod';
 import { can, fieldSchema } from '@/features/auth';
 import {
+  isBorrowed,
   isEligibleCaseWorker,
   lastSequenceInYear,
   nextCaseNumber,
@@ -129,7 +130,7 @@ export const caseHandlers = [
     return HttpResponse.json(caseResponse(db, view));
   }),
 
-  // F-004: the case workers a leader can assign the case to.
+  // F-004: the case workers a leader can assign the case to, from their own and other departments.
   http.get('/api/cases/:id/eligible-case-workers', ({ params }) => {
     const db = readDb();
     const user = currentUser(db);
@@ -187,7 +188,12 @@ export const caseHandlers = [
       action: 'CaseAssigned',
       result: 'Success',
       supervisionCase: updated,
-      details: { previousCaseWorkerId: supervisionCase.assignedTo, newCaseWorkerId: caseWorker.id },
+      details: {
+        previousCaseWorkerId: supervisionCase.assignedTo,
+        newCaseWorkerId: caseWorker.id,
+        // SPEC.md F-005: a borrowed case worker's home department.
+        ...(isBorrowed(caseWorker, updated) && { homeDepartmentId: caseWorker.departmentId }),
+      },
     });
     if (updated.status !== supervisionCase.status) {
       next = recordAudit(next, {

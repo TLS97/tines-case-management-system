@@ -20,3 +20,16 @@ export const overviewRowSchema = z.discriminatedUnion('access', [
 ]);
 
 export type OverviewRow = z.infer<typeof overviewRowSchema>;
+
+/**
+ * F-004: a case in another department whose case worker is borrowed from the leader's department, for
+ * the read-only "Lent out" list. The home leader cannot open these cases, so there is no more than this.
+ */
+export const lentOutCaseSchema = z.object({
+  caseId: z.uuid(),
+  caseNumber: z.string(),
+  departmentId: departmentIdSchema,
+  caseWorker: caseWorkerSummarySchema,
+});
+
+export type LentOutCase = z.infer<typeof lentOutCaseSchema>;

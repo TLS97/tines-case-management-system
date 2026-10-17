@@ -150,7 +150,13 @@ describe('F-002 GET /api/cases/:id', () => {
     expect(response).toEqual({
       access: 'full',
       supervisionCase: caseInDepartment1,
-      assignedCaseWorker: { id: tine.id, firstName: 'Tine', surname: 'Tester', isActive: true },
+      assignedCaseWorker: {
+        id: tine.id,
+        firstName: 'Tine',
+        surname: 'Tester',
+        isActive: true,
+        departmentId: 1,
+      },
     });
   });
 
@@ -223,7 +229,8 @@ describe('F-004 assigning a case', () => {
   const ingrid = seedUser(INGRID_LEADER_DEPT_1);
   const magnus = seedUser('magnus.berg@example.com'); // CaseWorker, dept 1, Health + Social
   const sofie = seedUser('sofie.lunde@example.com'); // CaseWorker, dept 1, Social only
-  const emil = seedUser('emil.haugen@example.com'); // CaseWorker, dept 2
+  const emil = seedUser('emil.haugen@example.com'); // CaseWorker, dept 2, Child services only
+  const maja = seedUser('maja.dahl@example.com'); // CaseWorker, dept 3, Health
   const tine = seedUser(TINE_CASE_WORKER_DEPT_1); // CaseWorker, dept 1, Health
 
   function assign(caseId: string, caseWorkerId: string) {
@@ -243,14 +250,23 @@ describe('F-004 assigning a case', () => {
 
   const unassignedHealthCase = makeCase({ departmentId: 1, field: 'Health' });
 
-  it('lists the active case workers in the department with the case’s field', async () => {
+  it('lists the active case workers with the case’s field, from every department', async () => {
     storeCases(unassignedHealthCase);
     actAs(INGRID_LEADER_DEPT_1);
 
-    const names = (await eligibleFor(unassignedHealthCase.id)).map((u) => u.firstName).sort();
+    const eligible = await eligibleFor(unassignedHealthCase.id);
 
-    // Department 1 case workers with Health: Tine, Magnus, Henrik, Nora (not Sofie: Social only).
-    expect(names).toEqual(['Henrik', 'Magnus', 'Nora', 'Tine']);
+    // Case workers with Health: Tine, Magnus, Henrik, Nora in department 1 (not Sofie: Social only),
+    // and Maja, Oskar, Hanna in department 3 to borrow. Department 2 has nobody with Health.
+    expect(eligible.map((u) => `${u.firstName} ${u.departmentId}`).sort()).toEqual([
+      'Hanna 3',
+      'Henrik 1',
+      'Magnus 1',
+      'Maja 3',
+      'Nora 1',
+      'Oskar 3',
+      'Tine 1',
+    ]);
   });
 
   it('assigns an Unassigned case: status becomes Assigned, both are logged', async () => {
@@ -276,6 +292,50 @@ describe('F-004 assigning a case', () => {
         details: { from: 'Unassigned', to: 'Assigned' },
       },
     ]);
+  });
+
+  it('borrows a case worker from another department: logged with their home department', async () => {
+    storeCases(unassignedHealthCase);
+    actAs(INGRID_LEADER_DEPT_1);
+
+    const response = await assign(unassignedHealthCase.id, maja.id);
+
+    expect(response.supervisionCase).toMatchObject({
+      assignedTo: maja.id,
+      status: 'Assigned',
+      departmentId: 1,
+    });
+    expect(response.assignedCaseWorker).toMatchObject({ firstName: 'Maja', departmentId: 3 });
+    expect(readDb().auditLog[0]).toMatchObject({
+      action: 'CaseAssigned',
+      result: 'Success',
+      details: { previousCaseWorkerId: null, newCaseWorkerId: maja.id, homeDepartmentId: 3 },
+    });
+  });
+
+  it('logs no home department for a case worker from the case’s own department', async () => {
+    storeCases(unassignedHealthCase);
+    actAs(INGRID_LEADER_DEPT_1);
+
+    await assign(unassignedHealthCase.id, magnus.id);
+
+    expect(readDb().auditLog[0]?.details).not.toHaveProperty('homeDepartmentId');
+  });
+
+  it('lets a borrowed case worker work on the case, and gives them nothing else there', async () => {
+    const otherCase = makeCase({ caseNumber: '2026/0050', departmentId: 1, field: 'Health' });
+    storeCases(unassignedHealthCase, otherCase);
+    actAs(INGRID_LEADER_DEPT_1);
+    await assign(unassignedHealthCase.id, maja.id);
+    actAs('maja.dahl@example.com');
+
+    const opened = await apiRequest(`/api/cases/${unassignedHealthCase.id}`, {
+      schema: caseResponseSchema,
+    });
+    expect(opened.access).toBe('full');
+    await expect(
+      apiRequest(`/api/cases/${otherCase.id}`, { schema: caseResponseSchema }),
+    ).rejects.toEqual(new ApiError(403, `/api/cases/${otherCase.id}`));
   });
 
   it('reassigns an InProgress case without changing the status', async () => {
@@ -321,7 +381,7 @@ describe('F-004 assigning a case', () => {
 
   it.each([
     ['a case worker without the case’s field', () => sofie.id],
-    ['a case worker in another department', () => emil.id],
+    ['a case worker in another department without the case’s field', () => emil.id],
     ['a leader', () => ingrid.id],
     ['an unknown user', () => crypto.randomUUID()],
   ])('rejects %s with 400 and changes nothing', async (_label, candidateId) => {

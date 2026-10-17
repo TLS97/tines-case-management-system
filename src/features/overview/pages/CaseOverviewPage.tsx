@@ -1,13 +1,14 @@
 import { Button, Paragraph, Spinner } from '@digdir/designsystemet-react';
 import { useQuery } from '@tanstack/react-query';
 import { Link as RouterLink, useSearchParams } from 'react-router';
-import { useCurrentUser } from '@/features/auth';
+import { can, useCurrentUser } from '@/features/auth';
 import { canCreateCases } from '@/features/cases';
 import { DeactivatedCaseWorkerNotice } from '@/features/notifications';
 import { Page } from '@/shared/components/Page';
 import { caseOverviewQuery } from '../api';
 import { CaseOverviewFilters } from '../components/CaseOverviewFilters';
 import { CaseOverviewTable } from '../components/CaseOverviewTable';
+import { LentOutCases } from '../components/LentOutCases';
 import { FILTER_KEYS, filterRows, hasFilters, parseFilters } from '../filters';
 
 // F-003 case overview: each role sees the cases the permission table allows, filtered by field,
@@ -87,6 +88,8 @@ export function CaseOverviewPage() {
           )}
         </>
       )}
+      {/* F-004: the leader's case workers who are borrowed for cases in other departments. */}
+      {can(user, 'seeLentOutCases') && <LentOutCases />}
     </Page>
   );
 }

@@ -1,4 +1,5 @@
 import { DEPARTMENT_NAMES, FIELD_LABELS } from '@/features/auth';
+import { isBorrowed } from '../assignment';
 import { caseWorkerDisplayName, type CaseWorkerSummary } from '../caseResponse';
 import { CASE_STATUS_LABELS } from '../labels';
 import type { RestrictedSupervisionCase } from '../restrictedView';
@@ -22,7 +23,13 @@ export function CaseSummary({ supervisionCase, assignedCaseWorker }: CaseSummary
       <dt>Department</dt>
       <dd>{DEPARTMENT_NAMES[supervisionCase.departmentId]}</dd>
       <dt>Case worker</dt>
-      <dd>{caseWorkerDisplayName(assignedCaseWorker)}</dd>
+      <dd>
+        {caseWorkerDisplayName(assignedCaseWorker)}
+        {/* F-004: a borrowed case worker's home department. */}
+        {assignedCaseWorker &&
+          isBorrowed(assignedCaseWorker, supervisionCase) &&
+          `, borrowed from the ${DEPARTMENT_NAMES[assignedCaseWorker.departmentId]}`}
+      </dd>
     </dl>
   );
 }

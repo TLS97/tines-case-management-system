@@ -26,7 +26,7 @@ flowchart TD
 ## Routes
 | Route | Page | Feature | Built |
 |---|---|---|---|
-| `/` | Case overview (`CaseOverviewPage`) | F-003 | Table per role; "New case" for leaders; filters *(planned, T3.2)* |
+| `/` | Case overview (`CaseOverviewPage`), filters in the address (`?field=&status=&reaction=`) | F-003 | Yes |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
 | `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin, assign and reassign |
 | `/admin/users` | User admin: add, deactivate, change fields and department (`UsersPage`) | F-004 | Empty page |

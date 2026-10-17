@@ -1,0 +1,20 @@
+.filters {
+  width: 100%;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--ds-size-4) var(--ds-size-6);
+}
+
+.filter {
+  display: grid;
+  gap: var(--ds-size-2);
+}
+
+.tableScroll {
+  width: 100%;
+  overflow-x: auto;
+}

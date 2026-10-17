@@ -134,3 +134,83 @@ describe('F-003 case overview', () => {
     ]);
   });
 });
+
+describe('F-003 filters', () => {
+  const closedHealthCase = makeCase({
+    caseNumber: '2026/0004',
+    departmentId: 1,
+    status: 'Closed',
+    assignedTo: tine.id,
+    companies: [makeCompany({ reaction: 'NoReaction' })],
+  });
+
+  async function openWithFilters(email: string, path = '/') {
+    storeCases(tinesCase, magnusCase, unassignedCase, closedHealthCase);
+    actAs(email);
+    const rendered = renderRoute(path);
+    await screen.findByRole('table');
+    return rendered;
+  }
+
+  const caseNumbers = () =>
+    within(screen.getByRole('table'))
+      .getAllByRole('link')
+      .map((link) => link.textContent);
+
+  it('filters by field, status and reaction, and combines them', async () => {
+    const { user, router } = await openWithFilters(INGRID_LEADER_DEPT_1);
+
+    await user.selectOptions(screen.getByLabelText('Field'), 'Health');
+    expect(caseNumbers()).toEqual(['2026/0004', '2026/0003', '2026/0002']);
+
+    await user.selectOptions(screen.getByLabelText('Status'), 'Closed');
+    expect(caseNumbers()).toEqual(['2026/0004']);
+    expect(screen.getByText('Showing 1 of 4 cases.')).toBeInTheDocument();
+    expect(router.state.location.search).toBe('?field=Health&status=Closed');
+
+    await user.selectOptions(screen.getByLabelText('Status'), 'All statuses');
+    await user.selectOptions(screen.getByLabelText('Field'), 'All fields');
+    await user.selectOptions(screen.getByLabelText('Reaction'), 'Self-assessment');
+    expect(caseNumbers()).toEqual(['2026/0001']);
+  });
+
+  it('matches a reaction given to any party in the case', async () => {
+    const { user } = await openWithFilters(INGRID_LEADER_DEPT_1);
+
+    // 2026/0001: health personnel Restriction of practice, company Self-assessment.
+    await user.selectOptions(screen.getByLabelText('Reaction'), 'Restriction of practice');
+
+    expect(caseNumbers()).toEqual(['2026/0001']);
+  });
+
+  it('says when no case matches, and clears all filters', async () => {
+    const { user, router } = await openWithFilters(INGRID_LEADER_DEPT_1);
+
+    await user.selectOptions(screen.getByLabelText('Field'), 'Child services');
+
+    expect(screen.getByText('No cases match the filters.')).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }));
+
+    expect(caseNumbers()).toHaveLength(4);
+    expect(router.state.location.search).toBe('');
+    expect(screen.getByLabelText('Field')).toHaveValue('');
+    expect(screen.queryByRole('button', { name: 'Clear filters' })).not.toBeInTheDocument();
+  });
+
+  it('reads the filters from the address, so they survive a reload', async () => {
+    await openWithFilters(INGRID_LEADER_DEPT_1, '/?status=InProgress&field=Social');
+
+    expect(caseNumbers()).toEqual(['2026/0001']);
+    expect(screen.getByLabelText('Status')).toHaveValue('InProgress');
+    expect(screen.getByLabelText('Field')).toHaveValue('Social');
+  });
+
+  it('gives Admin no reaction filter, and ignores one in the address', async () => {
+    await openWithFilters(LARS_ADMIN, '/?reaction=Prohibition');
+
+    expect(screen.queryByLabelText('Reaction')).not.toBeInTheDocument();
+    expect(caseNumbers()).toHaveLength(4);
+  });
+});

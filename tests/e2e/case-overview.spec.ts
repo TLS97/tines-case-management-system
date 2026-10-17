@@ -72,3 +72,40 @@ test('F-003 Admin sees every case without reactions', async ({ page }) => {
   await expect(table).not.toContainText('Prohibition');
   await expectNoAccessibilityViolations(page);
 });
+
+test('F-003 filters narrow the list, survive a reload and can be cleared', async ({ page }) => {
+  await seedAndActAs(page, 'Ingrid Halvorsen – Leader');
+  const table = page.getByRole('table');
+
+  await page.getByLabel('Field', { exact: true }).selectOption({ label: 'Health' });
+  await page.getByLabel('Reaction', { exact: true }).selectOption({ label: 'Prohibition' });
+  await expect(page.getByText('Showing 1 of 2 cases.')).toBeVisible();
+  await expect(table.getByRole('link')).toHaveText(['2026/0001']);
+  await expectNoAccessibilityViolations(page);
+
+  await page.reload();
+  await expect(page.getByRole('table').getByRole('link')).toHaveText(['2026/0001']);
+  await expect(page.getByLabel('Reaction', { exact: true })).toHaveValue('Prohibition');
+
+  await page.getByLabel('Status', { exact: true }).selectOption({ label: 'Closed' });
+  await expect(page.getByText('No cases match the filters.')).toBeVisible();
+  await page.getByRole('button', { name: 'Clear filters' }).click();
+  await expect(page.getByRole('table').getByRole('link')).toHaveCount(2);
+});
+
+test('F-003 on a phone the table scrolls inside the page, with no accessibility violations', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await seedAndActAs(page, 'Ingrid Halvorsen – Leader');
+
+  const region = page.getByRole('region', { name: 'Cases table' });
+  const sizes = await region.evaluate((element) => ({
+    scrollWidth: element.scrollWidth,
+    clientWidth: element.clientWidth,
+    right: element.getBoundingClientRect().right,
+  }));
+  expect(sizes.scrollWidth).toBeGreaterThan(sizes.clientWidth); // the table scrolls in its region
+  expect(sizes.right).toBeLessThanOrEqual(390); // and the region itself fits on the screen
+  await expectNoAccessibilityViolations(page);
+});

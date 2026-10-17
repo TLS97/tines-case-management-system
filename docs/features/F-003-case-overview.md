@@ -12,7 +12,7 @@ case worker and reactions. The case number opens the case. Filters narrow the li
 |---|---|
 | CaseWorker | Cases assigned to them and cases they have read access to |
 | Leader | Every case in their department |
-| Admin | Every case, without reactions (restricted rows, F-004) |
+| Admin | Every case, with its department and without reactions (restricted rows, F-004) |
 
 ## How it works
 ```mermaid
@@ -28,7 +28,8 @@ flowchart LR
 - Rows (`overviewRowSchema`, `features/overview/types.ts`): id, case number, field, status, department, assigned
   case worker (name, deactivated), and for full rows the reactions given in the case (`reactionsInCase`, each once).
   Restricted rows are strict: a row that still has reactions is rejected.
-- The reactions column is left out when no row has reactions (Admin).
+- The reactions column is left out when no row has reactions (Admin). Instead, Admin gets a **Department** column
+  after the case number, as they see cases from every department.
 - Sorted newest first by case number (year, then sequence, also past 9999).
 - Listing cases is not logged as "case opened"; only opening a case is.
 - The query is under `['cases']`, so creating a case refreshes the overview.
@@ -48,6 +49,7 @@ flowchart LR
 |---|---|---|
 | Overview table per role | T3.1 | Done |
 | Filters: field, status, reaction; combine and clear; empty message | T3.2 | Done |
+| Department column for Admin (Tine, after T3.9) | – | Done |
 
 ## Data
 `GET /api/cases` (mock, `handlers/cases.ts`), `caseOverviewQuery`, `OverviewRow`, `reactionsInCase`, `REACTION_LABELS`.

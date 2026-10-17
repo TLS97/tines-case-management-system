@@ -81,10 +81,20 @@ describe('F-003 case overview', () => {
     expect(within(table).getByText('1 case')).toBeInTheDocument();
   });
 
-  it('shows Admin every case without the reactions column', async () => {
+  it('shows Admin every case with its department and without the reactions column', async () => {
+    storeCases(makeCase({ caseNumber: '2026/0004', departmentId: 2, field: 'ChildServices' }));
     const { table } = await openOverviewAs(LARS_ADMIN);
 
-    expect(rowTexts(table)).toHaveLength(3);
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((header) => header.textContent),
+    ).toEqual(['Case number', 'Department', 'Field', 'Status', 'Case worker']);
+    expect(rowTexts(table).slice(0, 2)).toEqual([
+      ['2026/0004', 'Department of Child Welfare', 'Child services', 'Unassigned', 'Not assigned'],
+      ['2026/0003', 'Department of Supervision', 'Health', 'Unassigned', 'Not assigned'],
+    ]);
+    expect(rowTexts(table)).toHaveLength(4);
     expect(
       within(table).queryByRole('columnheader', { name: 'Reactions' }),
     ).not.toBeInTheDocument();

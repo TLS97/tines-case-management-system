@@ -63,12 +63,15 @@ test('F-003 a leader sees the department’s cases and opens one', async ({ page
   await expect(page.getByRole('heading', { level: 1, name: 'Case 2026/0002' })).toBeVisible();
 });
 
-test('F-003 Admin sees every case without reactions', async ({ page }) => {
+test('F-003 Admin sees every case with its department, without reactions', async ({ page }) => {
   await seedAndActAs(page, 'Lars Johansen – Admin');
   const table = page.getByRole('table');
 
   await expect(table.getByText('2 cases')).toBeVisible();
   await expect(table.getByRole('columnheader', { name: 'Reactions' })).toHaveCount(0);
+  await expect(table.getByRole('row', { name: /2026\/0001/ })).toContainText(
+    'Department of Supervision',
+  );
   await expect(table).not.toContainText('Prohibition');
   await expectNoAccessibilityViolations(page);
 });

@@ -19,12 +19,22 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ds-size-4);
+  max-width: 100%;
 }
 
+/* The select is as wide as its longest option. On phones the label moves above it, and it never
+   gets wider than the screen, so the whole page doesn't scroll sideways. */
 .switcher {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--ds-size-2);
+  max-width: 100%;
+}
+
+.switcher select {
+  min-width: min(100%, 16rem);
+  max-width: 100%;
 }
 
 .switcher label {

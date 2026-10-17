@@ -33,3 +33,16 @@ test('Reset mock data switches back to Tine Tester', async ({ page }) => {
 
   await expect(switcher.locator('option:checked')).toHaveText('Tine Tester – Case worker');
 });
+
+test('the user switcher fits on a small phone, so the page does not scroll sideways', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await gotoApp(page, '/');
+
+  const switcher = page.getByLabel('Acting as');
+  const box = await switcher.boundingBox();
+  expect(box && box.x + box.width).toBeLessThanOrEqual(320);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320);
+  await expectNoAccessibilityViolations(page);
+});

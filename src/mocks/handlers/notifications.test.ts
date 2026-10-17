@@ -99,4 +99,17 @@ describe('F-004 GET /api/notifications', () => {
 
     expect(await notifications()).toEqual([]);
   });
+
+  it('disappears when Admin reactivates the case worker', async () => {
+    storeCases(magnusCase);
+    deactivateMagnus();
+    actAs(LARS_ADMIN);
+    await apiRequest(`/api/users/${magnus.id}/reactivate`, {
+      method: 'POST',
+      schema: z.unknown(),
+    });
+    actAs(INGRID_LEADER_DEPT_1);
+
+    expect(await notifications()).toEqual([]);
+  });
 });

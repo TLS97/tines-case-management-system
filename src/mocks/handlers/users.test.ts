@@ -168,3 +168,53 @@ describe('F-004 POST /api/users/:id/deactivate', () => {
     ]);
   });
 });
+
+describe('F-004 POST /api/users/:id/reactivate', () => {
+  const reactivate = (id: string) =>
+    apiRequest(`/api/users/${id}/reactivate`, { method: 'POST', schema: userSchema });
+  const deactivate = (id: string) =>
+    apiRequest(`/api/users/${id}/deactivate`, { method: 'POST', schema: userSchema });
+  const magnusId = () =>
+    readDb().users.find((u) => u.email === 'magnus.berg@example.com')?.id ?? '';
+
+  it('reactivates a deactivated user, logged as "user updated"', async () => {
+    const admin = actAs(LARS_ADMIN);
+    await deactivate(magnusId());
+
+    const updated = await reactivate(magnusId());
+
+    expect(updated.isActive).toBe(true);
+    expect(readDb().users.find((u) => u.id === magnusId())?.isActive).toBe(true);
+    expect(readDb().auditLog.at(-1)).toMatchObject({
+      userId: admin.id,
+      action: 'UserUpdated',
+      result: 'Success',
+      details: { updatedUserId: magnusId(), isActive: true },
+    });
+  });
+
+  it('rejects reactivating a user who is already active (400)', async () => {
+    actAs(LARS_ADMIN);
+
+    await expect(reactivate(magnusId())).rejects.toEqual(
+      new ApiError(400, `/api/users/${magnusId()}/reactivate`),
+    );
+  });
+
+  it('refuses a leader with 403 and logs Denied', async () => {
+    actAs(LARS_ADMIN);
+    await deactivate(magnusId());
+    const leader = actAs(INGRID_LEADER_DEPT_1);
+
+    await expect(reactivate(magnusId())).rejects.toEqual(
+      new ApiError(403, `/api/users/${magnusId()}/reactivate`),
+    );
+    expect(readDb().users.find((u) => u.id === magnusId())?.isActive).toBe(false);
+    expect(readDb().auditLog.at(-1)).toMatchObject({
+      userId: leader.id,
+      action: 'UserUpdated',
+      result: 'Denied',
+      details: { isActive: true },
+    });
+  });
+});

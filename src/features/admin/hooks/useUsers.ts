@@ -6,6 +6,7 @@ import {
   changeUserFields,
   deactivateUser,
   moveUser,
+  reactivateUser,
   usersQuery,
 } from '../api';
 
@@ -32,9 +33,18 @@ export function useAddUser() {
  * button's own success callback (closing the dialog, the confirmation) must run before it disappears.
  */
 export function useDeactivateUser() {
+  return useActivationMutation(deactivateUser);
+}
+
+/** Reactivates a user; refreshed like {@link useDeactivateUser}, as the Reactivate button disappears too. */
+export function useReactivateUser() {
+  return useActivationMutation(reactivateUser);
+}
+
+function useActivationMutation(mutationFn: typeof deactivateUser) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deactivateUser,
+    mutationFn,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: usersQuery.queryKey });
       void queryClient.invalidateQueries({ queryKey: ['mock', 'users'] });

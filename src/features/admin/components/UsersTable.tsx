@@ -9,6 +9,7 @@ import {
 } from '@digdir/designsystemet-react';
 import { DEPARTMENT_NAMES, FIELD_LABELS, ROLE_LABELS, type User } from '@/features/auth';
 import { DeactivateUserButton } from './DeactivateUserButton';
+import { ReactivateUserButton } from './ReactivateUserButton';
 import styles from './UserAdmin.module.css';
 
 interface UsersTableProps {
@@ -16,11 +17,20 @@ interface UsersTableProps {
   /** The admin using the page, who cannot deactivate themselves. */
   currentUserId: string;
   onDeactivated: (user: User) => void;
+  onReactivated: (user: User) => void;
+  onReactivateFailed: (user: User, error: Error) => void;
   onEdit: (user: User) => void;
 }
 
 // F-004: every user, sorted by department, then surname and first name.
-export function UsersTable({ users, currentUserId, onDeactivated, onEdit }: UsersTableProps) {
+export function UsersTable({
+  users,
+  currentUserId,
+  onDeactivated,
+  onReactivated,
+  onReactivateFailed,
+  onEdit,
+}: UsersTableProps) {
   const sorted = [...users].sort(
     (a, b) =>
       a.departmentId - b.departmentId ||
@@ -76,6 +86,13 @@ export function UsersTable({ users, currentUserId, onDeactivated, onEdit }: User
                   </Button>
                   {user.isActive && user.id !== currentUserId && (
                     <DeactivateUserButton user={user} onDeactivated={onDeactivated} />
+                  )}
+                  {!user.isActive && (
+                    <ReactivateUserButton
+                      user={user}
+                      onReactivated={onReactivated}
+                      onFailed={onReactivateFailed}
+                    />
                   )}
                 </div>
               </TableCell>

@@ -1,3 +1,6 @@
+export { currentUserQuery } from './api';
+export { useCurrentUser } from './hooks/useCurrentUser';
+export { FIELD_LABELS, ROLE_LABELS } from './labels';
 export {
   DEPARTMENT_IDS,
   DEPARTMENT_NAMES,

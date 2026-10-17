@@ -17,6 +17,11 @@ if (typeof HTMLDialogElement.prototype.close !== 'function') {
   };
 }
 
+// jsdom has no Web Animations API; Designsystemet's Spinner uses it to keep spinners in sync.
+if (typeof document.getAnimations !== 'function') {
+  document.getAnimations = () => [];
+}
+
 // Tests use the same MSW mock API as the app (docs/conventions/testing.md).
 // Any request to a path without a handler fails the test.
 beforeAll(() => {

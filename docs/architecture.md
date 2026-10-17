@@ -1,7 +1,7 @@
 # Architecture *(update as built)*
 
 ## Layers
-Built so far: app shell, routes, empty pages and the mock API with users. Everything else is *(planned)*.
+Built so far: app shell, routes, empty pages, the mock API with users, and the current user. Everything else is *(planned)*.
 
 ```mermaid
 flowchart TD
@@ -31,13 +31,21 @@ flowchart TD
 
 The main navigation links to Cases, Users and Audit log. Hiding links by role comes with `can()` (F-004).
 `/cases/new` gets its "New case" button on the overview with F-001.
-A mock-only **Test environment** bar above the header holds **Reset mock data** and *(planned, T0.6)* the user switcher.
+A mock-only **Test environment** bar above the header holds the user switcher ("Acting as") and **Reset mock data**.
 
 ## Mock API
 | Endpoint | What it does |
 |---|---|
+| `GET /api/current-user` | The user the app acts as |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
+| `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |
+
+## Current user
+`useCurrentUser()` (from `@/features/auth`) returns the user the app acts as. It always returns a user:
+while it loads, the `<Suspense>` around every page in `AppLayout` shows a spinner. The current user is
+stored by the mock API (in `localStorage`), so the choice survives a reload, and the mock API can use it
+for permission checks. Switching user or resetting the mock data refetches all data.
 
 Permission-checked endpoints for cases and users come with their features. All calls go through
 `apiRequest` (`shared/api/apiRequest.ts`), which checks responses with a Zod schema.

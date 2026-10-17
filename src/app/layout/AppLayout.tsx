@@ -1,5 +1,5 @@
-import { SkipLink } from '@digdir/designsystemet-react';
-import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { SkipLink, Spinner } from '@digdir/designsystemet-react';
+import { Suspense, useEffect, useRef, type ReactNode, type RefObject } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { MockToolbar } from '../mock-tools/MockToolbar';
 import { AppHeader } from './AppHeader';
@@ -22,7 +22,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       <MockToolbar />
       <AppHeader />
       <main id={MAIN_CONTENT_ID} ref={mainRef} tabIndex={-1} className={styles.main}>
-        {children ?? <Outlet />}
+        {/* Pages that need data (for example the current user) wait here while it loads. */}
+        <Suspense fallback={<Spinner aria-label="Loading" />}>{children ?? <Outlet />}</Suspense>
       </main>
     </>
   );

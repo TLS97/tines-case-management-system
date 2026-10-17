@@ -1,3 +1,4 @@
+import { currentUserHandlers } from './currentUser';
 import { mockToolHandlers } from './mockTools';
 
-export const handlers = [...mockToolHandlers];
+export const handlers = [...currentUserHandlers, ...mockToolHandlers];

@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 5173;
+// Own port, so the tests never reuse (or collide with) a dev server you have running on 5173.
+const PORT = 5174;
 const isCI = Boolean(process.env.CI);
 
 export default defineConfig({

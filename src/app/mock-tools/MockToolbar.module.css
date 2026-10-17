@@ -21,6 +21,16 @@
   gap: var(--ds-size-4);
 }
 
+.switcher {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+}
+
+.switcher label {
+  white-space: nowrap;
+}
+
 .dialogContent {
   display: grid;
   gap: var(--ds-size-4);

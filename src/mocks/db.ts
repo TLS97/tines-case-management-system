@@ -1,21 +1,28 @@
 import { z } from 'zod';
 import { userSchema } from '@/features/auth';
-import { SEED_USERS } from './seed/users';
+import { DEFAULT_USER_ID, SEED_USERS } from './seed/users';
 
 // The mock API's data, saved in localStorage so it survives a reload (decision 0002).
 // Later tasks add cases and the audit log as new collections and bump the version.
 
 export const MOCK_DB_STORAGE_KEY = 'sak.mockDb';
 
-const mockDbSchema = z.object({
-  version: z.literal(1),
-  users: z.array(userSchema),
-});
+const mockDbSchema = z
+  .object({
+    version: z.literal(2),
+    users: z.array(userSchema),
+    // The user the app acts as; changed with the user switcher (mock only).
+    currentUserId: z.uuid(),
+  })
+  .refine((db) => db.users.some((user) => user.id === db.currentUserId), {
+    message: 'currentUserId must belong to a user',
+    path: ['currentUserId'],
+  });
 
 export type MockDb = z.infer<typeof mockDbSchema>;
 
 function createSeedDb(): MockDb {
-  return { version: 1, users: structuredClone([...SEED_USERS]) };
+  return { version: 2, users: structuredClone([...SEED_USERS]), currentUserId: DEFAULT_USER_ID };
 }
 
 export function writeDb(db: MockDb): void {

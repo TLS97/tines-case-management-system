@@ -1,4 +1,3 @@
-<!-- Copy to .github/pull_request_template.md in Phase 0 -->
 ## Task
 T<phase>.<n> (BUILD_PLAN.md), feature F-xxx: <name>. Phase 0 tasks have no feature.
 

@@ -8,8 +8,7 @@
 - PR checklist: lint, typecheck, tests green; SPEC.md updated if behaviour changed;
   docs updated per `documentation.md`.
 - Squash merge, done by Tine. Claude never merges.
-- Use the PR template (`.github/pull_request_template.md`, draft in
-  `docs/templates/pull_request_template.md`). **Assumptions** and **Spec changes** are required.
+- Use the PR template (`.github/pull_request_template.md`). **Assumptions** and **Spec changes** are required.
 - UI changes include screenshots.
 
 ## GitHub accounts
@@ -23,9 +22,16 @@
 ## Branch protection on `main` (set up in T0.8)
 Needs a public repository, or GitHub Pro for a private one (GitHub Free only protects branches in public repositories).
 - Pull request required, 1 approval (Tine)
-- All CI checks must pass; branch must be up to date
+- Required status checks: **Checks**, **E2E** and **Audit** (the jobs in `.github/workflows/ci.yml`); branch must be up to date
 - No force pushes, no deletion
 - Applies to admins too
+
+## Dependabot
+- Weekly on Mondays (`.github/dependabot.yml`): one PR for minor and patch updates, one per major update,
+  one for the `@digdir/*` packages together, and one for GitHub Actions.
+- Major updates of TypeScript, ESLint and `@types/node` are ignored on purpose (decision 0006).
+- Dependabot PRs go through CI and Tine's review like any other PR. After a Designsystemet update,
+  bump the generator version in the `tokens` script and run it (decision 0007).
 
 ## Who does what
 | Step | Who |
@@ -34,3 +40,4 @@ Needs a public repository, or GitHub Pro for a private one (GitHub Free only pro
 | Branch, code, tests, docs, open PR | Claude |
 | Review, request changes, approve, merge | Tine |
 | Fix review comments on the same branch | Claude |
+| Review and merge Dependabot PRs | Tine |

@@ -21,6 +21,10 @@ The app handles information about health personnel and supervision cases. Treat 
   a future backend must enforce the same rules.
 - Every action listed under F-005 Audit log in SPEC.md writes an audit entry.
 
+## CI
+- GitHub Actions are pinned to full commit ids, not tags, so a moved tag cannot change what runs. Dependabot updates them.
+- The workflow only has read access to the repository (`permissions: contents: read`), and checkout does not keep the token.
+
 ## Dependencies
 - Ask before adding a package, and add a decision file explaining why.
 - Prefer well-maintained packages with many users; avoid packages for trivial helpers.

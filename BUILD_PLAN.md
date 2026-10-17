@@ -19,8 +19,8 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
       replace the draft README.md with a real project README
 - [x] **T0.5** Mock API layer (MSW) with data saved in `localStorage`, the seed users from SPEC.md and **Reset mock data**
 - [x] **T0.6** Current-user context and the user switcher in the header (mock only)
-- [ ] **T0.7** CI as described in `docs/conventions/testing.md` (lint, types, tests, e2e + axe, build, audit), Dependabot,
-      PR template, `.claude/settings.json` from `docs/templates/claude-settings.json`
+- [x] **T0.7** CI as described in `docs/conventions/testing.md` (lint, types, tests, e2e + axe, build, audit), Dependabot,
+      PR template, `.claude/settings.json` (from the former `docs/templates/`)
 - [ ] **T0.8** *(Tine)* GitHub: branch protection on `main` and the Claude GitHub account, per `docs/conventions/git-workflow.md`
 - **Done when:** `npm run dev` shows the themed shell, the user switcher works and survives a reload, CI runs all checks, `main` is protected
 

@@ -29,13 +29,16 @@
   Before any feature code exists there is nothing to measure, and the check passes.
 - Browsers: Chromium only for now. Add Firefox and WebKit in `playwright.config.ts` before release.
 
-## CI (runs on every PR)
-1. `npm ci` (lockfile must match)
-2. `npm run lint`, `npm run typecheck` and `npm run format:check`
-3. `npm run test -- --coverage` (fails under threshold)
-4. `npm run test:e2e` (incl. axe checks)
-5. `npm run build`
-6. `npm audit --audit-level=high`
+## CI (runs on every PR and on pushes to main)
+GitHub Actions, `.github/workflows/ci.yml`. Three jobs run in parallel; each is a required check on `main`.
+
+| Job | Steps |
+|---|---|
+| **Checks** | `npm ci` (lockfile must match), `npm run lint`, `npm run typecheck`, `npm run format:check`, `npm run test -- --coverage` (fails under threshold), `npm run build` |
+| **E2E** | `npm ci`, install Chromium, `npm run test:e2e` (incl. axe and console checks); the Playwright report is uploaded when it fails |
+| **Audit** | `npm audit --audit-level=high` (reads the lockfile) |
+
+In CI, Playwright retries a failed test up to 2 times and records a trace; retried tests are marked "flaky".
 
 ## Example
 ```ts

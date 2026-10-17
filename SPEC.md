@@ -156,7 +156,7 @@ Claude may set **In progress** in the feature's first PR and **Done** in its las
 
 | ID | Feature | Status |
 |---|---|---|
-| F-001 | Create supervision case | Approved |
+| F-001 | Create supervision case | In progress |
 | F-002 | Expand supervision case (field, personnel, companies, reactions, close) | Approved |
 | F-003 | Case overview with filters (field, status, reaction) | Approved |
 | F-004 | RBAC: users, roles, permissions | In progress |

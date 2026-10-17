@@ -44,14 +44,14 @@ flowchart TD
   classDef approved fill:#d4edda,stroke:#2e7d32,color:#000
   classDef draft fill:#eeeeee,stroke:#888,stroke-dasharray:4 3,color:#000
   classDef inprogress fill:#d6e6f5,stroke:#1f5f99,color:#000
-  class F001,F002,P2a,F003,P3a,P3b approved
-  class P1a,P1b inprogress
+  class F002,P2a,F003,P3a,P3b approved
+  class P1a,P1b,F001 inprogress
   class F006,F007,F008,F009,F010,F011,F012 draft
 ```
 
 | Feature | Status | Criteria | Phases | Project plan scope |
 |---|---|---|---|---|
-| F-001 Create case | Approved | Written | 2 | v1 |
+| F-001 Create case | In progress | Written | 2 | v1 |
 | F-002 Expand case | Approved | Written | 2 | v1 |
 | F-003 Case overview | Approved | Written | 3 | v1 |
 | F-004 Access control | In progress | Written | 1, 2, 3 | v1 |

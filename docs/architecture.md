@@ -1,7 +1,8 @@
 # Architecture *(update as built)*
 
 ## Layers
-Built so far: app shell, routes, empty pages, the mock API with users, the current user, and `can()`. Everything else is *(planned)*.
+Built so far: app shell, routes, the mock API with users, cases and the audit log, the current user, `can()`, and
+creating a case (F-001). Everything else is *(planned)*.
 
 ```mermaid
 flowchart TD
@@ -23,21 +24,21 @@ flowchart TD
 ## Routes
 | Route | Page | Feature | Built |
 |---|---|---|---|
-| `/` | Case overview (`CaseOverviewPage`) | F-003 | Empty page |
-| `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Empty page |
+| `/` | Case overview (`CaseOverviewPage`) | F-003 | "New case" button for leaders; no table yet |
+| `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
 | `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Empty page |
 | `/admin/users` | User admin: add, deactivate, change fields and department (`UsersPage`) | F-004 | Empty page |
 | `/admin/audit` | Global audit log (`AuditLogPage`) | F-005 | Empty page |
 | any other | Page not found (`NotFoundPage`) | – | Yes |
 
 The main navigation links to Cases, Users and Audit log. Hiding links by role comes with `can()` (F-004).
-`/cases/new` gets its "New case" button on the overview with F-001.
 A mock-only **Test environment** bar above the header holds the user switcher ("Acting as") and **Reset mock data**.
 
 ## Mock API
 | Endpoint | What it does |
 |---|---|
 | `GET /api/current-user` | The user the app acts as |
+| `POST /api/cases` | Create a case, body `{ field }` (F-001); 403 and a Denied audit entry if not allowed |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |

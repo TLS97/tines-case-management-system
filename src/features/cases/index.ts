@@ -1,3 +1,5 @@
+export { canCreateCases } from './canCreateCases';
+export { lastSequenceInYear, nextCaseNumber } from './caseNumber';
 export { CaseDetailPage } from './pages/CaseDetailPage';
 export { NewCasePage } from './pages/NewCasePage';
 export {

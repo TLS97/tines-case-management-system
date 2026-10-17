@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { auditEntrySchema } from '@/features/audit-log';
-import { userSchema } from '@/features/auth';
+import { userSchema, type User } from '@/features/auth';
+import { supervisionCaseSchema } from '@/features/cases';
 import { DEFAULT_USER_ID, SEED_USERS } from './seed/users';
 
 // The mock API's data, saved in localStorage so it survives a reload (decision 0002).
@@ -10,10 +11,11 @@ export const MOCK_DB_STORAGE_KEY = 'sak.mockDb';
 
 const mockDbSchema = z
   .object({
-    version: z.literal(3),
+    version: z.literal(4),
     users: z.array(userSchema),
     // The user the app acts as; changed with the user switcher (mock only).
     currentUserId: z.uuid(),
+    cases: z.array(supervisionCaseSchema),
     // F-005: oldest first. Written with recordAudit (mocks/auditLog.ts).
     auditLog: z.array(auditEntrySchema),
   })
@@ -26,9 +28,10 @@ export type MockDb = z.infer<typeof mockDbSchema>;
 
 function createSeedDb(): MockDb {
   return {
-    version: 3,
+    version: 4,
     users: structuredClone([...SEED_USERS]),
     currentUserId: DEFAULT_USER_ID,
+    cases: [],
     auditLog: [],
   };
 }
@@ -63,4 +66,11 @@ function parseJson(text: string): unknown {
   } catch {
     return undefined;
   }
+}
+
+/** The user the app acts as. readDb guarantees that currentUserId belongs to a user. */
+export function currentUser(db: MockDb): User {
+  const user = db.users.find((candidate) => candidate.id === db.currentUserId);
+  if (!user) throw new Error('Mock data has no current user');
+  return user;
 }

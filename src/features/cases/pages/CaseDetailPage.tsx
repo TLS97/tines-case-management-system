@@ -5,6 +5,7 @@ import { can, useCurrentUser } from '@/features/auth';
 import { ApiError } from '@/shared/api/apiRequest';
 import { Page } from '@/shared/components/Page';
 import { AssignCaseSection } from '../components/AssignCaseSection';
+import { CaseAuditLogSection } from '../components/CaseAuditLogSection';
 import { ChangeFieldForm } from '../components/ChangeFieldForm';
 import { CloseCaseSection } from '../components/CloseCaseSection';
 import { CaseSummary } from '../components/CaseSummary';
@@ -119,6 +120,12 @@ export function CaseDetailPage() {
               key={`close-${data.supervisionCase.id}-${user.id}`}
               supervisionCase={data.supervisionCase}
               onClosed={() => setAnnouncement({ userId: user.id, text: 'The case is closed.' })}
+            />
+          )}
+          {can(user, 'viewCaseAuditLog', data.supervisionCase) && (
+            <CaseAuditLogSection
+              key={`audit-log-${data.supervisionCase.id}-${user.id}`}
+              supervisionCase={data.supervisionCase}
             />
           )}
         </>

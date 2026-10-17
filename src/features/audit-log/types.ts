@@ -52,8 +52,16 @@ export const auditEntrySchema = z.object({
   details: auditDetailsSchema,
 });
 
+/** Who and which cases the entries refer to, so the log can show names and case numbers. */
+export const auditLogResponseSchema = z.object({
+  entries: z.array(auditEntrySchema),
+  users: z.array(z.object({ id: z.uuid(), firstName: z.string(), surname: z.string() })),
+  cases: z.array(z.object({ id: z.uuid(), caseNumber: z.string() })),
+});
+
 export type AuditAction = z.infer<typeof auditActionSchema>;
 export type AuditResult = z.infer<typeof auditResultSchema>;
 export type CaseChange = z.infer<typeof caseChangeSchema>;
 export type AuditDetails = z.infer<typeof auditDetailsSchema>;
 export type AuditEntry = z.infer<typeof auditEntrySchema>;
+export type AuditLogResponse = z.infer<typeof auditLogResponseSchema>;

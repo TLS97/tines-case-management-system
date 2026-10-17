@@ -1,3 +1,4 @@
+import { auditLogViewHandlers } from './auditLogViews';
 import { caseEditingHandlers } from './caseEditing';
 import { caseReadAccessHandlers } from './caseReadAccess';
 import { caseHandlers } from './cases';
@@ -17,5 +18,6 @@ export const handlers = [
   ...lentOutHandlers,
   ...userHandlers,
   ...notificationHandlers,
+  ...auditLogViewHandlers,
   ...mockToolHandlers,
 ];

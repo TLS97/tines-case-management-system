@@ -44,3 +44,15 @@
   display: grid;
   gap: var(--ds-size-2);
 }
+
+.editForm {
+  display: grid;
+  gap: var(--ds-size-4);
+  justify-items: start;
+  max-width: 40rem;
+}
+
+.dialogContent {
+  display: grid;
+  gap: var(--ds-size-4);
+}

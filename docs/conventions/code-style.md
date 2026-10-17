@@ -16,6 +16,8 @@
 ## Pages and styles
 - Every route page renders through `Page` with a `title` (sets the document title and the h1). See decision 0009.
 - Styles: CSS Module next to the component, Designsystemet variables only. See decision 0008.
+- Text inputs in forms use `TextInput` (`shared/components`): label, description and error are linked by id, and
+  `size` sets the width (Designsystemet makes inputs without `size` fill their box).
 
 ## UI text
 - All UI text is in English. Keep labels short and consistent with SPEC.md terms.

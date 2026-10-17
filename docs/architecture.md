@@ -2,7 +2,8 @@
 
 ## Layers
 Built so far: app shell, routes, the mock API with users, cases and the audit log, the current user, `can()`, and
-creating a case (F-001) and the read-only case detail page (F-002). Everything else is *(planned)*.
+creating a case (F-001), the case detail page with assigning (F-004) and editing field and health personnel (F-002).
+Everything else is *(planned)*.
 
 ```mermaid
 flowchart TD
@@ -42,6 +43,9 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `GET /api/cases/:id` | Open a case: full, or restricted for Admin (F-002, F-004); 403 + Denied entry without access; 404 if missing; logs "case opened" |
 | `GET /api/cases/:id/eligible-case-workers` | Case workers the case can be assigned to (F-004, leaders) |
 | `PUT /api/cases/:id/assignee` | Assign or reassign, body `{ caseWorkerId }` (F-004); returns the updated case |
+| `PATCH /api/cases/:id/field` | Change the field, body `{ field }` (F-002, assigned case worker) |
+| `POST /api/cases/:id/health-personnel` | Add a health personnel (F-002); 409 if the number is already on the case |
+| `DELETE /api/cases/:id/health-personnel/:personId` | Remove a health personnel (F-002) |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |

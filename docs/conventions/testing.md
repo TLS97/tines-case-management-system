@@ -13,6 +13,8 @@
   `makeUser`, `makeCase`, `makeHealthPersonnel` and `makeCompany` (`src/test/factories.ts`) build valid fake data;
   every result is checked against its schema. `actAs(email)` (`src/test/mockUsers.ts`) makes the mock API act as a
   seed user, like the user switcher. `storeCases(...)` (`src/test/mockCases.ts`) puts cases into the mock data.
+- Unit and component tests fail on any `console.error` (React key warnings, failed renders), like the e2e check.
+  A test that expects an error silences it with `vi.spyOn(console, 'error').mockImplementation(() => {})`.
 - The e2e console check fails on any error or warning. A test that expects one (for example the browser's
   "Failed to load resource … 403" line when it opens a forbidden case) declares it with
   `test.use({ expectedConsoleErrors: [failedRequestLine(403)] })`.
@@ -30,6 +32,8 @@
 - E2E tests import `test` and `expect` from `tests/e2e/fixtures.ts`, not from `@playwright/test`.
   The fixture fails a test on any browser console error or warning. ESLint enforces this import in `*.spec.ts` files.
 - Every Playwright page test calls `expectNoAccessibilityViolations(page)` (axe, WCAG 2.1 AA); violations fail the test.
+  It first waits for fade-ins and other finite animations to finish, since half-transparent colours mid-animation
+  would show as contrast errors (seen on the slower CI machines).
 - Coverage: at least 80% lines for feature logic: `.ts` files in `src/features/**` (hooks, `api.ts`, `permissions.ts`),
   not counting `types.ts`, `index.ts` and tests. Components are covered by component tests instead.
   Before any feature code exists there is nothing to measure, and the check passes.

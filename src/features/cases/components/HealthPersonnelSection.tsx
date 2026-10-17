@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   Heading,
   Paragraph,
@@ -9,16 +10,30 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@digdir/designsystemet-react';
+import { useState } from 'react';
 import { formatDate } from '@/shared/utils/formatDate';
 import { HEALTH_PERSONNEL_REACTION_LABELS } from '../labels';
 import type { HealthPersonnel } from '../types';
+import { AddHealthPersonnelForm } from './AddHealthPersonnelForm';
 import styles from './CaseDetail.module.css';
+import { RemoveHealthPersonnelButton } from './RemoveHealthPersonnelButton';
 
 interface HealthPersonnelSectionProps {
+  caseId: string;
   healthPersonnel: HealthPersonnel[];
+  /** The assigned case worker may add and remove health personnel (F-002). */
+  editable: boolean;
 }
 
-export function HealthPersonnelSection({ healthPersonnel }: HealthPersonnelSectionProps) {
+export function HealthPersonnelSection({
+  caseId,
+  healthPersonnel,
+  editable,
+}: HealthPersonnelSectionProps) {
+  const [isAdding, setIsAdding] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const fullName = (person: HealthPersonnel) => `${person.firstName} ${person.surname}`;
+
   return (
     <section className={styles.section} aria-labelledby="health-personnel-heading">
       <Heading id="health-personnel-heading" level={2} data-size="sm">
@@ -65,11 +80,43 @@ export function HealthPersonnelSection({ healthPersonnel }: HealthPersonnelSecti
                     ? HEALTH_PERSONNEL_REACTION_LABELS[person.reaction]
                     : 'No reaction given yet'}
                 </Paragraph>
+                {editable && (
+                  <RemoveHealthPersonnelButton
+                    caseId={caseId}
+                    person={person}
+                    onRemoved={(removed) => setStatusMessage(`${fullName(removed)} was removed.`)}
+                  />
+                )}
               </Card>
             </li>
           ))}
         </ul>
       )}
+
+      {editable &&
+        (isAdding ? (
+          <AddHealthPersonnelForm
+            caseId={caseId}
+            onAdded={(added) => {
+              setIsAdding(false);
+              setStatusMessage(`${fullName(added)} was added.`);
+            }}
+            onCancel={() => setIsAdding(false)}
+          />
+        ) : (
+          <div>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setStatusMessage('');
+                setIsAdding(true);
+              }}
+            >
+              Add health personnel
+            </Button>
+          </div>
+        ))}
+      {editable && <Paragraph role="status">{statusMessage}</Paragraph>}
     </section>
   );
 }

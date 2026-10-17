@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
-import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { mockServer } from '@/mocks/node';
 
 // jsdom does not implement <dialog> yet; this is just enough for open/close in component tests.
@@ -28,9 +28,26 @@ beforeAll(() => {
   mockServer.listen({ onUnhandledFrame: 'error' });
 });
 
+// Like the e2e console check: a test fails if anything logs a console error it did not expect
+// (React key and prop warnings, failed renders). A test that expects errors silences them itself
+// with vi.spyOn(console, 'error').mockImplementation(() => {}).
+let consoleErrors: string[] = [];
+
 // Every test starts from the seed data.
 beforeEach(() => {
   localStorage.clear();
+  consoleErrors = [];
+  vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+    consoleErrors.push(args.map(String).join(' '));
+  });
+});
+
+afterEach(() => {
+  const errors = consoleErrors;
+  consoleErrors = [];
+  if (errors.length > 0) {
+    throw new Error(`Unexpected console.error during the test:\n${errors.join('\n')}`);
+  }
 });
 
 afterEach(() => {

@@ -3,7 +3,7 @@ import type { Field } from '@/features/auth';
 import { apiRequest } from '@/shared/api/apiRequest';
 import { z } from 'zod';
 import { caseResponseSchema, caseWorkerSummarySchema } from './caseResponse';
-import { supervisionCaseSchema } from './types';
+import { supervisionCaseSchema, type NewHealthPersonnel } from './types';
 
 export function createCase(input: { field: Field }) {
   return apiRequest('/api/cases', {
@@ -50,4 +50,31 @@ export function assignCase(caseId: string, caseWorkerId: string) {
     body: JSON.stringify({ caseWorkerId }),
     schema: caseResponseSchema,
   });
+}
+
+function editRequest(method: string, path: string, body?: unknown) {
+  return apiRequest(path, {
+    method,
+    headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    schema: caseResponseSchema,
+  });
+}
+
+/** F-002: changes the case's field. Returns the updated case. */
+export function changeCaseField(caseId: string, field: Field) {
+  return editRequest('PATCH', `/api/cases/${encodeURIComponent(caseId)}/field`, { field });
+}
+
+/** F-002: adds a health personnel. Returns the updated case. */
+export function addHealthPersonnel(caseId: string, person: NewHealthPersonnel) {
+  return editRequest('POST', `/api/cases/${encodeURIComponent(caseId)}/health-personnel`, person);
+}
+
+/** F-002: removes a health personnel. Returns the updated case. */
+export function removeHealthPersonnel(caseId: string, personId: string) {
+  return editRequest(
+    'DELETE',
+    `/api/cases/${encodeURIComponent(caseId)}/health-personnel/${encodeURIComponent(personId)}`,
+  );
 }

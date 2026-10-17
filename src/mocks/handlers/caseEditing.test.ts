@@ -1,0 +1,247 @@
+import { describe, expect, it } from 'vitest';
+import { caseResponseSchema, type NewHealthPersonnel } from '@/features/cases';
+import { ApiError, apiRequest } from '@/shared/api/apiRequest';
+import { makeCase, makeHealthPersonnel } from '@/test/factories';
+import { storeCases } from '@/test/mockCases';
+import {
+  actAs,
+  INGRID_LEADER_DEPT_1,
+  LARS_ADMIN,
+  seedUser,
+  TINE_CASE_WORKER_DEPT_1,
+} from '@/test/mockUsers';
+import { readDb } from '../db';
+
+// F-002: the assigned case worker edits the case (SPEC.md F-002, "Case status").
+
+const magnus = seedUser('magnus.berg@example.com'); // CaseWorker, dept 1, Health + Social
+const MAGNUS = 'magnus.berg@example.com';
+
+const newPerson: NewHealthPersonnel = {
+  healthPersonnelNumber: '9000777',
+  firstName: 'Fakefirst',
+  surname: 'Fakelast',
+  authorizations: [{ validFromDate: '2021-05-01', validToDate: null, description: 'Physician' }],
+};
+
+function request(method: string, path: string, body?: unknown) {
+  return apiRequest(path, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    schema: caseResponseSchema,
+  });
+}
+
+const changeField = (id: string, field: string) =>
+  request('PATCH', `/api/cases/${id}/field`, { field });
+const addPerson = (id: string, person: unknown) =>
+  request('POST', `/api/cases/${id}/health-personnel`, person);
+const removePerson = (id: string, personId: string) =>
+  request('DELETE', `/api/cases/${id}/health-personnel/${personId}`);
+
+function assignedCase(overrides = {}) {
+  return makeCase({
+    departmentId: 1,
+    field: 'Health',
+    status: 'Assigned',
+    assignedTo: magnus.id,
+    ...overrides,
+  });
+}
+
+describe('F-002 first change moves the case to InProgress', () => {
+  it('Assigned becomes InProgress, logged as "status changed" after "case updated"', async () => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    const response = await changeField(target.id, 'Social');
+
+    expect(response.supervisionCase.status).toBe('InProgress');
+    expect(readDb().auditLog).toMatchObject([
+      {
+        action: 'CaseUpdated',
+        result: 'Success',
+        details: { change: 'FieldChanged', to: 'Social' },
+      },
+      { action: 'StatusChanged', details: { from: 'Assigned', to: 'InProgress' } },
+    ]);
+  });
+
+  it('a later change keeps InProgress and logs no status change', async () => {
+    const target = assignedCase({ status: 'InProgress' });
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await addPerson(target.id, newPerson);
+
+    expect(readDb().cases[0]?.status).toBe('InProgress');
+    expect(readDb().auditLog.map((entry) => entry.action)).toEqual(['CaseUpdated']);
+  });
+});
+
+describe('F-002 PATCH /api/cases/:id/field', () => {
+  it('changes the field to one of the case worker’s fields', async () => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    const response = await changeField(target.id, 'Social');
+
+    expect(response.supervisionCase.field).toBe('Social');
+    expect(readDb().cases[0]?.field).toBe('Social');
+  });
+
+  it.each([
+    ['a field the case worker does not have', 'ChildServices'],
+    ['the field the case already has', 'Health'],
+    ['an unknown field', 'Space'],
+  ])('rejects %s with 400', async (_label, field) => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await expect(changeField(target.id, field)).rejects.toEqual(
+      new ApiError(400, `/api/cases/${target.id}/field`),
+    );
+    expect(readDb().cases[0]).toEqual(target);
+  });
+});
+
+describe('F-002 POST /api/cases/:id/health-personnel', () => {
+  it('adds the health personnel with an id and no reaction yet', async () => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    const response = await addPerson(target.id, newPerson);
+
+    expect(response.access).toBe('full');
+    const people = response.access === 'full' ? response.supervisionCase.healthPersonnel : [];
+    expect(people).toEqual([{ id: expect.any(String) as unknown, ...newPerson }]);
+    expect(readDb().auditLog[0]).toMatchObject({
+      action: 'CaseUpdated',
+      details: { change: 'HealthPersonnelAdded', healthPersonnelId: people[0]?.id },
+    });
+  });
+
+  it('never puts the person’s name or number in the audit log', async () => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await addPerson(target.id, newPerson);
+
+    const log = JSON.stringify(readDb().auditLog);
+    for (const value of ['9000777', 'Fakefirst', 'Fakelast', 'Physician', '2021-05-01']) {
+      expect(log).not.toContain(value);
+    }
+  });
+
+  it('rejects the same health personnel number twice with 409', async () => {
+    const target = assignedCase({
+      healthPersonnel: [makeHealthPersonnel({ healthPersonnelNumber: '9000777' })],
+    });
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await expect(addPerson(target.id, newPerson)).rejects.toEqual(
+      new ApiError(409, `/api/cases/${target.id}/health-personnel`),
+    );
+    expect(readDb().cases[0]?.healthPersonnel).toHaveLength(1);
+  });
+
+  it.each([
+    ['a number with 6 digits', { ...newPerson, healthPersonnelNumber: '123456' }],
+    ['a number with letters', { ...newPerson, healthPersonnelNumber: '12345a7' }],
+    ['no first name', { ...newPerson, firstName: '' }],
+    ['no authorizations', { ...newPerson, authorizations: [] }],
+    [
+      'valid to before valid from',
+      {
+        ...newPerson,
+        authorizations: [
+          { validFromDate: '2021-05-01', validToDate: '2021-04-30', description: '' },
+        ],
+      },
+    ],
+  ])('rejects %s with 400', async (_label, person) => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await expect(addPerson(target.id, person)).rejects.toEqual(
+      new ApiError(400, `/api/cases/${target.id}/health-personnel`),
+    );
+    expect(readDb().cases[0]).toEqual(target);
+  });
+});
+
+describe('F-002 DELETE /api/cases/:id/health-personnel/:personId', () => {
+  it('removes the health personnel and logs it by id only', async () => {
+    const person = makeHealthPersonnel({ firstName: 'Removedfirst' });
+    const target = assignedCase({ status: 'InProgress', healthPersonnel: [person] });
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await removePerson(target.id, person.id);
+
+    expect(readDb().cases[0]?.healthPersonnel).toEqual([]);
+    expect(readDb().auditLog[0]).toMatchObject({
+      details: { change: 'HealthPersonnelRemoved', healthPersonnelId: person.id },
+    });
+    expect(JSON.stringify(readDb().auditLog)).not.toContain('Removedfirst');
+  });
+
+  it('rejects a person who is not on the case with 400', async () => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await expect(removePerson(target.id, crypto.randomUUID())).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+describe('F-002 only the assigned case worker can edit', () => {
+  it.each([
+    ['another case worker', TINE_CASE_WORKER_DEPT_1, () => assignedCase()],
+    ['the leader', INGRID_LEADER_DEPT_1, () => assignedCase()],
+    ['an admin', LARS_ADMIN, () => assignedCase()],
+    ['the case worker, when the case is closed', MAGNUS, () => assignedCase({ status: 'Closed' })],
+  ])('refuses %s with 403, logs Denied and changes nothing', async (_label, email, make) => {
+    const target = make();
+    storeCases(target);
+    const user = actAs(email);
+
+    await expect(changeField(target.id, 'Social')).rejects.toEqual(
+      new ApiError(403, `/api/cases/${target.id}/field`),
+    );
+    await expect(addPerson(target.id, newPerson)).rejects.toBeInstanceOf(ApiError);
+    expect(readDb().cases[0]).toEqual(target);
+    expect(readDb().auditLog).toMatchObject([
+      {
+        userId: user.id,
+        action: 'CaseUpdated',
+        result: 'Denied',
+        details: { change: 'FieldChanged' },
+      },
+      {
+        userId: user.id,
+        action: 'CaseUpdated',
+        result: 'Denied',
+        details: { change: 'HealthPersonnelAdded' },
+      },
+    ]);
+    expect(JSON.stringify(readDb().auditLog)).not.toContain('9000777');
+  });
+
+  it('answers 404 for a case that does not exist', async () => {
+    actAs(MAGNUS);
+    const id = crypto.randomUUID();
+
+    await expect(changeField(id, 'Social')).rejects.toEqual(
+      new ApiError(404, `/api/cases/${id}/field`),
+    );
+  });
+});

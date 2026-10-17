@@ -48,8 +48,21 @@ export async function gotoApp(page: Page, path: string) {
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 }
 
+// Waits until fade-ins and other finite animations are done. Mid-animation colours are half
+// transparent, so axe would report contrast problems that do not exist once the animation ends.
+// Endless animations (spinners) are skipped, since they never finish.
+async function waitForAnimationsToFinish(page: Page) {
+  await page.evaluate(async () => {
+    const finite = document
+      .getAnimations()
+      .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity);
+    await Promise.all(finite.map((animation) => animation.finished.catch(() => undefined)));
+  });
+}
+
 // WCAG 2.1 AA, as required by docs/conventions/definition-of-done.md.
 export async function expectNoAccessibilityViolations(page: Page) {
+  await waitForAnimationsToFinish(page);
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
     .analyze();

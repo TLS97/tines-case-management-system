@@ -52,6 +52,9 @@ export const healthPersonnelSchema = z.object({
   reaction: healthPersonnelReactionSchema.optional(),
 });
 
+/** A health personnel as entered by the case worker; the mock API adds the id (F-002). */
+export const newHealthPersonnelSchema = healthPersonnelSchema.omit({ id: true, reaction: true });
+
 export const addressSchema = z.object({
   streetName: z.string().min(1),
   zipCode: z.string().min(1),
@@ -103,6 +106,7 @@ export type HealthPersonnelReaction = z.infer<typeof healthPersonnelReactionSche
 export type CompanyReaction = z.infer<typeof companyReactionSchema>;
 export type Authorization = z.infer<typeof authorizationSchema>;
 export type HealthPersonnel = z.infer<typeof healthPersonnelSchema>;
+export type NewHealthPersonnel = z.infer<typeof newHealthPersonnelSchema>;
 export type Address = z.infer<typeof addressSchema>;
 export type Company = z.infer<typeof companySchema>;
 export type SupervisionCase = z.infer<typeof supervisionCaseSchema>;

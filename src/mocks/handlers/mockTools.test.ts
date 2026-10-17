@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { userSchema } from '@/features/auth';
 import { ApiError, apiRequest } from '@/shared/api/apiRequest';
@@ -59,6 +59,10 @@ describe('mock tool endpoints', () => {
   });
 
   it('rejects a request to an API path without a handler', async () => {
+    // MSW reports the unhandled request as a console error, which is the point of this test.
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     await expect(apiRequest('/api/does-not-exist')).rejects.toThrow();
+    expect(consoleError).toHaveBeenCalled();
   });
 });

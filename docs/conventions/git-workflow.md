@@ -19,14 +19,18 @@
 - That account has **write** access to the repository, not admin. It cannot change branch protection or settings.
 - Claude Code uses that account's token (`gh auth login` with the Claude account). Tine's own token is never used by Claude.
 
-## Branch protection on `main` (set up in T0.8)
+## Branch protection on `main`
+Set up in T0.8 (2026-10-17) as the repository ruleset `ruleset-main` (Settings → Rules → Rulesets).
 Needs a public repository, or GitHub Pro for a private one (GitHub Free only protects branches in public repositories).
 - Pull request required, 1 approval (Tine)
 - Required status checks: **Checks**, **E2E** and **Audit** (the jobs in `.github/workflows/ci.yml`); branch must be up to date
 - No force pushes, no deletion
-- Applies to admins too
+- Only squash merging; stale approvals are dismissed when new commits are pushed
+- Applies to admins too: the bypass list is empty. So Tine cannot merge a PR she opened herself;
+  changes go through Claude's or Dependabot's PRs.
 
 ## Dependabot
+- Dependabot alerts and security updates are switched on in the repository settings (T0.8).
 - Weekly on Mondays (`.github/dependabot.yml`): one PR for minor and patch updates, one per major update,
   one for the `@digdir/*` packages together, and one for GitHub Actions.
 - Major updates of TypeScript, ESLint and `@types/node` are ignored on purpose (decision 0006).

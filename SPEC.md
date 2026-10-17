@@ -45,7 +45,7 @@ A `Closed` case cannot be changed by anyone (no edits, assignment or read access
 - `validToDate` is optional and `null` initially.
 
 ### Company
-`organizationNumber`, `name`, `description`, `address: Address`, `reaction?: CompanyReaction`
+`id`, `organizationNumber`, `name`, `description`, `address: Address`, `reaction?: CompanyReaction`
 
 ### Address
 `streetName`, `zipCode`, `state`, `country`

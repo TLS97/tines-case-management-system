@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { z } from 'zod';
 import type { AuditDetails, CaseChange } from '@/features/audit-log';
 import { can, fieldSchema, type User } from '@/features/auth';
-import { newHealthPersonnelSchema, type SupervisionCase } from '@/features/cases';
+import { newCompanySchema, newHealthPersonnelSchema, type SupervisionCase } from '@/features/cases';
 import { recordAudit } from '../auditLog';
 import { caseResponse } from '../caseResponses';
 import { currentUser, readDb, writeDb, type MockDb } from '../db';
@@ -68,6 +68,10 @@ function saveChange(
     healthPersonnel: [
       ...updated.healthPersonnel,
       ...before.healthPersonnel.filter((p) => !updated.healthPersonnel.some((u) => u.id === p.id)),
+    ],
+    companies: [
+      ...updated.companies,
+      ...before.companies.filter((c) => !updated.companies.some((u) => u.id === c.id)),
     ],
   };
 
@@ -152,6 +156,46 @@ export const caseEditingHandlers = [
           return { ok: false, status: 400 };
         }
         return { ok: true, updated: { ...supervisionCase, healthPersonnel: remaining } };
+      },
+    });
+  }),
+
+  // Add a company with organization number, name, description and address.
+  http.post('/api/cases/:id/companies', async ({ params, request }) => {
+    const body = newCompanySchema.safeParse(await readBody(request));
+    if (!body.success) return new HttpResponse(null, { status: 400 });
+    const id = crypto.randomUUID();
+
+    return editCase(params.id, {
+      details: { change: 'CompanyAdded', companyId: id },
+      apply: (supervisionCase) => {
+        const alreadyAdded = supervisionCase.companies.some(
+          (company) => company.organizationNumber === body.data.organizationNumber,
+        );
+        if (alreadyAdded) return { ok: false, status: 409 };
+        return {
+          ok: true,
+          updated: {
+            ...supervisionCase,
+            companies: [...supervisionCase.companies, { id, ...body.data }],
+          },
+        };
+      },
+    });
+  }),
+
+  // Remove a company from the case.
+  http.delete('/api/cases/:id/companies/:companyId', ({ params }) => {
+    const companyId = String(params.companyId);
+
+    return editCase(params.id, {
+      details: { change: 'CompanyRemoved', companyId },
+      apply: (supervisionCase) => {
+        const remaining = supervisionCase.companies.filter((c) => c.id !== companyId);
+        if (remaining.length === supervisionCase.companies.length) {
+          return { ok: false, status: 400 };
+        }
+        return { ok: true, updated: { ...supervisionCase, companies: remaining } };
       },
     });
   }),

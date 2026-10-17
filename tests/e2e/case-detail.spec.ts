@@ -33,6 +33,7 @@ const SEEDED_CASE = {
   ],
   companies: [
     {
+      id: '5d1e6c2a-0000-4000-8000-0000000000cc',
       organizationNumber: '900000123',
       name: 'Fake Care Home',
       description: '',

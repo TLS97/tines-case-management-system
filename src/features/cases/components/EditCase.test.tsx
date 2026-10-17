@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { readDb } from '@/mocks/db';
-import { makeCase, makeHealthPersonnel } from '@/test/factories';
+import { makeCase, makeCompany, makeHealthPersonnel } from '@/test/factories';
 import { storeCases } from '@/test/mockCases';
 import {
   actAs,
@@ -192,5 +192,91 @@ describe('F-002 remove health personnel', () => {
 
     expect(readDb().cases[0]?.healthPersonnel).toHaveLength(1);
     expect(readDb().cases[0]?.status).toBe('Assigned');
+  });
+});
+
+describe('F-002 companies', () => {
+  const existingCompany = makeCompany({ organizationNumber: '900000111', name: 'Existing Clinic' });
+  const withCompany = () => caseFor({ status: 'InProgress', companies: [existingCompany] });
+
+  async function fillCompany(user: Awaited<ReturnType<typeof openAs>>['user'], number: string) {
+    await user.click(screen.getByRole('button', { name: 'Add company' }));
+    await user.type(screen.getByLabelText('Organization number'), number);
+    await user.type(screen.getByLabelText('Name'), 'New Clinic');
+    await user.type(screen.getByLabelText('Street name'), 'New Street 5');
+    await user.type(screen.getByLabelText('Zip code'), '0789');
+    await user.type(screen.getByLabelText('State'), 'New State');
+    await user.type(screen.getByLabelText('Country'), 'Norway');
+    await user.click(screen.getByRole('button', { name: 'Add company' }));
+  }
+
+  it('the assigned case worker adds a company', async () => {
+    const { user } = await openAs(MAGNUS, withCompany());
+
+    await fillCompany(user, '900000222');
+
+    expect(await screen.findByText('New Clinic was added.')).toBeInTheDocument();
+    const companies = within(screen.getByRole('region', { name: 'Companies' }));
+    expect(companies.getByRole('heading', { level: 3, name: 'New Clinic' })).toBeInTheDocument();
+    expect(
+      companies.getByText('Address: New Street 5, 0789, New State, Norway'),
+    ).toBeInTheDocument();
+    expect(readDb().cases[0]?.companies[1]).toMatchObject({
+      organizationNumber: '900000222',
+      description: '',
+    });
+  });
+
+  it('shows what is wrong and saves nothing', async () => {
+    const { user } = await openAs(MAGNUS, withCompany());
+
+    await user.click(screen.getByRole('button', { name: 'Add company' }));
+    await user.type(screen.getByLabelText('Organization number'), '900 000');
+    await user.click(screen.getByRole('button', { name: 'Add company' }));
+
+    expect(
+      await screen.findByText('Enter 9 digits, with no spaces or other characters'),
+    ).toBeInTheDocument();
+    for (const message of [
+      'Enter the company name',
+      'Enter the street name',
+      'Enter the zip code',
+      'Enter the state',
+      'Enter the country',
+    ]) {
+      expect(screen.getByText(message)).toBeInTheDocument();
+    }
+    expect(readDb().cases[0]?.companies).toHaveLength(1);
+  });
+
+  it('says so when the company is already on the case', async () => {
+    const { user } = await openAs(MAGNUS, withCompany());
+
+    await fillCompany(user, '900000111');
+
+    expect(await screen.findByText('This company is already on the case.')).toBeInTheDocument();
+    expect(readDb().cases[0]?.companies).toHaveLength(1);
+  });
+
+  it('removes a company after confirming', async () => {
+    const { user } = await openAs(MAGNUS, withCompany());
+
+    await user.click(screen.getByRole('button', { name: 'Remove Existing Clinic' }));
+    const dialog = screen.getByRole('dialog', { name: 'Remove Existing Clinic from the case?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Remove' }));
+
+    expect(await screen.findByText('Existing Clinic was removed.')).toBeInTheDocument();
+    expect(screen.getByText('No companies added yet.')).toBeInTheDocument();
+    expect(readDb().cases[0]?.companies).toEqual([]);
+  });
+
+  it('the leader sees companies read-only', async () => {
+    await openAs(INGRID_LEADER_DEPT_1, withCompany());
+
+    expect(screen.getByRole('heading', { level: 3, name: 'Existing Clinic' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add company' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Remove Existing Clinic' }),
+    ).not.toBeInTheDocument();
   });
 });

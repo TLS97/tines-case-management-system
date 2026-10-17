@@ -22,6 +22,8 @@ export const CASE_CHANGES = [
   'FieldChanged',
   'HealthPersonnelAdded',
   'HealthPersonnelRemoved',
+  'CompanyAdded',
+  'CompanyRemoved',
 ] as const;
 
 export const auditActionSchema = z.enum(AUDIT_ACTIONS);

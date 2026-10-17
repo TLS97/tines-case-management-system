@@ -10,6 +10,10 @@ React Hook Form for form state, Zod for validation schemas, connected with `@hoo
 the official adapter (added in T2.1). The same Zod schema is used by the form and by the MSW handler, and to check
 data read back from `localStorage`.
 
+**Dates** (since T2.4): Designsystemet has no date picker, so date fields are Designsystemet's `Input` with
+`type="date"`: the browser's own date input. The value is always `yyyy-mm-dd`; the format shown follows the browser's
+language. Kept as is by Tine's choice (2026-10-17) over a fixed-format text field or a third-party date picker.
+
 ## Alternatives
 Hand-written validation (rules duplicated between form and mock API); Formik (less maintained).
 

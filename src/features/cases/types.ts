@@ -63,6 +63,7 @@ export const addressSchema = z.object({
 });
 
 export const companySchema = z.object({
+  id: z.uuid(),
   organizationNumber: organizationNumberSchema,
   name: z.string().min(1),
   description: z.string(),
@@ -71,6 +72,9 @@ export const companySchema = z.object({
 });
 
 /** The fields of a case, without the cross-field checks (used to derive the restricted view). */
+/** A company as entered by the case worker; the mock API adds the id (F-002). */
+export const newCompanySchema = companySchema.omit({ id: true, reaction: true });
+
 export const supervisionCaseObjectSchema = z.object({
   id: z.uuid(),
   caseNumber: caseNumberSchema,
@@ -109,4 +113,5 @@ export type HealthPersonnel = z.infer<typeof healthPersonnelSchema>;
 export type NewHealthPersonnel = z.infer<typeof newHealthPersonnelSchema>;
 export type Address = z.infer<typeof addressSchema>;
 export type Company = z.infer<typeof companySchema>;
+export type NewCompany = z.infer<typeof newCompanySchema>;
 export type SupervisionCase = z.infer<typeof supervisionCaseSchema>;

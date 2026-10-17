@@ -68,8 +68,21 @@ test('F-002 the assigned case worker edits the case', async ({ page }) => {
     page.getByRole('heading', { level: 3, name: 'Existingfirst Existinglast' }),
   ).toHaveCount(0);
 
+  // Add a company.
+  await page.getByRole('button', { name: 'Add company' }).click();
+  await page.getByLabel('Organization number').fill('900000222');
+  await page.getByLabel('Name', { exact: true }).fill('New Clinic');
+  await page.getByLabel('Street name').fill('New Street 5');
+  await page.getByLabel('Zip code').fill('0789');
+  await page.getByLabel('State').fill('New State');
+  await page.getByLabel('Country').fill('Norway');
+  await expectNoAccessibilityViolations(page);
+  await page.getByRole('button', { name: 'Add company' }).click();
+  await expect(page.getByText('New Clinic was added.')).toBeVisible();
+
   // The changes are saved: they are still there after a reload.
   await page.reload();
   await expect(page.getByRole('heading', { level: 3, name: 'Newfirst Newlast' })).toBeVisible();
   await expect(summary('Field')).toHaveText('Social');
+  await expect(page.getByRole('heading', { level: 3, name: 'New Clinic' })).toBeVisible();
 });

@@ -45,7 +45,8 @@ flowchart LR
 | "Case opened" (details: `view` full or restricted) | T2.2 | Done |
 | "Case assigned" (previous and new case worker id) and "status changed" (from, to) | T2.3 | Done |
 | "Case updated" (`details.change`: FieldChanged, HealthPersonnelAdded, HealthPersonnelRemoved) | T2.4 | Done |
-| Entries for the other logged actions | T2.5–T3.6 | *(planned, with each action)* |
+| "Case updated" for companies (`CompanyAdded`, `CompanyRemoved`, by company id) | T2.5 | Done |
+| Entries for the other logged actions | T2.6–T3.6 | *(planned, with each action)* |
 | Audit log per case (Leader) | T3.7 | *(planned)* |
 | Global audit log with filters (Admin) | T3.8 | *(planned)* |
 

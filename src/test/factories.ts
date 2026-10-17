@@ -56,6 +56,7 @@ export function makeHealthPersonnel(overrides: Partial<HealthPersonnel> = {}): H
 
 export function makeCompany(overrides: Partial<Company> = {}): Company {
   return companySchema.parse({
+    id: crypto.randomUUID(),
     organizationNumber: '900000001',
     name: 'Test Clinic',
     description: 'Fake company for tests',

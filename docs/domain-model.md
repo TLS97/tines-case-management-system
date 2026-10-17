@@ -28,6 +28,7 @@ classDiagram
     description
   }
   class Company {
+    id
     organizationNumber
     name
     description

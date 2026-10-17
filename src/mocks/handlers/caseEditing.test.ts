@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { caseResponseSchema, type NewHealthPersonnel } from '@/features/cases';
+import { caseResponseSchema, type NewCompany, type NewHealthPersonnel } from '@/features/cases';
 import { ApiError, apiRequest } from '@/shared/api/apiRequest';
-import { makeCase, makeHealthPersonnel } from '@/test/factories';
+import { makeCase, makeCompany, makeHealthPersonnel } from '@/test/factories';
 import { storeCases } from '@/test/mockCases';
 import {
   actAs,
@@ -243,5 +243,106 @@ describe('F-002 only the assigned case worker can edit', () => {
     await expect(changeField(id, 'Social')).rejects.toEqual(
       new ApiError(404, `/api/cases/${id}/field`),
     );
+  });
+});
+
+describe('F-002 companies', () => {
+  const newCompany: NewCompany = {
+    organizationNumber: '900000777',
+    name: 'Fake Clinic',
+    description: 'Outpatient clinic',
+    address: {
+      streetName: 'Fake Street 3',
+      zipCode: '0456',
+      state: 'Fake State',
+      country: 'Norway',
+    },
+  };
+  const addCompany = (id: string, company: unknown) =>
+    request('POST', `/api/cases/${id}/companies`, company);
+  const removeCompany = (id: string, companyId: string) =>
+    request('DELETE', `/api/cases/${id}/companies/${companyId}`);
+
+  it('adds a company with an id and no reaction yet, logged by id only', async () => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    const response = await addCompany(target.id, newCompany);
+
+    const companies = response.access === 'full' ? response.supervisionCase.companies : [];
+    expect(companies).toEqual([{ id: expect.any(String) as unknown, ...newCompany }]);
+    expect(response.supervisionCase.status).toBe('InProgress');
+    expect(readDb().auditLog[0]).toMatchObject({
+      action: 'CaseUpdated',
+      details: { change: 'CompanyAdded', companyId: companies[0]?.id },
+    });
+    const log = JSON.stringify(readDb().auditLog);
+    for (const value of [
+      '900000777',
+      'Fake Clinic',
+      'Outpatient clinic',
+      'Fake Street 3',
+      '0456',
+    ]) {
+      expect(log).not.toContain(value);
+    }
+  });
+
+  it('rejects the same organization number twice with 409', async () => {
+    const target = assignedCase({
+      companies: [makeCompany({ organizationNumber: '900000777' })],
+    });
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await expect(addCompany(target.id, newCompany)).rejects.toEqual(
+      new ApiError(409, `/api/cases/${target.id}/companies`),
+    );
+  });
+
+  it.each([
+    ['an organization number with 8 digits', { ...newCompany, organizationNumber: '12345678' }],
+    ['an organization number with spaces', { ...newCompany, organizationNumber: '900 000 777' }],
+    ['no name', { ...newCompany, name: '' }],
+    ['no street name', { ...newCompany, address: { ...newCompany.address, streetName: '' } }],
+    ['no country', { ...newCompany, address: { ...newCompany.address, country: '' } }],
+  ])('rejects %s with 400', async (_label, company) => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await expect(addCompany(target.id, company)).rejects.toEqual(
+      new ApiError(400, `/api/cases/${target.id}/companies`),
+    );
+    expect(readDb().cases[0]).toEqual(target);
+  });
+
+  it('removes a company, logged by id without its details', async () => {
+    const company = makeCompany({ name: 'Removed Clinic' });
+    const target = assignedCase({ status: 'InProgress', companies: [company] });
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await removeCompany(target.id, company.id);
+
+    expect(readDb().cases[0]?.companies).toEqual([]);
+    expect(readDb().auditLog[0]).toMatchObject({
+      details: { change: 'CompanyRemoved', companyId: company.id },
+    });
+    expect(JSON.stringify(readDb().auditLog)).not.toContain('Removed Clinic');
+  });
+
+  it('refuses the leader with 403 and logs Denied', async () => {
+    const target = assignedCase();
+    storeCases(target);
+    actAs(INGRID_LEADER_DEPT_1);
+
+    await expect(addCompany(target.id, newCompany)).rejects.toEqual(
+      new ApiError(403, `/api/cases/${target.id}/companies`),
+    );
+    expect(readDb().auditLog).toMatchObject([
+      { action: 'CaseUpdated', result: 'Denied', details: { change: 'CompanyAdded' } },
+    ]);
   });
 });

@@ -1,0 +1,38 @@
+# Dependabot opens update PRs; Tine reviews them like any other PR (docs/conventions/security.md).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Designsystemet packages must stay on the same version. After merging, bump the
+      # generator version in the "tokens" script by hand and run it (decision 0007).
+      designsystemet:
+        patterns: ['@digdir/*']
+      # Minor and patch updates together in one PR; major updates get their own PR.
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Held back on purpose (decision 0006): typescript-eslint supports TypeScript below 6.1,
+      # and eslint-plugin-jsx-a11y supports ESLint 9 at most. Remove when that changes.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      - dependency-name: eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
+      # Keep in line with the Node version used locally and in CI (24).
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ['*']

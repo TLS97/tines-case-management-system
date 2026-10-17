@@ -26,7 +26,7 @@ flowchart TD
 ## Routes
 | Route | Page | Feature | Built |
 |---|---|---|---|
-| `/` | Case overview (`CaseOverviewPage`), filters in the address (`?field=&status=&reaction=`); leaders' notice about deactivated case workers on top | F-003, F-004 | Yes |
+| `/` | Case overview (`CaseOverviewPage`), filters in the address (`?field=&status=&reaction=`); leaders' notice about deactivated case workers on top, their "Lent out" list at the bottom | F-003, F-004 | Yes |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
 | `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin, assign and reassign |
 | `/admin/users` | User admin: list, add, deactivate, reactivate, change fields and department (`UsersPage`) | F-004 | Yes |
@@ -43,7 +43,7 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `GET /api/cases` | The cases the user may see, newest first (F-003); restricted rows without reactions for Admin |
 | `POST /api/cases` | Create a case, body `{ field }` (F-001); 403 and a Denied audit entry if not allowed |
 | `GET /api/cases/:id` | Open a case: full, or restricted for Admin (F-002, F-004); 403 + Denied entry without access; 404 if missing; logs "case opened" |
-| `GET /api/cases/:id/eligible-case-workers` | Case workers the case can be assigned to (F-004, leaders) |
+| `GET /api/cases/:id/eligible-case-workers` | Case workers the case can be assigned to, from every department (F-004, leaders) |
 | `PUT /api/cases/:id/assignee` | Assign or reassign, body `{ caseWorkerId }` (F-004); returns the updated case |
 | `PATCH /api/cases/:id/field` | Change the field, body `{ field }` (F-002, assigned case worker) |
 | `POST /api/cases/:id/health-personnel` | Add a health personnel (F-002); 409 if the number is already on the case |
@@ -65,6 +65,7 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `GET /api/users/:id/blocking-cases` | Open cases that keep a user from moving department (F-004, Admin) |
 | `PUT /api/users/:id/department` | Move a user, body `{ departmentId }` (F-004, Admin); 409 while open cases block it |
 | `GET /api/notifications` | The current user's notifications (F-004: cases with a deactivated case worker, for leaders) |
+| `GET /api/lent-out-cases` | The leader's case workers on cases (not closed) in other departments (F-004, leaders) |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |

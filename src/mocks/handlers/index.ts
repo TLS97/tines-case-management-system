@@ -3,6 +3,7 @@ import { caseReadAccessHandlers } from './caseReadAccess';
 import { caseHandlers } from './cases';
 import { caseStatusHandlers } from './caseStatus';
 import { currentUserHandlers } from './currentUser';
+import { lentOutHandlers } from './lentOut';
 import { mockToolHandlers } from './mockTools';
 import { notificationHandlers } from './notifications';
 import { userHandlers } from './users';
@@ -13,6 +14,7 @@ export const handlers = [
   ...caseEditingHandlers,
   ...caseStatusHandlers,
   ...caseReadAccessHandlers,
+  ...lentOutHandlers,
   ...userHandlers,
   ...notificationHandlers,
   ...mockToolHandlers,

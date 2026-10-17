@@ -6,12 +6,14 @@ import {
   Label,
   Paragraph,
   Select,
+  SelectOptgroup,
   Spinner,
   ValidationMessage,
 } from '@digdir/designsystemet-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { FIELD_LABELS } from '@/features/auth';
+import { DEPARTMENT_NAMES, FIELD_LABELS } from '@/features/auth';
+import { isBorrowed } from '../assignment';
 import { ApiError } from '@/shared/api/apiRequest';
 import type { CaseWorkerSummary } from '../caseResponse';
 import { useAssignCase, useEligibleCaseWorkers } from '../hooks/useAssignCase';
@@ -29,8 +31,8 @@ interface AssignCaseSectionProps {
   supervisionCase: SupervisionCase;
 }
 
-// F-004: the leader assigns an Unassigned case, or reassigns it to another case worker.
-// Only rendered when can(user, 'assignCase', case).
+// F-004: the leader assigns an Unassigned case, or reassigns it to another case worker: one from their
+// own department, or one borrowed from another department. Only rendered when can(user, 'assignCase', case).
 export function AssignCaseSection({ supervisionCase }: AssignCaseSectionProps) {
   const eligible = useEligibleCaseWorkers(supervisionCase.id);
   const assign = useAssignCase(supervisionCase.id);
@@ -46,6 +48,10 @@ export function AssignCaseSection({ supervisionCase }: AssignCaseSectionProps) {
   const candidates = (eligible.data ?? []).filter(
     (caseWorker) => caseWorker.id !== supervisionCase.assignedTo,
   );
+  const ownDepartment = candidates.filter((caseWorker) => !isBorrowed(caseWorker, supervisionCase));
+  const otherDepartments = candidates
+    .filter((caseWorker) => isBorrowed(caseWorker, supervisionCase))
+    .sort((a, b) => a.departmentId - b.departmentId);
 
   const onSubmit = handleSubmit(({ caseWorkerId }) => {
     assign.mutate(caseWorkerId, { onSuccess: () => reset() });
@@ -62,8 +68,8 @@ export function AssignCaseSection({ supervisionCase }: AssignCaseSectionProps) {
         <Paragraph>The case workers could not be loaded. Try again.</Paragraph>
       ) : candidates.length === 0 ? (
         <Paragraph>
-          There are no {isReassign ? 'other ' : ''}active case workers in your department with
-          access to the field {FIELD_LABELS[supervisionCase.field]}.
+          There are no {isReassign ? 'other ' : ''}active case workers with access to the field{' '}
+          {FIELD_LABELS[supervisionCase.field]}.
         </Paragraph>
       ) : (
         <form className={styles.inlineForm} onSubmit={(event) => void onSubmit(event)} noValidate>
@@ -77,11 +83,24 @@ export function AssignCaseSection({ supervisionCase }: AssignCaseSectionProps) {
               {...register('caseWorkerId')}
             >
               <option value="">Choose a case worker</option>
-              {candidates.map((caseWorker) => (
-                <option key={caseWorker.id} value={caseWorker.id}>
-                  {fullName(caseWorker)}
-                </option>
-              ))}
+              {ownDepartment.length > 0 && (
+                <SelectOptgroup label="Your department">
+                  {ownDepartment.map((caseWorker) => (
+                    <option key={caseWorker.id} value={caseWorker.id}>
+                      {fullName(caseWorker)}
+                    </option>
+                  ))}
+                </SelectOptgroup>
+              )}
+              {otherDepartments.length > 0 && (
+                <SelectOptgroup label="Other departments (borrow)">
+                  {otherDepartments.map((caseWorker) => (
+                    <option key={caseWorker.id} value={caseWorker.id}>
+                      {fullName(caseWorker)} ({DEPARTMENT_NAMES[caseWorker.departmentId]})
+                    </option>
+                  ))}
+                </SelectOptgroup>
+              )}
             </Select>
             {errors.caseWorkerId && (
               <ValidationMessage id={ERROR_ID}>{errors.caseWorkerId.message}</ValidationMessage>

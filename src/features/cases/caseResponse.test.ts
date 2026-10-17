@@ -7,6 +7,7 @@ describe('caseWorkerDisplayName', () => {
     firstName: 'Magnus',
     surname: 'Berg',
     isActive: true,
+    departmentId: 1 as const,
   };
 
   it('shows the name of an active case worker', () => {

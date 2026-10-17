@@ -214,3 +214,40 @@ describe('F-003 filters', () => {
     expect(caseNumbers()).toHaveLength(4);
   });
 });
+
+describe('F-004 "Lent out" list', () => {
+  const borrowed = makeCase({
+    caseNumber: '2026/0030',
+    departmentId: 3,
+    status: 'InProgress',
+    assignedTo: magnus.id,
+  });
+
+  it('shows the leader their case workers’ cases in other departments, without links', async () => {
+    storeCases(borrowed);
+    await openOverviewAs(INGRID_LEADER_DEPT_1);
+
+    const lentOut = await screen.findByRole('region', { name: 'Lent out' });
+    expect(within(lentOut).getByRole('listitem')).toHaveTextContent(
+      '2026/0030, Department of Business Management: Magnus Berg',
+    );
+    expect(within(lentOut).queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('is not shown when none of their case workers are lent out', async () => {
+    await openOverviewAs(INGRID_LEADER_DEPT_1);
+
+    expect(screen.queryByRole('region', { name: 'Lent out' })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['the leader of the borrowing department', 'erik.nygard@example.com'],
+    ['the borrowed case worker', 'magnus.berg@example.com'],
+    ['Admin', LARS_ADMIN],
+  ])('is not shown to %s', async (_label, email) => {
+    storeCases(borrowed);
+    await openOverviewAs(email);
+
+    expect(screen.queryByRole('region', { name: 'Lent out' })).not.toBeInTheDocument();
+  });
+});

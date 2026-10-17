@@ -18,3 +18,8 @@
   width: 100%;
   overflow-x: auto;
 }
+
+.lentOut {
+  display: grid;
+  gap: var(--ds-size-2);
+}

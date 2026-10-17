@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { makeCase, makeUser } from '@/test/factories';
-import { isEligibleCaseWorker } from './assignment';
+import { isBorrowed, isEligibleCaseWorker } from './assignment';
 
 describe('F-004 who a case can be assigned to', () => {
   const healthCase = makeCase({ departmentId: 1, field: 'Health' });
@@ -21,9 +21,16 @@ describe('F-004 who a case can be assigned to', () => {
     expect(isEligibleCaseWorker(candidate, healthCase)).toBe(true);
   });
 
+  it('also a case worker from another department, who is then borrowed', () => {
+    const fromDepartment3 = { ...eligible, departmentId: 3 as const };
+
+    expect(isEligibleCaseWorker(fromDepartment3, healthCase)).toBe(true);
+    expect(isBorrowed(fromDepartment3, healthCase)).toBe(true);
+    expect(isBorrowed(eligible, healthCase)).toBe(false);
+  });
+
   it.each([
     ['inactive', { isActive: false }],
-    ['in another department', { departmentId: 2 as const }],
     ['without the case’s field', { primaryField: 'Social' as const, fields: ['Social' as const] }],
     ['a leader', { role: 'Leader' as const }],
     ['an admin', { role: 'Admin' as const }],

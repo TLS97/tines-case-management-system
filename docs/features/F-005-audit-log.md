@@ -44,6 +44,7 @@ flowchart LR
 | "Case created" | T2.1 | Done |
 | "Case opened" (details: `view` full or restricted) | T2.2 | Done |
 | "Case assigned" (previous and new case worker id) and "status changed" (from, to) | T2.3 | Done |
+| "Case assigned": a borrowed case worker's home department (`homeDepartmentId`) | T3.10 | Done |
 | "Case updated" (`details.change`: FieldChanged, HealthPersonnelAdded, HealthPersonnelRemoved) | T2.4 | Done |
 | "Case updated" for companies (`CompanyAdded`, `CompanyRemoved`, by company id) | T2.5 | Done |
 | "Reaction given" (`HealthPersonnelReactionGiven` / `CompanyReactionGiven`, by party id, never the reaction) | T2.6 | Done |

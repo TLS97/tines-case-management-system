@@ -115,7 +115,13 @@ describe('F-003 GET /api/cases', () => {
       field: 'Health',
       status: 'InProgress',
       departmentId: 1,
-      assignedCaseWorker: { id: tine.id, firstName: 'Tine', surname: 'Tester', isActive: true },
+      assignedCaseWorker: {
+        id: tine.id,
+        firstName: 'Tine',
+        surname: 'Tester',
+        isActive: true,
+        departmentId: 1,
+      },
       reactions: ['NoReaction', 'Prohibition'],
     });
   });

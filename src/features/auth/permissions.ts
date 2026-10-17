@@ -27,9 +27,11 @@ interface ActionTargets {
   manageReadAccess: SupervisionCase;
   /** View the audit log for one case (F-005). */
   viewCaseAuditLog: SupervisionCase;
+  /** See the own department's case workers' cases in other departments, the "Lent out" list (F-004). */
+  seeLentOutCases: undefined;
   /** View the global audit log (F-005). */
   viewGlobalAuditLog: undefined;
-  /** Add users, deactivate users, change a user's fields and department (F-004). */
+  /** Add, deactivate and reactivate users, change a user's fields and department (F-004). */
   manageUsers: undefined;
 }
 
@@ -83,6 +85,7 @@ const RULES: { [A in Action]: Rule<A> } = {
   assignCase: (user, c) => user.role === 'Leader' && isOwnDepartment(user, c) && !isClosed(c),
   manageReadAccess: (user, c) => user.role === 'Leader' && isOwnDepartment(user, c) && !isClosed(c),
   viewCaseAuditLog: (user, c) => user.role === 'Leader' && isOwnDepartment(user, c),
+  seeLentOutCases: (user) => user.role === 'Leader',
   viewGlobalAuditLog: (user) => user.role === 'Admin',
   manageUsers: (user) => user.role === 'Admin',
 };

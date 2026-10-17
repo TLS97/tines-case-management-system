@@ -1,16 +1,21 @@
 import { z } from 'zod';
+import { departmentIdSchema } from '@/features/auth';
 import { restrictedSupervisionCaseSchema } from './restrictedView';
 import { supervisionCaseSchema } from './types';
 
 // What the mock API returns when a case is opened (GET /api/cases/:id): the full case, or for
 // Admin the restricted view (F-004), plus the assigned case worker's name for display.
 
-/** Name and active status of the assigned case worker. Not sensitive case data, so Admin gets it too. */
+/**
+ * Name, active status and home department of a case worker. Not sensitive case data, so Admin gets it
+ * too. The department shows whether they are borrowed for a case (F-004).
+ */
 export const caseWorkerSummarySchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   surname: z.string(),
   isActive: z.boolean(),
+  departmentId: departmentIdSchema,
 });
 
 export const caseResponseSchema = z.discriminatedUnion('access', [

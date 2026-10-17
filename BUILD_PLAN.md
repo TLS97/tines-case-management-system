@@ -55,7 +55,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
 - [ ] **T3.7** Audit log per case (Leader) (F-005)
 - [ ] **T3.8** Global audit log with filters (Admin) (F-005)
 - [x] **T3.9** Reactivate a deactivated user (Admin) (F-004)
-- [ ] **T3.10** Borrow a case worker from another department for a case; "Lent out" list for the home leader (F-004)
+- [x] **T3.10** Borrow a case worker from another department for a case; "Lent out" list for the home leader (F-004)
 - **Done when:** F-001 to F-005 meet all acceptance criteria, each has an e2e happy path, and all are **Done** in SPEC.md
 
 ## Phase 4: Follow-up (F-010, F-011)

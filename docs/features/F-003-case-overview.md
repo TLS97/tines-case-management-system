@@ -1,11 +1,11 @@
 # F-003 Case overview
 
-**Status:** In progress
+**Status:** Done
 **Spec:** [SPEC.md](../../SPEC.md#f-003-case-overview-approved-2026-10-17)
 
 ## What it does
 The Cases page (`/`) lists the cases the user may see, newest first, with case number, field, status, assigned
-case worker and reactions. The case number opens the case. Filters come in T3.2.
+case worker and reactions. The case number opens the case. Filters narrow the list by field, status and reaction.
 
 ## Who can use it
 | Role | Sees |
@@ -33,11 +33,21 @@ flowchart LR
 - Listing cases is not logged as "case opened"; only opening a case is.
 - The query is under `['cases']`, so creating a case refreshes the overview.
 
+## Filters
+- **Field**, **Status** and **Reaction**, one value each or "All"; they combine (a case must match all).
+- A case matches a reaction if any health personnel or company in it has it (`filterRows`, `features/overview/filters.ts`).
+- Admin has no reaction filter (restricted rows have no reactions); a reaction in the address is ignored for Admin.
+- Kept in the page address (`?field=Health&status=Closed`): they survive a reload and can be bookmarked. Unknown
+  values are ignored. Each change replaces the address, so Back leaves the page instead of undoing filters.
+- "Showing 2 of 5 cases." is announced when filters are set; "No cases match the filters." when nothing matches;
+  **Clear filters** removes them all.
+- On narrow screens the table scrolls sideways inside its own region ("Cases table") instead of being cut off.
+
 ## Built so far
 | Part | Task | Status |
 |---|---|---|
 | Overview table per role | T3.1 | Done |
-| Filters: field, status, reaction; combine and clear; empty message | T3.2 | *(planned)* |
+| Filters: field, status, reaction; combine and clear; empty message | T3.2 | Done |
 
 ## Data
 `GET /api/cases` (mock, `handlers/cases.ts`), `caseOverviewQuery`, `OverviewRow`, `reactionsInCase`, `REACTION_LABELS`.

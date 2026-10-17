@@ -31,17 +31,22 @@ describe('mock database', () => {
   });
 
   it('loads the seed data again when the stored data does not match the schema', () => {
-    localStorage.setItem(MOCK_DB_STORAGE_KEY, JSON.stringify({ version: 3, users: [{ id: 'x' }] }));
+    localStorage.setItem(MOCK_DB_STORAGE_KEY, JSON.stringify({ version: 4, users: [{ id: 'x' }] }));
 
     expect(readDb().users).toHaveLength(19);
-    expect(storedDb()).toMatchObject({ version: 3 });
+    expect(storedDb()).toMatchObject({ version: 4 });
   });
 
   it('loads the seed data again when the stored data has an older version', () => {
     const version2 = { version: 2, users: SEED_USERS, currentUserId: DEFAULT_USER_ID };
     localStorage.setItem(MOCK_DB_STORAGE_KEY, JSON.stringify(version2));
 
-    expect(readDb()).toMatchObject({ version: 3, currentUserId: DEFAULT_USER_ID, auditLog: [] });
+    expect(readDb()).toMatchObject({
+      version: 4,
+      currentUserId: DEFAULT_USER_ID,
+      cases: [],
+      auditLog: [],
+    });
   });
 
   it('starts as the default user, Tine Tester', () => {

@@ -11,7 +11,8 @@
 - Shared Vitest setup and test helpers (factories like `makeUser`): `src/test/`.
   `renderRoute(path)` renders the app at an address with the real routes and providers.
   `makeUser`, `makeCase`, `makeHealthPersonnel` and `makeCompany` (`src/test/factories.ts`) build valid fake data;
-  every result is checked against its schema.
+  every result is checked against its schema. `actAs(email)` (`src/test/mockUsers.ts`) makes the mock API act as a
+  seed user, like the user switcher.
 - E2E tests: `tests/e2e/*.spec.ts`. Run with `npm run test:e2e`; the first time, run `npm run test:e2e:install` to download Chromium.
 
 ## Rules

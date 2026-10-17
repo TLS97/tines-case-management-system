@@ -1,0 +1,11 @@
+.form {
+  display: grid;
+  gap: var(--ds-size-6);
+  justify-items: start;
+  max-width: 40rem;
+}
+
+.field {
+  display: grid;
+  gap: var(--ds-size-2);
+}

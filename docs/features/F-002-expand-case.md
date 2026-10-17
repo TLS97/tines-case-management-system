@@ -54,6 +54,11 @@ flowchart TD
   state, country). The same organization number cannot be added twice (409). Rules in `forms/companyForm.ts`,
   matching the mock API's `newCompanySchema`.
 - **Remove company:** after a confirmation dialog (`ConfirmRemoveButton`, shared with health personnel).
+- **Reactions:** each health personnel and company has a "Reaction for …" selector offering only its allowed
+  reactions (health personnel: No reaction, Prohibition, Restriction of practice; company: No reaction,
+  Self-assessment). A reaction can be changed later; giving the same reaction again is refused (400). Logged as
+  "reaction given" with the party's id only: the reaction itself is sensitive case data. Others see the reaction
+  as text.
 - **First change:** an Assigned case becomes InProgress ("status changed" is logged).
 - Every change is logged as "case updated" with `details.change` (`FieldChanged`, `HealthPersonnelAdded`,
   `HealthPersonnelRemoved`, `CompanyAdded`, `CompanyRemoved`) and the party's id, never names or numbers.
@@ -78,8 +83,9 @@ flowchart LR
   a deactivated case worker is shown as "(deactivated)".
 - `GET /api/cases/:id` (mock), using `viewCase` (F-004) and `recordAudit` (F-005).
 - `PATCH /api/cases/:id/field`, `POST /api/cases/:id/health-personnel`, `DELETE /api/cases/:id/health-personnel/:personId`
-  `POST /api/cases/:id/companies`, `DELETE /api/cases/:id/companies/:companyId` (mock, `handlers/caseEditing.ts`);
-  each returns the updated case.
+  `POST /api/cases/:id/companies`, `DELETE /api/cases/:id/companies/:companyId`,
+  `PUT /api/cases/:id/health-personnel/:personId/reaction`, `PUT /api/cases/:id/companies/:companyId/reaction`
+  (mock, `handlers/caseEditing.ts`); each returns the updated case.
 - Dates are shown with `formatDate` ("1 Jan 2020").
 
 ## Built so far
@@ -88,5 +94,5 @@ flowchart LR
 | Case detail page, read-only, restricted view for Admin, "case opened" logged | T2.2 | Done |
 | Edit field; add and remove health personnel; InProgress on first change | T2.4 | Done |
 | Add and remove companies | T2.5 | Done |
-| Reactions | T2.6 | *(planned)* |
+| Reactions | T2.6 | Done |
 | Close case | T2.7 | *(planned)* |

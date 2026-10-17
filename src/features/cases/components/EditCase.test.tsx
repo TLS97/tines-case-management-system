@@ -280,3 +280,74 @@ describe('F-002 companies', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('F-002 reactions', () => {
+  const company = makeCompany({ name: 'Reaction Clinic' });
+  const withParties = () => caseFor({ status: 'InProgress', companies: [company] }); // existingPerson is already on the case
+
+  function optionsOf(select: HTMLElement) {
+    return within(select)
+      .getAllByRole('option')
+      .map((option) => option.textContent);
+  }
+
+  it('offers only the reactions allowed for each kind of party', async () => {
+    await openAs(MAGNUS, withParties());
+
+    expect(optionsOf(screen.getByLabelText('Reaction for Existingfirst Existinglast'))).toEqual([
+      'Choose a reaction',
+      'No reaction',
+      'Prohibition',
+      'Restriction of practice',
+    ]);
+    expect(optionsOf(screen.getByLabelText('Reaction for Reaction Clinic'))).toEqual([
+      'Choose a reaction',
+      'No reaction',
+      'Self-assessment',
+    ]);
+  });
+
+  it('saves a health personnel reaction', async () => {
+    const { user } = await openAs(MAGNUS, withParties());
+    const select = screen.getByLabelText('Reaction for Existingfirst Existinglast');
+    const card = within(select.closest('li') as HTMLElement);
+    const save = card.getByRole('button', { name: 'Save reaction' });
+    expect(save).toBeDisabled();
+
+    await user.selectOptions(select, 'Restriction of practice');
+    await user.click(save);
+
+    expect(await card.findByText('The reaction is saved.')).toBeInTheDocument();
+    expect(readDb().cases[0]?.healthPersonnel[0]?.reaction).toBe('RestrictionOfPractice');
+    // Once saved, there is no "Choose a reaction" any more, and saving the same again is not offered.
+    expect(optionsOf(select)).not.toContain('Choose a reaction');
+    expect(save).toBeDisabled();
+  });
+
+  it('saves a company reaction', async () => {
+    const { user } = await openAs(MAGNUS, withParties());
+    const select = screen.getByLabelText('Reaction for Reaction Clinic');
+
+    await user.selectOptions(select, 'Self-assessment');
+    await user.click(
+      within(select.closest('li') as HTMLElement).getByRole('button', { name: 'Save reaction' }),
+    );
+
+    await waitFor(() => expect(readDb().cases[0]?.companies[0]?.reaction).toBe('SelfAssessment'));
+  });
+
+  it('shows the leader the reactions as text, without selectors', async () => {
+    await openAs(
+      INGRID_LEADER_DEPT_1,
+      caseFor({
+        status: 'InProgress',
+        healthPersonnel: [{ ...existingPerson, reaction: 'Prohibition' }],
+        companies: [{ ...company, reaction: 'SelfAssessment' }],
+      }),
+    );
+
+    expect(screen.getByText('Reaction: Prohibition')).toBeInTheDocument();
+    expect(screen.getByText('Reaction: Self-assessment')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save reaction' })).not.toBeInTheDocument();
+  });
+});

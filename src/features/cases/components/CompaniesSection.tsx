@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { COMPANY_REACTION_LABELS } from '../labels';
 import type { Company } from '../types';
 import { AddCompanyForm } from './AddCompanyForm';
+import { CompanyReactionForm } from './PartyReactionForms';
 import styles from './CaseDetail.module.css';
 import { RemoveCompanyButton } from './RemoveCompanyButton';
 
@@ -38,12 +39,16 @@ export function CompaniesSection({ caseId, companies, editable }: CompaniesSecti
                   Address: {company.address.streetName}, {company.address.zipCode},{' '}
                   {company.address.state}, {company.address.country}
                 </Paragraph>
-                <Paragraph>
-                  Reaction:{' '}
-                  {company.reaction
-                    ? COMPANY_REACTION_LABELS[company.reaction]
-                    : 'No reaction given yet'}
-                </Paragraph>
+                {editable ? (
+                  <CompanyReactionForm caseId={caseId} company={company} />
+                ) : (
+                  <Paragraph>
+                    Reaction:{' '}
+                    {company.reaction
+                      ? COMPANY_REACTION_LABELS[company.reaction]
+                      : 'No reaction given yet'}
+                  </Paragraph>
+                )}
                 {editable && (
                   <RemoveCompanyButton
                     caseId={caseId}

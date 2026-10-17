@@ -17,13 +17,15 @@ export const AUDIT_ACTIONS = [
 
 export const AUDIT_RESULTS = ['Success', 'Denied'] as const;
 
-/** What a "case updated" entry changed (`details.change`). */
+/** What a "case updated" or "reaction given" entry changed (`details.change`). */
 export const CASE_CHANGES = [
   'FieldChanged',
   'HealthPersonnelAdded',
   'HealthPersonnelRemoved',
   'CompanyAdded',
   'CompanyRemoved',
+  'HealthPersonnelReactionGiven',
+  'CompanyReactionGiven',
 ] as const;
 
 export const auditActionSchema = z.enum(AUDIT_ACTIONS);

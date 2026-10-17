@@ -7,9 +7,16 @@ import {
   changeCaseField,
   removeCompany,
   removeHealthPersonnel,
+  setCompanyReaction,
+  setHealthPersonnelReaction,
 } from '../api';
 import type { CaseResponse } from '../caseResponse';
-import type { NewCompany, NewHealthPersonnel } from '../types';
+import type {
+  CompanyReaction,
+  HealthPersonnelReaction,
+  NewCompany,
+  NewHealthPersonnel,
+} from '../types';
 
 // F-002 edits. Each updates the page from the mock API's response instead of refetching the case,
 // since every fetch of a case is logged as "case opened" (F-005).
@@ -47,4 +54,16 @@ export function useAddCompany(caseId: string) {
 
 export function useRemoveCompany(caseId: string) {
   return useCaseMutation(caseId, (companyId: string) => removeCompany(caseId, companyId));
+}
+
+export function useSetHealthPersonnelReaction(caseId: string, personId: string) {
+  return useCaseMutation(caseId, (reaction: HealthPersonnelReaction) =>
+    setHealthPersonnelReaction(caseId, personId, reaction),
+  );
+}
+
+export function useSetCompanyReaction(caseId: string, companyId: string) {
+  return useCaseMutation(caseId, (reaction: CompanyReaction) =>
+    setCompanyReaction(caseId, companyId, reaction),
+  );
 }

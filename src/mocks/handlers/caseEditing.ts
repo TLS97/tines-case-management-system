@@ -1,14 +1,21 @@
 import { http, HttpResponse } from 'msw';
 import { z } from 'zod';
-import type { AuditDetails, CaseChange } from '@/features/audit-log';
+import type { AuditAction, AuditDetails, CaseChange } from '@/features/audit-log';
 import { can, fieldSchema, type User } from '@/features/auth';
-import { newCompanySchema, newHealthPersonnelSchema, type SupervisionCase } from '@/features/cases';
+import {
+  companyReactionSchema,
+  healthPersonnelReactionSchema,
+  newCompanySchema,
+  newHealthPersonnelSchema,
+  type SupervisionCase,
+} from '@/features/cases';
 import { recordAudit } from '../auditLog';
 import { caseResponse } from '../caseResponses';
 import { currentUser, readDb, writeDb, type MockDb } from '../db';
 
 // F-002: the assigned case worker edits the case. Every endpoint checks can(user, 'editCase', case),
-// logs "case updated" (Success or Denied), and moves an Assigned case to InProgress on its first change.
+// logs "case updated" or "reaction given" (Success or Denied), and moves an Assigned case to InProgress on its
+// first change.
 
 const changeFieldBodySchema = z.object({ field: fieldSchema });
 
@@ -18,6 +25,8 @@ type EditResult = { ok: true; updated: SupervisionCase } | { ok: false; status: 
 type ChangeDetails = AuditDetails & { change: CaseChange };
 
 interface CaseEdit {
+  /** F-005 action to log; reactions have their own action, everything else is "case updated". */
+  action?: Extract<AuditAction, 'CaseUpdated' | 'ReactionGiven'>;
   details: ChangeDetails;
   apply: (supervisionCase: SupervisionCase, user: User) => EditResult;
 }
@@ -33,7 +42,7 @@ function editCase(caseId: unknown, edit: CaseEdit): Response {
     writeDb(
       recordAudit(db, {
         userId: user.id,
-        action: 'CaseUpdated',
+        action: edit.action ?? 'CaseUpdated',
         result: 'Denied',
         supervisionCase,
         details: { change: edit.details.change },
@@ -45,7 +54,7 @@ function editCase(caseId: unknown, edit: CaseEdit): Response {
   const result = edit.apply(supervisionCase, user);
   if (!result.ok) return new HttpResponse(null, { status: result.status });
 
-  const next = saveChange(db, user, supervisionCase, result.updated, edit.details);
+  const next = saveChange(db, user, supervisionCase, result.updated, edit);
   writeDb(next);
   const saved =
     next.cases.find((candidate) => candidate.id === supervisionCase.id) ?? result.updated;
@@ -57,7 +66,7 @@ function saveChange(
   user: User,
   before: SupervisionCase,
   changed: SupervisionCase,
-  details: ChangeDetails,
+  { action = 'CaseUpdated', details }: Pick<CaseEdit, 'action' | 'details'>,
 ): MockDb {
   // SPEC.md "Case status": the assigned case worker's first change moves Assigned to InProgress.
   const updated: SupervisionCase =
@@ -81,7 +90,7 @@ function saveChange(
   };
   next = recordAudit(next, {
     userId: user.id,
-    action: 'CaseUpdated',
+    action,
     result: 'Success',
     supervisionCase: allParties,
     details,
@@ -196,6 +205,61 @@ export const caseEditingHandlers = [
           return { ok: false, status: 400 };
         }
         return { ok: true, updated: { ...supervisionCase, companies: remaining } };
+      },
+    });
+  }),
+
+  // Give a health personnel a reaction: NoReaction, Prohibition or RestrictionOfPractice.
+  http.put('/api/cases/:id/health-personnel/:personId/reaction', async ({ params, request }) => {
+    const body = z
+      .object({ reaction: healthPersonnelReactionSchema })
+      .safeParse(await readBody(request));
+    if (!body.success) return new HttpResponse(null, { status: 400 });
+    const personId = String(params.personId);
+    const { reaction } = body.data;
+
+    return editCase(params.id, {
+      action: 'ReactionGiven',
+      // The reaction itself is sensitive case data, so only the person's id is logged.
+      details: { change: 'HealthPersonnelReactionGiven', healthPersonnelId: personId },
+      apply: (supervisionCase) => {
+        const person = supervisionCase.healthPersonnel.find((p) => p.id === personId);
+        if (!person || person.reaction === reaction) return { ok: false, status: 400 };
+        return {
+          ok: true,
+          updated: {
+            ...supervisionCase,
+            healthPersonnel: supervisionCase.healthPersonnel.map((p) =>
+              p.id === personId ? { ...p, reaction } : p,
+            ),
+          },
+        };
+      },
+    });
+  }),
+
+  // Give a company a reaction: NoReaction or SelfAssessment.
+  http.put('/api/cases/:id/companies/:companyId/reaction', async ({ params, request }) => {
+    const body = z.object({ reaction: companyReactionSchema }).safeParse(await readBody(request));
+    if (!body.success) return new HttpResponse(null, { status: 400 });
+    const companyId = String(params.companyId);
+    const { reaction } = body.data;
+
+    return editCase(params.id, {
+      action: 'ReactionGiven',
+      details: { change: 'CompanyReactionGiven', companyId },
+      apply: (supervisionCase) => {
+        const company = supervisionCase.companies.find((c) => c.id === companyId);
+        if (!company || company.reaction === reaction) return { ok: false, status: 400 };
+        return {
+          ok: true,
+          updated: {
+            ...supervisionCase,
+            companies: supervisionCase.companies.map((c) =>
+              c.id === companyId ? { ...c, reaction } : c,
+            ),
+          },
+        };
       },
     });
   }),

@@ -80,9 +80,27 @@ test('F-002 the assigned case worker edits the case', async ({ page }) => {
   await page.getByRole('button', { name: 'Add company' }).click();
   await expect(page.getByText('New Clinic was added.')).toBeVisible();
 
+  // Give reactions: each selector offers only that party's reactions.
+  await page.getByLabel('Reaction for Newfirst Newlast').selectOption({ label: 'Prohibition' });
+  await page
+    .getByRole('listitem')
+    .filter({ has: page.getByLabel('Reaction for Newfirst Newlast') })
+    .getByRole('button', { name: 'Save reaction' })
+    .click();
+  await page.getByLabel('Reaction for New Clinic').selectOption({ label: 'Self-assessment' });
+  await page
+    .getByRole('listitem')
+    .filter({ has: page.getByLabel('Reaction for New Clinic') })
+    .getByRole('button', { name: 'Save reaction' })
+    .click();
+  await expect(page.getByText('The reaction is saved.')).toHaveCount(2);
+  await expectNoAccessibilityViolations(page);
+
   // The changes are saved: they are still there after a reload.
   await page.reload();
   await expect(page.getByRole('heading', { level: 3, name: 'Newfirst Newlast' })).toBeVisible();
   await expect(summary('Field')).toHaveText('Social');
   await expect(page.getByRole('heading', { level: 3, name: 'New Clinic' })).toBeVisible();
+  await expect(page.getByLabel('Reaction for Newfirst Newlast')).toHaveValue('Prohibition');
+  await expect(page.getByLabel('Reaction for New Clinic')).toHaveValue('SelfAssessment');
 });

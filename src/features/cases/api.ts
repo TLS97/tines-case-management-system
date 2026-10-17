@@ -3,7 +3,13 @@ import type { Field } from '@/features/auth';
 import { apiRequest } from '@/shared/api/apiRequest';
 import { z } from 'zod';
 import { caseResponseSchema, caseWorkerSummarySchema } from './caseResponse';
-import { supervisionCaseSchema, type NewCompany, type NewHealthPersonnel } from './types';
+import {
+  supervisionCaseSchema,
+  type CompanyReaction,
+  type HealthPersonnelReaction,
+  type NewCompany,
+  type NewHealthPersonnel,
+} from './types';
 
 export function createCase(input: { field: Field }) {
   return apiRequest('/api/cases', {
@@ -89,5 +95,27 @@ export function removeCompany(caseId: string, companyId: string) {
   return editRequest(
     'DELETE',
     `/api/cases/${encodeURIComponent(caseId)}/companies/${encodeURIComponent(companyId)}`,
+  );
+}
+
+/** F-002: gives a health personnel a reaction. Returns the updated case. */
+export function setHealthPersonnelReaction(
+  caseId: string,
+  personId: string,
+  reaction: HealthPersonnelReaction,
+) {
+  return editRequest(
+    'PUT',
+    `/api/cases/${encodeURIComponent(caseId)}/health-personnel/${encodeURIComponent(personId)}/reaction`,
+    { reaction },
+  );
+}
+
+/** F-002: gives a company a reaction. Returns the updated case. */
+export function setCompanyReaction(caseId: string, companyId: string, reaction: CompanyReaction) {
+  return editRequest(
+    'PUT',
+    `/api/cases/${encodeURIComponent(caseId)}/companies/${encodeURIComponent(companyId)}/reaction`,
+    { reaction },
   );
 }

@@ -11,10 +11,12 @@ export {
   ROLES,
   roleSchema,
   newUserSchema,
+  userFieldsSchema,
   userSchema,
   type DepartmentId,
   type Field,
   type NewUser,
   type Role,
   type User,
+  type UserFields,
 } from './types';

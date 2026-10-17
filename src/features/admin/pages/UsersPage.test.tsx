@@ -154,6 +154,7 @@ describe('F-004 deactivate a user', () => {
     const { table } = await openAsAdmin();
 
     const ownRow = within(table).getByRole('row', { name: /Lars Johansen/ });
-    expect(within(ownRow).queryByRole('button')).not.toBeInTheDocument();
+    expect(within(ownRow).queryByRole('button', { name: /Deactivate/ })).not.toBeInTheDocument();
+    expect(within(ownRow).getByRole('button', { name: 'Edit Lars Johansen' })).toBeInTheDocument();
   });
 });

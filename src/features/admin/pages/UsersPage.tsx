@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { can, useCurrentUser } from '@/features/auth';
 import { Page } from '@/shared/components/Page';
 import { AddUserForm } from '../components/AddUserForm';
+import { EditUserPanel } from '../components/EditUserPanel';
 import { UsersTable } from '../components/UsersTable';
 import { useUsers } from '../hooks/useUsers';
 
-// F-004 user admin (Admin only): every user, adding and deactivating users. Changing fields and
-// department comes in T3.6.
+// F-004 user admin (Admin only): every user; adding, deactivating, and changing fields and department.
 export function UsersPage() {
   const user = useCurrentUser();
 
@@ -26,9 +26,15 @@ function UserAdmin({ currentUserId }: { currentUserId: string }) {
   const users = useUsers();
   const [isAdding, setIsAdding] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editing = users.data?.find((candidate) => candidate.id === editingId);
 
   return (
     <>
+      {editing && (
+        // A fresh panel per user, so nothing from the previous user is kept.
+        <EditUserPanel key={editing.id} user={editing} onClose={() => setEditingId(null)} />
+      )}
       {isAdding ? (
         <AddUserForm
           onAdded={(added) => {
@@ -59,6 +65,7 @@ function UserAdmin({ currentUserId }: { currentUserId: string }) {
           onDeactivated={(deactivated) =>
             setStatusMessage(`${deactivated.firstName} ${deactivated.surname} was deactivated.`)
           }
+          onEdit={(selected) => setEditingId(selected.id)}
         />
       )}
     </>

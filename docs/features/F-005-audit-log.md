@@ -51,7 +51,7 @@ flowchart LR
 | "Read access granted" / "read access removed" (by case worker id) | T3.3 | Done |
 | "User added" (`addedUserId`) | T3.4 | Done |
 | "User updated" for deactivating (`updatedUserId`, `isActive: false`) | T3.5 | Done |
-| "User updated" for fields and department | T3.6 | *(planned)* |
+| "User updated" for fields and department (`change`, new fields or from/to department) | T3.6 | Done |
 | Audit log per case (Leader) | T3.7 | *(planned)* |
 | Global audit log with filters (Admin) | T3.8 | *(planned)* |
 

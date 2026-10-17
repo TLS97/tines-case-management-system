@@ -205,7 +205,8 @@ Claude may set **In progress** in the feature's first PR and **Done** in its las
 - Every change is written to the audit log (F-005).
 
 ### F-003 Case overview *(Approved 2026-10-17)*
-- Shows case number, field, status, assigned case worker and reactions. Admin does not see reactions.
+- Shows case number, field, status, assigned case worker and reactions. Admin does not see reactions, but sees
+  each case's department.
 - CaseWorker sees cases assigned to them and cases they have read access to; Leader sees all cases
   in their department; Admin sees all cases.
 - Filters: field, status, reaction. A case matches a reaction filter if any health personnel or

@@ -5,8 +5,10 @@ import {
   addHealthPersonnel,
   caseQuery,
   changeCaseField,
+  closeCase,
   removeCompany,
   removeHealthPersonnel,
+  reopenCase,
   setCompanyReaction,
   setHealthPersonnelReaction,
 } from '../api';
@@ -66,4 +68,12 @@ export function useSetCompanyReaction(caseId: string, companyId: string) {
   return useCaseMutation(caseId, (reaction: CompanyReaction) =>
     setCompanyReaction(caseId, companyId, reaction),
   );
+}
+
+export function useCloseCase(caseId: string) {
+  return useCaseMutation(caseId, () => closeCase(caseId));
+}
+
+export function useReopenCase(caseId: string) {
+  return useCaseMutation(caseId, () => reopenCase(caseId));
 }

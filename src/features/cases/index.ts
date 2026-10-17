@@ -7,6 +7,7 @@ export {
   type CaseWorkerSummary,
 } from './caseResponse';
 export { lastSequenceInYear, nextCaseNumber } from './caseNumber';
+export { isReadyToClose, missingForClosing, type MissingForClosing } from './closing';
 export { CaseDetailPage } from './pages/CaseDetailPage';
 export { NewCasePage } from './pages/NewCasePage';
 export {

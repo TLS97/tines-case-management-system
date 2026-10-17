@@ -1,6 +1,6 @@
 # F-002 Expand supervision case
 
-**Status:** In progress
+**Status:** Done
 **Spec:** [SPEC.md](../../SPEC.md#f-002-expand-supervision-case-approved-2026-10-17)
 
 ## What it does
@@ -11,7 +11,7 @@ without its sensitive data.
 ## Who can use it
 | Role | Can |
 |---|---|
-| CaseWorker | Read cases assigned to them or given read access to; edit their assigned cases (not when closed); close them *(planned)* |
+| CaseWorker | Read cases assigned to them or given read access to; edit their assigned cases (not when closed); close them |
 | Leader | Read all cases in own department |
 | Admin | Read any case in the restricted view: summary only, health personnel and companies hidden |
 
@@ -66,6 +66,15 @@ flowchart TD
 - The page updates from each response, so editing never adds a "case opened" entry.
 - Editing a health personnel already on the case is not part of F-002 (remove and add again).
 
+## Closing
+- The assigned case worker sees **Close case** while the case is In progress. `missingForClosing(case)`
+  (`features/cases/closing.ts`) lists what is missing: at least one health personnel or company, and a reaction for
+  every one of them. The section names who still needs a reaction; pressing Close case too early says so.
+- When ready, a dialog asks first ("Nobody can change the case after it is closed. A leader can reopen it.").
+- `POST /api/cases/:id/close`: 403 + Denied entry if `can(user, 'closeCase', case)` says no, 409 if not ready.
+  Logged as "status changed" (InProgress → Closed).
+- A closed case shows a notice to everyone and is read-only; a leader can reopen it (F-004).
+
 ```mermaid
 flowchart LR
   Edit[Case worker edits] --> Can{"can(user, 'editCase', case)"}
@@ -95,4 +104,4 @@ flowchart LR
 | Edit field; add and remove health personnel; InProgress on first change | T2.4 | Done |
 | Add and remove companies | T2.5 | Done |
 | Reactions | T2.6 | Done |
-| Close case | T2.7 | *(planned)* |
+| Close case (and reopen, F-004) | T2.7 | Done |

@@ -4,12 +4,15 @@ export {
   caseResponseSchema,
   caseWorkerDisplayName,
   caseWorkerSummarySchema,
+  readAccessResponseSchema,
   type CaseResponse,
   type CaseWorkerSummary,
+  type ReadAccessResponse,
 } from './caseResponse';
 export { lastSequenceInYear, nextCaseNumber } from './caseNumber';
 export { isReadyToClose, missingForClosing, type MissingForClosing } from './closing';
 export { reactionsInCase } from './reactions';
+export { canReceiveReadAccess } from './readAccess';
 export { CaseDetailPage } from './pages/CaseDetailPage';
 export { NewCasePage } from './pages/NewCasePage';
 export {

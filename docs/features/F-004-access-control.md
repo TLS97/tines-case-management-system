@@ -74,8 +74,18 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
   becomes In progress so the assigned case worker can change it again.
 - `POST /api/cases/:id/reopen`: 403 + Denied entry otherwise; logged as "status changed" (Closed → InProgress).
 
-Checked separately: whether every party has a reaction before closing (`missingForClosing`, F-002), and, in a later
-task, who can be given read access (T3.3).
+## Read access
+- A leader sees a **Read access** section on cases in their department that are not closed
+  (`can(user, 'manageReadAccess', case)`): who has read access (each with Remove) and "Give read access to".
+- Who can receive it: `canReceiveReadAccess(candidate, case)` (`features/cases/readAccess.ts`): an active case
+  worker in the case's department who is not the assigned case worker and does not already have it. No field needed.
+- Case workers with read access see the case in their overview and open it read-only.
+- `GET /api/cases/:id/read-access` (granted + candidates, not logged), `POST /api/cases/:id/read-access` with
+  `{ caseWorkerId }`, `DELETE /api/cases/:id/read-access/:caseWorkerId`. 403 + Denied entry if not allowed (also on
+  closed cases), 400 for someone who cannot receive or does not have it.
+- Audit: "read access granted" / "read access removed" with `caseWorkerId`.
+
+Checked separately: whether every party has a reaction before closing (`missingForClosing`, F-002).
 
 ## Built so far
 | Part | Task | Status |
@@ -84,7 +94,7 @@ task, who can be given read access (T3.3).
 | Restricted case view for Admin | T1.3 | Done |
 | Assign and reassign | T2.3 | Done |
 | Close and reopen | T2.7 | Done |
-| Read access | T3.3 | *(planned)* |
+| Read access | T3.3 | Done |
 | User admin | T3.4, T3.5, T3.6 | *(planned)* |
 
 ## Data

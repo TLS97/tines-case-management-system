@@ -54,6 +54,9 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `PUT /api/cases/:id/companies/:companyId/reaction` | Give a company a reaction, body `{ reaction }` (F-002) |
 | `POST /api/cases/:id/close` | Close the case (F-002, assigned case worker); 409 if a party has no reaction or there are none |
 | `POST /api/cases/:id/reopen` | Reopen a closed case (F-004, leader); it becomes In progress |
+| `GET /api/cases/:id/read-access` | Who has read access and who could get it (F-004, leader) |
+| `POST /api/cases/:id/read-access` | Give read access, body `{ caseWorkerId }` (F-004) |
+| `DELETE /api/cases/:id/read-access/:caseWorkerId` | Remove read access (F-004) |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |

@@ -1,7 +1,7 @@
 # Architecture *(update as built)*
 
 ## Layers
-Built so far: app shell, routes, empty pages, the mock API with users, and the current user. Everything else is *(planned)*.
+Built so far: app shell, routes, empty pages, the mock API with users, the current user, and `can()`. Everything else is *(planned)*.
 
 ```mermaid
 flowchart TD
@@ -16,7 +16,7 @@ flowchart TD
   Api --> Mock["MSW mock API (mocks/handlers)"]
   Mock --> Store["mocks/db.ts: localStorage, seed data"]
   Main --> Worker["mocks/browser.ts: startMockApi()"]
-  Hooks --> Perm["auth/permissions.ts: can (planned)"]
+  Hooks --> Perm["auth/permissions.ts: can"]
 ```
 
 ## Routes

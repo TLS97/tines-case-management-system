@@ -232,7 +232,9 @@ Claude may set **In progress** in the feature's first PR and **Done** in its las
 - Leader can reassign a case whose assigned case worker is deactivated to an active case worker
   (same rules as any reassignment). The deactivated case worker is then replaced, and the change
   is logged in the audit log.
-- The leader is notified about cases with a deactivated case worker through F-012 Notifications.
+- When a case in a leader's department is not `Closed` and its assigned case worker is deactivated,
+  the leader sees a notification in the app. It links to the case and disappears when the case is
+  reassigned to an active case worker. When F-012 is built, this notification is shown together with F-012's notifications.
 
 ### F-005 Audit log *(Approved 2026-10-17)*
 Logged actions: case created, case updated, case assigned, status changed, reaction given,
@@ -265,6 +267,5 @@ No acceptance criteria yet.
 ### F-012 Notifications *(Draft)*
 - When a case in a leader's department is `Unassigned`, the leader sees a notification in the app.
 - The notification links to the case and disappears when the case is assigned.
-- When a case in a leader's department is not `Closed` and its assigned case worker is deactivated,
-  the leader sees a notification. It links to the case and disappears when the case is reassigned
-  to an active case worker.
+- Notifications about cases with a deactivated case worker are part of F-004 (built in T3.5) and are
+  shown together with the notifications here.

@@ -23,7 +23,7 @@ flowchart TD
   end
   subgraph P3["Phase 3 · Overview and admin"]
     F003[F-003 Case overview]
-    P3a["Read access, user admin (F-004)"]
+    P3a["Read access, user admin, deactivated case worker notification (F-004)"]
     P3b["Audit log screens (F-005)"]
   end
   subgraph P4["Phase 4 · Follow-up"]

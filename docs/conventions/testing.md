@@ -15,7 +15,7 @@
 
 ## CI (runs on every PR)
 1. `npm ci` (lockfile must match)
-2. `npm run lint` and `npm run typecheck`
+2. `npm run lint`, `npm run typecheck` and `npm run format:check`
 3. `npm run test -- --coverage` (fails under threshold)
 4. `npm run test:e2e` (incl. axe checks)
 5. `npm run build`

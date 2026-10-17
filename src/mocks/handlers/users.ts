@@ -49,4 +49,39 @@ export const userHandlers = [
     );
     return HttpResponse.json(user, { status: 201 });
   }),
+
+  // F-004: Admin deactivates a user. Their cases keep them as case worker until a leader reassigns.
+  http.post('/api/users/:id/deactivate', ({ params }) => {
+    const db = readDb();
+    const admin = currentUser(db);
+    const target = db.users.find((user) => user.id === params.id);
+    if (!target) return new HttpResponse(null, { status: 404 });
+    if (!can(admin, 'manageUsers')) {
+      writeDb(
+        recordAudit(db, {
+          userId: admin.id,
+          action: 'UserUpdated',
+          result: 'Denied',
+          details: { updatedUserId: target.id, isActive: false },
+        }),
+      );
+      return new HttpResponse(null, { status: 403 });
+    }
+    // Already inactive, or the admin themselves (they would lock themselves out).
+    if (!target.isActive || target.id === admin.id) return new HttpResponse(null, { status: 400 });
+
+    const updated: User = { ...target, isActive: false, updatedAt: new Date().toISOString() };
+    writeDb(
+      recordAudit(
+        { ...db, users: db.users.map((user) => (user.id === updated.id ? updated : user)) },
+        {
+          userId: admin.id,
+          action: 'UserUpdated',
+          result: 'Success',
+          details: { updatedUserId: updated.id, isActive: false },
+        },
+      ),
+    );
+    return HttpResponse.json(updated);
+  }),
 ];

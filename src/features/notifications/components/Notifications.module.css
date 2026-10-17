@@ -1,0 +1,5 @@
+.notice {
+  display: grid;
+  gap: var(--ds-size-2);
+  width: 100%;
+}

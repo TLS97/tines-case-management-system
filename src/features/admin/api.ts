@@ -18,3 +18,11 @@ export function addUser(user: NewUser) {
     schema: userSchema,
   });
 }
+
+/** F-004: deactivates a user (Admin only). Returns the updated user. */
+export function deactivateUser(userId: string) {
+  return apiRequest(`/api/users/${encodeURIComponent(userId)}/deactivate`, {
+    method: 'POST',
+    schema: userSchema,
+  });
+}

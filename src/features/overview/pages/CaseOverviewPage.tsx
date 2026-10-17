@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { useCurrentUser } from '@/features/auth';
 import { canCreateCases } from '@/features/cases';
+import { DeactivatedCaseWorkerNotice } from '@/features/notifications';
 import { Page } from '@/shared/components/Page';
 import { caseOverviewQuery } from '../api';
 import { CaseOverviewFilters } from '../components/CaseOverviewFilters';
@@ -49,6 +50,8 @@ export function CaseOverviewPage() {
 
   return (
     <Page title="Cases">
+      {/* F-004: leaders are told here about cases whose case worker is deactivated. */}
+      <DeactivatedCaseWorkerNotice />
       {/* F-001: the button is only shown to users who may create cases. */}
       {canCreateCases(user) && (
         <Button asChild>

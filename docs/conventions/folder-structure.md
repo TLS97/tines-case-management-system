@@ -25,7 +25,7 @@ src/
     overview/             # F-003 case overview + filters
     auth/                 # types.ts (User...), api.ts + hooks/useCurrentUser, labels.ts, permissions.ts (F-004)
     follow-up/            # F-010, F-011
-    notifications/        # F-012
+    notifications/        # notifications for the current user (F-004 now; F-012 later)
     audit-log/            # F-005: AuditEntry types; later the per-case and global audit log views
     admin/                # user admin (F-004): pages/UsersPage, forms/userForm, api; global audit log page (F-005)
   shared/

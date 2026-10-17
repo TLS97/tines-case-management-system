@@ -4,6 +4,7 @@ import { caseHandlers } from './cases';
 import { caseStatusHandlers } from './caseStatus';
 import { currentUserHandlers } from './currentUser';
 import { mockToolHandlers } from './mockTools';
+import { notificationHandlers } from './notifications';
 import { userHandlers } from './users';
 
 export const handlers = [
@@ -13,5 +14,6 @@ export const handlers = [
   ...caseStatusHandlers,
   ...caseReadAccessHandlers,
   ...userHandlers,
+  ...notificationHandlers,
   ...mockToolHandlers,
 ];

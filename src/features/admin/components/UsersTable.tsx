@@ -7,14 +7,18 @@ import {
   TableRow,
 } from '@digdir/designsystemet-react';
 import { DEPARTMENT_NAMES, FIELD_LABELS, ROLE_LABELS, type User } from '@/features/auth';
+import { DeactivateUserButton } from './DeactivateUserButton';
 import styles from './UserAdmin.module.css';
 
 interface UsersTableProps {
   users: User[];
+  /** The admin using the page, who cannot deactivate themselves. */
+  currentUserId: string;
+  onDeactivated: (user: User) => void;
 }
 
 // F-004: every user, sorted by department, then surname and first name.
-export function UsersTable({ users }: UsersTableProps) {
+export function UsersTable({ users, currentUserId, onDeactivated }: UsersTableProps) {
   const sorted = [...users].sort(
     (a, b) =>
       a.departmentId - b.departmentId ||
@@ -34,6 +38,9 @@ export function UsersTable({ users }: UsersTableProps) {
             <TableHeaderCell>Department</TableHeaderCell>
             <TableHeaderCell>Fields</TableHeaderCell>
             <TableHeaderCell>Status</TableHeaderCell>
+            <TableHeaderCell>
+              <span className={styles.visuallyHidden}>Actions</span>
+            </TableHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -55,6 +62,11 @@ export function UsersTable({ users }: UsersTableProps) {
                   .join(', ')}
               </TableCell>
               <TableCell>{user.isActive ? 'Active' : 'Deactivated'}</TableCell>
+              <TableCell>
+                {user.isActive && user.id !== currentUserId && (
+                  <DeactivateUserButton user={user} onDeactivated={onDeactivated} />
+                )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

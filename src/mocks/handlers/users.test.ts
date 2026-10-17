@@ -111,3 +111,60 @@ describe('F-004 POST /api/users', () => {
     ]);
   });
 });
+
+describe('F-004 POST /api/users/:id/deactivate', () => {
+  const deactivate = (id: string) =>
+    apiRequest(`/api/users/${id}/deactivate`, { method: 'POST', schema: userSchema });
+  const magnusId = () =>
+    readDb().users.find((u) => u.email === 'magnus.berg@example.com')?.id ?? '';
+
+  it('deactivates a user, logged as "user updated"', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-18T09:00:00Z'));
+    const admin = actAs(LARS_ADMIN);
+
+    const updated = await deactivate(magnusId());
+
+    expect(updated).toMatchObject({ isActive: false, updatedAt: '2026-10-18T09:00:00.000Z' });
+    expect(readDb().users.find((u) => u.id === updated.id)?.isActive).toBe(false);
+    expect(readDb().auditLog).toMatchObject([
+      {
+        userId: admin.id,
+        action: 'UserUpdated',
+        result: 'Success',
+        details: { updatedUserId: updated.id, isActive: false },
+      },
+    ]);
+  });
+
+  it('rejects an admin deactivating themselves, or someone already deactivated (400)', async () => {
+    const admin = actAs(LARS_ADMIN);
+    await deactivate(magnusId());
+
+    await expect(deactivate(admin.id)).rejects.toEqual(
+      new ApiError(400, `/api/users/${admin.id}/deactivate`),
+    );
+    await expect(deactivate(magnusId())).rejects.toEqual(
+      new ApiError(400, `/api/users/${magnusId()}/deactivate`),
+    );
+  });
+
+  it('answers 404 for a user that does not exist', async () => {
+    actAs(LARS_ADMIN);
+    const id = crypto.randomUUID();
+
+    await expect(deactivate(id)).rejects.toEqual(new ApiError(404, `/api/users/${id}/deactivate`));
+  });
+
+  it('refuses a leader with 403 and logs Denied', async () => {
+    const leader = actAs(INGRID_LEADER_DEPT_1);
+
+    await expect(deactivate(magnusId())).rejects.toEqual(
+      new ApiError(403, `/api/users/${magnusId()}/deactivate`),
+    );
+    expect(readDb().users.find((u) => u.id === magnusId())?.isActive).toBe(true);
+    expect(readDb().auditLog).toMatchObject([
+      { userId: leader.id, action: 'UserUpdated', result: 'Denied' },
+    ]);
+  });
+});

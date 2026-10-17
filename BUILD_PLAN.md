@@ -17,7 +17,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
       `htil-sekundaerfarge #20B89A`, `neutral #FFFFFF`, border radius 4)
 - [x] **T0.4** App shell: header, navigation, React Router routes (empty pages), error boundary, TanStack Query provider;
       replace the draft README.md with a real project README
-- [ ] **T0.5** Mock API layer (MSW) with data saved in `localStorage`, the seed users from SPEC.md and **Reset mock data**
+- [x] **T0.5** Mock API layer (MSW) with data saved in `localStorage`, the seed users from SPEC.md and **Reset mock data**
 - [ ] **T0.6** Current-user context and the user switcher in the header (mock only)
 - [ ] **T0.7** CI as described in `docs/conventions/testing.md` (lint, types, tests, e2e + axe, build, audit), Dependabot,
       PR template, `.claude/settings.json` from `docs/templates/claude-settings.json`
@@ -25,7 +25,8 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
 - **Done when:** `npm run dev` shows the themed shell, the user switcher works and survives a reload, CI runs all checks, `main` is protected
 
 ## Phase 1: Access core (F-004, F-005)
-- [ ] **T1.1** Domain types from SPEC.md (`SupervisionCase`, `User`, `Role`, `CaseStatus`, reactions, `DepartmentId`, ...)
+- [ ] **T1.1** Domain types from SPEC.md (`SupervisionCase`, `CaseStatus`, reactions, ...); `User`, `Role`, `Field`
+      and `DepartmentId` already exist in `features/auth/types.ts` since T0.5
 - [ ] **T1.2** `can(user, action, case?)` for every row in the SPEC.md permission table, with a test per row and role (F-004)
 - [ ] **T1.3** Restricted case view: function that removes sensitive case data for Admin, with tests (F-004)
 - [ ] **T1.4** Audit log writing in the mock API: entries saved in `localStorage`, `Success` and `Denied`, no sensitive data (F-005)

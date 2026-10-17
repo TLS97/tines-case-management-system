@@ -1,7 +1,7 @@
 # Architecture *(update as built)*
 
 ## Layers
-Built so far: app shell, routes and empty pages. Everything else is *(planned)*.
+Built so far: app shell, routes, empty pages and the mock API with users. Everything else is *(planned)*.
 
 ```mermaid
 flowchart TD
@@ -13,8 +13,9 @@ flowchart TD
   Components --> DS[Designsystemet components]
   Components --> Hooks["Hooks: useCase, useOverview, ... (planned)"]
   Hooks --> Api["features/*/api.ts (planned)"]
-  Api --> Mock["MSW mock API + seed data (planned)"]
-  Mock --> Store["localStorage (planned)"]
+  Api --> Mock["MSW mock API (mocks/handlers)"]
+  Mock --> Store["mocks/db.ts: localStorage, seed data"]
+  Main --> Worker["mocks/browser.ts: startMockApi()"]
   Hooks --> Perm["auth/permissions.ts: can (planned)"]
 ```
 
@@ -30,7 +31,16 @@ flowchart TD
 
 The main navigation links to Cases, Users and Audit log. Hiding links by role comes with `can()` (F-004).
 `/cases/new` gets its "New case" button on the overview with F-001.
-The header will also hold the mock-only user switcher and **Reset mock data** *(planned, T0.6 and T0.5)*.
+A mock-only **Test environment** bar above the header holds **Reset mock data** and *(planned, T0.6)* the user switcher.
+
+## Mock API
+| Endpoint | What it does |
+|---|---|
+| `GET /api/mock/users` | All users (mock only; for the user switcher) |
+| `POST /api/mock/reset` | Replace all data with the seed data (mock only) |
+
+Permission-checked endpoints for cases and users come with their features. All calls go through
+`apiRequest` (`shared/api/apiRequest.ts`), which checks responses with a Zod schema.
 
 ## App shell
 ```mermaid

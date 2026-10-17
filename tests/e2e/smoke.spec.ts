@@ -1,4 +1,4 @@
-import { expect, expectNoAccessibilityViolations, test } from './fixtures';
+import { expect, expectNoAccessibilityViolations, gotoApp, test } from './fixtures';
 
 const PAGES = [
   { path: '/', title: 'Cases' },
@@ -11,7 +11,7 @@ const PAGES = [
 
 for (const { path, title } of PAGES) {
   test(`${path} shows "${title}" with no accessibility violations`, async ({ page }) => {
-    await page.goto(path);
+    await gotoApp(page, path);
 
     await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
     await expect(page).toHaveTitle(`${title} – Case management`);
@@ -20,7 +20,7 @@ for (const { path, title } of PAGES) {
 }
 
 test('main navigation moves between pages and focuses the new heading', async ({ page }) => {
-  await page.goto('/');
+  await gotoApp(page, '/');
   const nav = page.getByRole('navigation', { name: 'Main' });
 
   await nav.getByRole('link', { name: 'Users' }).click();
@@ -33,7 +33,7 @@ test('main navigation moves between pages and focuses the new heading', async ({
 test('skip link is the first thing keyboard users reach and jumps to the main content', async ({
   page,
 }) => {
-  await page.goto('/');
+  await gotoApp(page, '/');
 
   await page.keyboard.press('Tab');
   const skipLink = page.getByRole('link', { name: 'Skip to main content' });

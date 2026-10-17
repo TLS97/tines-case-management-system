@@ -15,7 +15,9 @@
 ## Rules
 - Every permission row in SPEC.md has a test for each role.
 - Query by accessible role/label, never by CSS class.
-- Use the MSW mock API, not hand-rolled fetch mocks.
+- Use the MSW mock API, not hand-rolled fetch mocks. Vitest runs the same handlers (`src/mocks/node.ts`),
+  fails on unhandled API requests, and starts every test from the seed data (`localStorage` is cleared).
+- E2E tests open pages with `gotoApp(page, path)`, which waits until the app (and so the mock API) is ready.
 - E2E tests import `test` and `expect` from `tests/e2e/fixtures.ts`, not from `@playwright/test`.
   The fixture fails a test on any browser console error or warning. ESLint enforces this import in `*.spec.ts` files.
 - Every Playwright page test calls `expectNoAccessibilityViolations(page)` (axe, WCAG 2.1 AA); violations fail the test.

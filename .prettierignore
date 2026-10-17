@@ -5,6 +5,7 @@ design-tokens-build
 playwright-report
 test-results
 package-lock.json
+public/mockServiceWorker.js
 # Docs are written by hand; Prettier would realign every Markdown table
 *.md
 .claude

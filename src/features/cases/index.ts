@@ -6,6 +6,15 @@ export {
   HEALTH_PERSONNEL_REACTION_LABELS,
 } from './labels';
 export {
+  ADMIN_HIDDEN_FIELDS,
+  ADMIN_VISIBLE_FIELDS,
+  restrictedSupervisionCaseSchema,
+  toRestrictedCase,
+  viewCase,
+  type CaseView,
+  type RestrictedSupervisionCase,
+} from './restrictedView';
+export {
   addressSchema,
   authorizationSchema,
   CASE_STATUSES,
@@ -19,6 +28,7 @@ export {
   healthPersonnelReactionSchema,
   healthPersonnelSchema,
   organizationNumberSchema,
+  supervisionCaseObjectSchema,
   supervisionCaseSchema,
   type Address,
   type Authorization,

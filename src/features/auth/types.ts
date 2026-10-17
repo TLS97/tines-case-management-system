@@ -58,8 +58,21 @@ export const newUserSchema = z
     path: ['fields'],
   });
 
+/** F-004: Admin changes a user's fields. `fields` must include `primaryField` and not repeat. */
+export const userFieldsSchema = z
+  .object({ primaryField: fieldSchema, fields: z.array(fieldSchema).min(1) })
+  .refine((value) => value.fields.includes(value.primaryField), {
+    message: 'fields must include primaryField',
+    path: ['fields'],
+  })
+  .refine((value) => new Set(value.fields).size === value.fields.length, {
+    message: 'fields must not repeat',
+    path: ['fields'],
+  });
+
 export type Role = z.infer<typeof roleSchema>;
 export type Field = z.infer<typeof fieldSchema>;
 export type DepartmentId = z.infer<typeof departmentIdSchema>;
 export type User = z.infer<typeof userSchema>;
 export type NewUser = z.infer<typeof newUserSchema>;
+export type UserFields = z.infer<typeof userFieldsSchema>;

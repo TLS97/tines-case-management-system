@@ -1,5 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addUser, deactivateUser, usersQuery } from '../api';
+import type { DepartmentId, UserFields } from '@/features/auth';
+import {
+  addUser,
+  blockingCasesQuery,
+  changeUserFields,
+  deactivateUser,
+  moveUser,
+  usersQuery,
+} from '../api';
 
 export function useUsers() {
   return useQuery(usersQuery);
@@ -18,16 +26,43 @@ export function useAddUser() {
   });
 }
 
-/** Deactivates a user; the user list, the switcher and leaders' notifications are refreshed. */
+/**
+ * Deactivates a user; the user list, the switcher and leaders' notifications are refreshed.
+ * The refresh is not awaited: the refreshed list no longer shows the Deactivate button, and that
+ * button's own success callback (closing the dialog, the confirmation) must run before it disappears.
+ */
 export function useDeactivateUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deactivateUser,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: usersQuery.queryKey });
+      void queryClient.invalidateQueries({ queryKey: ['mock', 'users'] });
+      void queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+}
+
+function useUserMutation<TInput>(mutationFn: (input: TInput) => ReturnType<typeof moveUser>) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: usersQuery.queryKey }),
         queryClient.invalidateQueries({ queryKey: ['mock', 'users'] }),
-        queryClient.invalidateQueries({ queryKey: ['notifications'] }),
       ]),
   });
+}
+
+export function useChangeUserFields(userId: string) {
+  return useUserMutation((fields: UserFields) => changeUserFields(userId, fields));
+}
+
+export function useBlockingCases(userId: string) {
+  return useQuery(blockingCasesQuery(userId));
+}
+
+export function useMoveUser(userId: string) {
+  return useUserMutation((departmentId: DepartmentId) => moveUser(userId, departmentId));
 }

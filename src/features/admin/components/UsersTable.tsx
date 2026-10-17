@@ -1,4 +1,5 @@
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -15,10 +16,11 @@ interface UsersTableProps {
   /** The admin using the page, who cannot deactivate themselves. */
   currentUserId: string;
   onDeactivated: (user: User) => void;
+  onEdit: (user: User) => void;
 }
 
 // F-004: every user, sorted by department, then surname and first name.
-export function UsersTable({ users, currentUserId, onDeactivated }: UsersTableProps) {
+export function UsersTable({ users, currentUserId, onDeactivated, onEdit }: UsersTableProps) {
   const sorted = [...users].sort(
     (a, b) =>
       a.departmentId - b.departmentId ||
@@ -63,9 +65,19 @@ export function UsersTable({ users, currentUserId, onDeactivated }: UsersTablePr
               </TableCell>
               <TableCell>{user.isActive ? 'Active' : 'Deactivated'}</TableCell>
               <TableCell>
-                {user.isActive && user.id !== currentUserId && (
-                  <DeactivateUserButton user={user} onDeactivated={onDeactivated} />
-                )}
+                <div className={styles.rowActions}>
+                  <Button
+                    variant="tertiary"
+                    data-size="sm"
+                    aria-label={`Edit ${user.firstName} ${user.surname}`}
+                    onClick={() => onEdit(user)}
+                  >
+                    Edit
+                  </Button>
+                  {user.isActive && user.id !== currentUserId && (
+                    <DeactivateUserButton user={user} onDeactivated={onDeactivated} />
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}

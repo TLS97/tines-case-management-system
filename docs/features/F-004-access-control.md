@@ -109,6 +109,17 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
   (own department, not closed) and disappears when they reassign the case. Comes from `GET /api/notifications`
   (`features/notifications`), which F-012 can extend.
 
+## Changing a user's fields and department
+- **Edit** on each row of the Users page opens an "Edit *name*" panel above the table (focus moves to it).
+- **Fields:** primary field plus other fields (`PUT /api/users/:id/fields`). Changing the primary field keeps the old
+  one as an other field unless Admin unticks it. Their cases do not change. Logged as "user updated"
+  (`change: Fields`, the new fields).
+- **Department:** a permanent move (`PUT /api/users/:id/department`). While the user is the case worker of open
+  cases in their current department, the panel lists them (`GET /api/users/:id/blocking-cases`, with links) and
+  offers no move; the mock API answers 409. Closed cases and cases they are borrowed for elsewhere do not block.
+  On the move, read access to cases in the old department is removed (each logged as "read access removed").
+  Logged as "user updated" (`change: Department`, from and to).
+
 ## Navigation
 F-004 says actions are "hidden in the UI": **Users** shows only when `can(user, 'manageUsers')`, **Audit log** only
 when `can(user, 'viewGlobalAuditLog')`; everyone sees **Cases**. Until the current user has loaded, only Cases shows.
@@ -125,7 +136,9 @@ Checked separately: whether every party has a reaction before closing (`missingF
 | Read access | T3.3 | Done |
 | User admin: list and add users | T3.4 | Done |
 | User admin: deactivate; leader notification for cases with a deactivated case worker | T3.5 | Done |
-| User admin: change fields and department | T3.6 | *(planned)* |
+| User admin: change fields and department (moving blocked while they have open cases in their department) | T3.6 | Done |
+| Reactivate a user | T3.9 | *(planned)* |
+| Borrow a case worker from another department; "Lent out" list for the home leader | T3.10 | *(planned)* |
 | Navigation: Users and Audit log only for those allowed | T3.4 | Done |
 
 ## Data

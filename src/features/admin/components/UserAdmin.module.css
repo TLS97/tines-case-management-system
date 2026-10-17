@@ -35,3 +35,18 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+.panel {
+  display: grid;
+  gap: var(--ds-size-6);
+  width: 100%;
+  padding: var(--ds-size-6);
+  border: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+  border-radius: var(--ds-border-radius-md);
+}
+
+.rowActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-2);
+}

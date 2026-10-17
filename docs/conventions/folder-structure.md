@@ -8,9 +8,12 @@ design-tokens-build/      # generated theme CSS and types, do not edit
 designsystemet.config.json
 src/
   main.tsx                # entry point, renders app/App
-  app/                    # App shell, router, providers; global.css (page font only)
+  app/                    # App.tsx (providers), routes.tsx, global.css
+    layout/               # AppLayout, AppHeader (skip link, header, navigation, main)
+    errors/               # error and not-found pages
   features/
     cases/                # F-001, F-002
+      pages/              # route pages, exported through index.ts
       components/
       hooks/
       api.ts
@@ -21,10 +24,10 @@ src/
     notifications/        # F-012
     admin/                # users (F-004), global audit log (F-005)
   shared/
-    components/           # reusable wrappers around Designsystemet
+    components/           # reusable wrappers around Designsystemet, e.g. Page
     utils/
   mocks/                  # MSW handlers + seed data
-  test/                   # Vitest setup and shared test helpers
+  test/                   # Vitest setup and shared test helpers (renderRoute)
 tests/e2e/                # Playwright specs; fixtures.ts has the console and axe checks
 ```
 

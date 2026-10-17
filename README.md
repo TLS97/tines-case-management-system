@@ -1,22 +1,50 @@
-# Draft docs for the case management frontend
+# Case management for supervision cases
 
-Drafted from `React frontend med Designsystemet.md` in Tine's vault. Nothing has been written to the vault yet.
+A web frontend for handling supervision cases against health personnel and companies.
+Leaders create cases and assign them to case workers in their department, case workers handle
+the cases and give reactions, and admins manage users and follow the audit log.
 
-| File | Who reads it | What it covers |
-|---|---|---|
-| `PROJECT_PLAN.md` | Tine / stakeholders | Why, scope, milestones, risks, open questions |
-| `BUILD_PLAN.md` | Whoever implements | Ordered build phases with done-criteria |
-| `SPEC.md` | Everyone | Domain model, roles/permissions, feature acceptance criteria |
-| `CLAUDE.md` | Claude Code | Short rules + pointers to the other docs |
-| `docs/conventions/code-style.md` | Developers | TypeScript/React style, naming, clean-code rules |
-| `docs/conventions/folder-structure.md` | Developers | Where code lives |
-| `docs/conventions/testing.md` | Developers | What to test and how |
-| `docs/conventions/git-workflow.md` | Developers | Branches, commits, PRs |
-| `docs/conventions/documentation.md` | Developers / Claude | Which docs to keep updated and when |
-| `docs/architecture.md`, `docs/domain-model.md`, `docs/case-lifecycle.md` | Everyone | Mermaid overview diagrams |
-| `docs/features/` | Everyone | One page per feature (`_template.md` to copy) |
-| `docs/onboarding.md` | New developers | How to run and what to read first |
-| `docs/conventions/definition-of-done.md` | Developers / Claude | Checklist every task must pass |
-| `docs/conventions/security.md` | Developers / Claude | Security and data rules |
-| `docs/decisions/` | Tine / developers | Log of technical decisions |
-| `docs/templates/` | Setup | PR template and Claude Code permissions, copied into the repo in Phase 0 |
+> **Status:** early development (Phase 0, foundation). There is no backend yet: the app runs
+> against a mock API in the browser, and all data is fake.
+
+Built with React, TypeScript and [Designsystemet](https://designsystemet.no) (Digdir).
+
+## Getting started
+Requires Node 24 or newer.
+
+```bash
+npm install
+npm run test:e2e:install   # once: downloads Chromium for the end-to-end tests
+npm run dev                # starts the app at http://localhost:5173
+```
+
+## Commands
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the app |
+| `npm run build` | Type check and build for production |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript |
+| `npm run format` | Prettier (code only, not Markdown) |
+| `npm run test` | Unit and component tests (Vitest); add `-- --coverage` for coverage |
+| `npm run test:e2e` | End-to-end and accessibility tests (Playwright, Chromium) |
+| `npm run tokens` | Regenerate the theme from `designsystemet.config.json` |
+
+## Documentation
+Start with [docs/onboarding.md](docs/onboarding.md). The most important documents:
+
+| Document | What it covers |
+|---|---|
+| [PROJECT_PLAN.md](PROJECT_PLAN.md) | Why, scope, phases, risks |
+| [SPEC.md](SPEC.md) | Domain model, roles and permissions, acceptance criteria per feature |
+| [BUILD_PLAN.md](BUILD_PLAN.md) | Build phases and tasks, in order |
+| [docs/roadmap.md](docs/roadmap.md) | All features, phases and statuses at a glance |
+| [docs/architecture.md](docs/architecture.md) | Layers, routes and folders |
+| [docs/conventions/](docs/conventions/) | Code style, folders, testing, git, security, documentation, definition of done |
+| [docs/decisions/](docs/decisions/) | Log of technical decisions |
+| [CLAUDE.md](CLAUDE.md) | Rules for Claude Code, which writes most of the code |
+
+## How work is done
+Each task in [BUILD_PLAN.md](BUILD_PLAN.md) is one branch and one pull request. Claude Code
+implements the task, with tests and docs, and opens the PR; the project owner reviews and
+squash-merges it. See [docs/conventions/git-workflow.md](docs/conventions/git-workflow.md).

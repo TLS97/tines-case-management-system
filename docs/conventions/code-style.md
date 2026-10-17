@@ -12,6 +12,10 @@
 - Import other features only through their `index.ts` (`@/features/auth`, never `@/features/auth/permissions`).
   ESLint (`no-restricted-imports`) enforces this.
 
+## Pages and styles
+- Every route page renders through `Page` with a `title` (sets the document title and the h1). See decision 0009.
+- Styles: CSS Module next to the component, Designsystemet variables only. See decision 0008.
+
 ## UI text
 - All UI text is in English. Keep labels short and consistent with SPEC.md terms.
 

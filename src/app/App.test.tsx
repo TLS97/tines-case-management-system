@@ -3,11 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { App } from './App';
 
 describe('App', () => {
-  it('shows the app heading', () => {
+  it('renders the app shell with the start page', async () => {
     render(<App />);
 
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Supervision case management' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('banner')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Cases' })).toBeInTheDocument();
   });
 });

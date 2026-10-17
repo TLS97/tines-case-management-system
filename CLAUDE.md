@@ -15,7 +15,7 @@ All UI text is in English.
 ## Commands
 - `npm run dev` start app
 - `npm run test` unit/component tests (Vitest)
-- `npm run test:e2e` Playwright
+- `npm run test:e2e` Playwright (first time: `npm run test:e2e:install` downloads Chromium)
 - `npm run lint` / `npm run typecheck`
 - `npm run format` (Prettier; Markdown is not formatted)
 

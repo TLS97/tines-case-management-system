@@ -23,7 +23,8 @@ src/
     components/           # reusable wrappers around Designsystemet
     utils/
   mocks/                  # MSW handlers + seed data
-tests/e2e/                # Playwright
+  test/                   # Vitest setup and shared test helpers
+tests/e2e/                # Playwright specs; fixtures.ts has the console and axe checks
 ```
 
 Rules

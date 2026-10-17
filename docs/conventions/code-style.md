@@ -2,7 +2,8 @@
 
 ## TypeScript
 - `strict: true`. No `any`; use `unknown` and narrow.
-- Domain types live in `src/features/<feature>/types.ts` and mirror SPEC.md names.
+- Domain types live in `src/features/<feature>/types.ts` and mirror SPEC.md names. They are Zod schemas,
+  and the types are inferred with `z.infer` (decision 0005). UI text for enum values goes in `labels.ts`.
 - Use union string types for enums: `type CaseStatus = 'Unassigned' | 'Assigned' | 'InProgress' | 'Closed'`
 
 ## React

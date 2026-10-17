@@ -10,6 +10,8 @@
 - Unit and component tests: next to the file, `*.test.ts(x)` in `src/`. Run with `npm run test`.
 - Shared Vitest setup and test helpers (factories like `makeUser`): `src/test/`.
   `renderRoute(path)` renders the app at an address with the real routes and providers.
+  `makeUser`, `makeCase`, `makeHealthPersonnel` and `makeCompany` (`src/test/factories.ts`) build valid fake data;
+  every result is checked against its schema.
 - E2E tests: `tests/e2e/*.spec.ts`. Run with `npm run test:e2e`; the first time, run `npm run test:e2e:install` to download Chromium.
 
 ## Rules

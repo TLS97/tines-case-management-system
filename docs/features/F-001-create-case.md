@@ -1,11 +1,11 @@
 # F-001 Create supervision case
 
-**Status:** In progress
+**Status:** Done
 **Spec:** [SPEC.md](../../SPEC.md#f-001-create-supervision-case-approved-2026-10-17)
 
 ## What it does
 A leader creates a new supervision case in one of their fields. Id, case number, status and department are set
-automatically. Afterwards the leader lands on the case detail page, where they will assign it (F-004, T2.3).
+automatically. Afterwards the leader lands on the case detail page, where they can assign it (F-004).
 
 ## Who can use it
 | Role | Can |
@@ -49,5 +49,5 @@ flowchart TD
 | Part | Task | Status |
 |---|---|---|
 | Button, form, mock endpoint, case number, audit | T2.1 | Done |
-| Case detail page the leader lands on | T2.2 | *(planned; empty page until then)* |
-| Assigning from the case detail page | T2.3 | *(planned, F-004)* |
+| Case detail page the leader lands on | T2.2 | Done |
+| Assigning from the case detail page | T2.3 | Done (F-004) |

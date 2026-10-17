@@ -56,15 +56,27 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
 - A test fails if a case field is in neither `ADMIN_VISIBLE_FIELDS` nor `ADMIN_HIDDEN_FIELDS`, so adding a field forces a decision.
 - The mock API sends Admin only this view (`GET /api/cases/:id`, since T2.2).
 
-Checked separately, in later tasks: who a case can be assigned to or given read access (active case worker in the
-leader's department with the case's field), and whether every party has a reaction before closing.
+## Assigning a case
+- `isEligibleCaseWorker(candidate, case)` (`features/cases/assignment.ts`): an active case worker in the case's
+  department with the case's field. Checked by the mock API and used for the list on the case page.
+- `GET /api/cases/:id/eligible-case-workers` lists them; `PUT /api/cases/:id/assignee` with `{ caseWorkerId }`
+  assigns. Unassigned becomes Assigned; a reassigned case keeps its status. 403 + Denied entry if
+  `can(user, 'assignCase', case)` says no (also for Closed cases); 400 for a case worker who is not eligible or
+  already has the case.
+- Audit: "case assigned" with `previousCaseWorkerId` (or null) and `newCaseWorkerId`; "status changed" when
+  Unassigned becomes Assigned. A deactivated case worker can be replaced like any other.
+- The case page shows "Assign case" / "Reassign case" only to users `can()` lets assign, and does not offer the
+  current case worker.
+
+Checked separately, in later tasks: who can be given read access (T3.3), and whether every party has a reaction
+before closing (T2.7).
 
 ## Built so far
 | Part | Task | Status |
 |---|---|---|
 | `can()` for the whole permission table | T1.2 | Done |
 | Restricted case view for Admin | T1.3 | Done |
-| Assign and reassign | T2.3 | *(planned)* |
+| Assign and reassign | T2.3 | Done |
 | Close and reopen | T2.7 | *(planned)* |
 | Read access | T3.3 | *(planned)* |
 | User admin | T3.4, T3.5, T3.6 | *(planned)* |

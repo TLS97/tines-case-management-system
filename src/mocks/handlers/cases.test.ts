@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { caseResponseSchema, supervisionCaseSchema } from '@/features/cases';
+import { z } from 'zod';
+import {
+  caseResponseSchema,
+  caseWorkerSummarySchema,
+  supervisionCaseSchema,
+} from '@/features/cases';
 import { ApiError, apiRequest } from '@/shared/api/apiRequest';
 import { makeCase, makeCompany, makeHealthPersonnel } from '@/test/factories';
 import { storeCases } from '@/test/mockCases';
@@ -211,5 +216,179 @@ describe('F-002 GET /api/cases/:id', () => {
     const response = await getCase(caseInDepartment1.id);
 
     expect(response.assignedCaseWorker?.isActive).toBe(false);
+  });
+});
+
+describe('F-004 assigning a case', () => {
+  const ingrid = seedUser(INGRID_LEADER_DEPT_1);
+  const magnus = seedUser('magnus.berg@example.com'); // CaseWorker, dept 1, Health + Social
+  const sofie = seedUser('sofie.lunde@example.com'); // CaseWorker, dept 1, Social only
+  const emil = seedUser('emil.haugen@example.com'); // CaseWorker, dept 2
+  const tine = seedUser(TINE_CASE_WORKER_DEPT_1); // CaseWorker, dept 1, Health
+
+  function assign(caseId: string, caseWorkerId: string) {
+    return apiRequest(`/api/cases/${caseId}/assignee`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ caseWorkerId }),
+      schema: caseResponseSchema,
+    });
+  }
+
+  function eligibleFor(caseId: string) {
+    return apiRequest(`/api/cases/${caseId}/eligible-case-workers`, {
+      schema: z.array(caseWorkerSummarySchema),
+    });
+  }
+
+  const unassignedHealthCase = makeCase({ departmentId: 1, field: 'Health' });
+
+  it('lists the active case workers in the department with the case’s field', async () => {
+    storeCases(unassignedHealthCase);
+    actAs(INGRID_LEADER_DEPT_1);
+
+    const names = (await eligibleFor(unassignedHealthCase.id)).map((u) => u.firstName).sort();
+
+    // Department 1 case workers with Health: Tine, Magnus, Henrik, Nora (not Sofie: Social only).
+    expect(names).toEqual(['Henrik', 'Magnus', 'Nora', 'Tine']);
+  });
+
+  it('assigns an Unassigned case: status becomes Assigned, both are logged', async () => {
+    storeCases(unassignedHealthCase);
+    actAs(INGRID_LEADER_DEPT_1);
+
+    const response = await assign(unassignedHealthCase.id, magnus.id);
+
+    expect(response.supervisionCase).toMatchObject({ assignedTo: magnus.id, status: 'Assigned' });
+    expect(response.assignedCaseWorker?.firstName).toBe('Magnus');
+    expect(readDb().cases[0]).toMatchObject({ assignedTo: magnus.id, status: 'Assigned' });
+    expect(readDb().auditLog).toMatchObject([
+      {
+        userId: ingrid.id,
+        action: 'CaseAssigned',
+        result: 'Success',
+        caseId: unassignedHealthCase.id,
+        details: { previousCaseWorkerId: null, newCaseWorkerId: magnus.id },
+      },
+      {
+        action: 'StatusChanged',
+        result: 'Success',
+        details: { from: 'Unassigned', to: 'Assigned' },
+      },
+    ]);
+  });
+
+  it('reassigns an InProgress case without changing the status', async () => {
+    const inProgress = makeCase({
+      departmentId: 1,
+      field: 'Health',
+      status: 'InProgress',
+      assignedTo: tine.id,
+    });
+    storeCases(inProgress);
+    actAs(INGRID_LEADER_DEPT_1);
+
+    const response = await assign(inProgress.id, magnus.id);
+
+    expect(response.supervisionCase).toMatchObject({ assignedTo: magnus.id, status: 'InProgress' });
+    expect(readDb().auditLog).toMatchObject([
+      {
+        action: 'CaseAssigned',
+        details: { previousCaseWorkerId: tine.id, newCaseWorkerId: magnus.id },
+      },
+    ]);
+  });
+
+  it('can replace a deactivated case worker', async () => {
+    const withDeactivated = makeCase({
+      departmentId: 1,
+      field: 'Health',
+      status: 'InProgress',
+      assignedTo: tine.id,
+    });
+    storeCases(withDeactivated);
+    const db = readDb();
+    writeDb({
+      ...db,
+      users: db.users.map((u) => (u.id === tine.id ? { ...u, isActive: false } : u)),
+    });
+    actAs(INGRID_LEADER_DEPT_1);
+
+    const response = await assign(withDeactivated.id, magnus.id);
+
+    expect(response.supervisionCase.assignedTo).toBe(magnus.id);
+  });
+
+  it.each([
+    ['a case worker without the case’s field', () => sofie.id],
+    ['a case worker in another department', () => emil.id],
+    ['a leader', () => ingrid.id],
+    ['an unknown user', () => crypto.randomUUID()],
+  ])('rejects %s with 400 and changes nothing', async (_label, candidateId) => {
+    storeCases(unassignedHealthCase);
+    actAs(INGRID_LEADER_DEPT_1);
+
+    await expect(assign(unassignedHealthCase.id, candidateId())).rejects.toEqual(
+      new ApiError(400, `/api/cases/${unassignedHealthCase.id}/assignee`),
+    );
+    expect(readDb().cases[0]).toEqual(unassignedHealthCase);
+  });
+
+  it('rejects an inactive case worker with 400', async () => {
+    storeCases(unassignedHealthCase);
+    const db = readDb();
+    writeDb({
+      ...db,
+      users: db.users.map((u) => (u.id === magnus.id ? { ...u, isActive: false } : u)),
+    });
+    actAs(INGRID_LEADER_DEPT_1);
+
+    await expect(assign(unassignedHealthCase.id, magnus.id)).rejects.toBeInstanceOf(ApiError);
+    expect(readDb().cases[0]?.assignedTo).toBeNull();
+  });
+
+  it('rejects assigning to the case worker who already has the case', async () => {
+    const assigned = makeCase({ departmentId: 1, status: 'Assigned', assignedTo: magnus.id });
+    storeCases(assigned);
+    actAs(INGRID_LEADER_DEPT_1);
+
+    await expect(assign(assigned.id, magnus.id)).rejects.toEqual(
+      new ApiError(400, `/api/cases/${assigned.id}/assignee`),
+    );
+  });
+
+  it.each([
+    ['a case worker', TINE_CASE_WORKER_DEPT_1, () => unassignedHealthCase],
+    ['an admin', LARS_ADMIN, () => unassignedHealthCase],
+    ['a leader of another department', KARI_LEADER_DEPT_2, () => unassignedHealthCase],
+    [
+      'a leader, for a closed case',
+      INGRID_LEADER_DEPT_1,
+      () => makeCase({ departmentId: 1, status: 'Closed', assignedTo: tine.id }),
+    ],
+  ])('refuses %s with 403 and logs Denied', async (_label, email, makeTarget) => {
+    const target = makeTarget();
+    storeCases(target);
+    const user = actAs(email);
+
+    await expect(assign(target.id, magnus.id)).rejects.toEqual(
+      new ApiError(403, `/api/cases/${target.id}/assignee`),
+    );
+    await expect(eligibleFor(target.id)).rejects.toEqual(
+      new ApiError(403, `/api/cases/${target.id}/eligible-case-workers`),
+    );
+    expect(readDb().cases[0]).toEqual(target);
+    expect(readDb().auditLog).toMatchObject([
+      { userId: user.id, action: 'CaseAssigned', result: 'Denied', caseId: target.id },
+    ]);
+  });
+
+  it('answers 404 for a case that does not exist', async () => {
+    actAs(INGRID_LEADER_DEPT_1);
+    const id = crypto.randomUUID();
+
+    await expect(assign(id, magnus.id)).rejects.toEqual(
+      new ApiError(404, `/api/cases/${id}/assignee`),
+    );
   });
 });

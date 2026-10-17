@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AUDIT_LOG_KEY } from '@/features/audit-log';
 import type { Field } from '@/features/auth';
 import {
   addCompany,
@@ -21,7 +22,8 @@ import type {
 } from '../types';
 
 // F-002 edits. Each updates the page from the mock API's response instead of refetching the case,
-// since every fetch of a case is logged as "case opened" (F-005).
+// since every fetch of a case is logged as "case opened" (F-005). The audit log shown on the page is
+// refreshed, as the change added entries to it.
 
 function useCaseMutation<TInput>(
   caseId: string,
@@ -32,6 +34,7 @@ function useCaseMutation<TInput>(
     mutationFn,
     onSuccess: (response) => {
       queryClient.setQueryData(caseQuery(caseId).queryKey, response);
+      void queryClient.invalidateQueries({ queryKey: AUDIT_LOG_KEY });
     },
   });
 }

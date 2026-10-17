@@ -1,0 +1,8 @@
+.tableScroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.noWrap {
+  white-space: nowrap;
+}

@@ -1,10 +1,10 @@
 # Architecture *(update as built)*
 
 ## Layers
-Built so far: app shell, routes, the mock API with users, cases and the audit log, the current user, `can()`, and
-creating a case (F-001), the case detail page with assigning, closing and reopening, and editing field, health personnel, companies and
-reactions (F-001, F-002, F-004).
-Everything else is *(planned)*.
+Built so far: app shell, routes, the mock API with users, cases and the audit log, the current user, `can()`,
+creating a case (F-001), the case detail page with assigning, closing and reopening, and editing field, health personnel,
+companies and reactions (F-001, F-002, F-004), the case overview (F-003), user admin (F-004) and the audit log screens
+(F-005). Follow-up, notifications, documents and export are *(planned)*.
 
 ```mermaid
 flowchart TD
@@ -28,9 +28,9 @@ flowchart TD
 |---|---|---|---|
 | `/` | Case overview (`CaseOverviewPage`), filters in the address (`?field=&status=&reaction=`); leaders' notice about deactivated case workers on top, their "Lent out" list at the bottom | F-003, F-004 | Yes |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
-| `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin, assign and reassign |
+| `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Yes |
 | `/admin/users` | User admin: list, add, deactivate, reactivate, change fields and department (`UsersPage`) | F-004 | Yes |
-| `/admin/audit` | Global audit log (`AuditLogPage`) | F-005 | Empty page |
+| `/admin/audit` | Global audit log for Admin, filters in the address (`?case=&action=&userId=&result=&from=&to=`) (`AuditLogPage`) | F-005 | Yes |
 | any other | Page not found (`NotFoundPage`) | – | Yes |
 
 The main navigation links to Cases, and for those `can()` allows, to Users and Audit log (F-004).
@@ -65,6 +65,8 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `GET /api/users/:id/blocking-cases` | Open cases that keep a user from moving department (F-004, Admin) |
 | `PUT /api/users/:id/department` | Move a user, body `{ departmentId }` (F-004, Admin); 409 while open cases block it |
 | `GET /api/notifications` | The current user's notifications (F-004: cases with a deactivated case worker, for leaders) |
+| `GET /api/cases/:id/audit-log` | The audit log for one case, newest first, with the names and case numbers it refers to (F-005, leaders of the case's department) |
+| `GET /api/audit-log` | The whole audit log, newest first, filtered by `case` (id or number), `action`, `userId`, `result`, `from`, `to` (F-005, Admin) |
 | `GET /api/lent-out-cases` | The leader's case workers on cases (not closed) in other departments (F-004, leaders) |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |

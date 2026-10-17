@@ -39,7 +39,9 @@ test('F-004 a leader borrows a case worker from another department; their leader
   await page.getByRole('button', { name: 'Assign' }).click();
   await expect(page.getByText('The case is assigned to Maja Dahl.')).toBeVisible();
   await expect(
-    page.getByText('Maja Dahl, borrowed from the Department of Business Management'),
+    page.getByText('Maja Dahl, borrowed from the Department of Business Management', {
+      exact: true,
+    }),
   ).toBeVisible();
 
   // Maja sees the case in her overview and works on it like on her own cases.

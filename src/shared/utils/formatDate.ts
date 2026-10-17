@@ -9,3 +9,20 @@ export function formatDate(isoDate: string): string {
   if (!year || !month || !day) return isoDate;
   return DATE_FORMAT.format(new Date(year, month - 1, day));
 }
+
+const DATE_TIME_FORMAT = new Intl.DateTimeFormat('en-GB', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
+
+/** Formats a moment (ISO timestamp) in the user's time zone: "17 Oct 2026, 14:03". */
+export function formatDateTime(timestamp: string): string {
+  return DATE_TIME_FORMAT.format(new Date(timestamp));
+}
+
+/** The calendar day (`2026-10-17`) of a moment (ISO timestamp) in the user's time zone. */
+export function toLocalDate(timestamp: string): string {
+  const date = new Date(timestamp);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}

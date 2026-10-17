@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AUDIT_LOG_KEY } from '@/features/audit-log';
 import { grantReadAccess, readAccessQuery, removeReadAccess } from '../api';
 import type { ReadAccessResponse } from '../caseResponse';
 
@@ -15,6 +16,8 @@ function useReadAccessMutation(
     mutationFn,
     onSuccess: (response) => {
       queryClient.setQueryData(readAccessQuery(caseId).queryKey, response);
+      // The audit log on the page has a new entry.
+      void queryClient.invalidateQueries({ queryKey: AUDIT_LOG_KEY });
     },
   });
 }

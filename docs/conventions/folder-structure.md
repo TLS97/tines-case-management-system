@@ -31,6 +31,7 @@ src/
   shared/
     components/           # reusable wrappers around Designsystemet, e.g. Page
     api/                  # apiRequest: the one way to call the API
+    hooks/                # hooks that are not about one feature, e.g. useScrollableRegion
     utils/
   mocks/                  # MSW: browser.ts, node.ts (tests), handlers/, db.ts (localStorage), auditLog.ts, seed/
   test/                   # Vitest setup and shared test helpers (renderRoute, factories)

@@ -36,6 +36,7 @@ export {
   healthPersonnelNumberSchema,
   healthPersonnelReactionSchema,
   healthPersonnelSchema,
+  newCompanySchema,
   newHealthPersonnelSchema,
   organizationNumberSchema,
   supervisionCaseObjectSchema,
@@ -47,6 +48,7 @@ export {
   type CompanyReaction,
   type HealthPersonnel,
   type HealthPersonnelReaction,
+  type NewCompany,
   type NewHealthPersonnel,
   type SupervisionCase,
 } from './types';

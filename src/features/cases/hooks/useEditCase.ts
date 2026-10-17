@@ -1,8 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Field } from '@/features/auth';
-import { addHealthPersonnel, caseQuery, changeCaseField, removeHealthPersonnel } from '../api';
+import {
+  addCompany,
+  addHealthPersonnel,
+  caseQuery,
+  changeCaseField,
+  removeCompany,
+  removeHealthPersonnel,
+} from '../api';
 import type { CaseResponse } from '../caseResponse';
-import type { NewHealthPersonnel } from '../types';
+import type { NewCompany, NewHealthPersonnel } from '../types';
 
 // F-002 edits. Each updates the page from the mock API's response instead of refetching the case,
 // since every fetch of a case is logged as "case opened" (F-005).
@@ -32,4 +39,12 @@ export function useAddHealthPersonnel(caseId: string) {
 
 export function useRemoveHealthPersonnel(caseId: string) {
   return useCaseMutation(caseId, (personId: string) => removeHealthPersonnel(caseId, personId));
+}
+
+export function useAddCompany(caseId: string) {
+  return useCaseMutation(caseId, (company: NewCompany) => addCompany(caseId, company));
+}
+
+export function useRemoveCompany(caseId: string) {
+  return useCaseMutation(caseId, (companyId: string) => removeCompany(caseId, companyId));
 }

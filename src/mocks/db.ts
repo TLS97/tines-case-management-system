@@ -11,7 +11,7 @@ export const MOCK_DB_STORAGE_KEY = 'sak.mockDb';
 
 const mockDbSchema = z
   .object({
-    version: z.literal(4),
+    version: z.literal(5),
     users: z.array(userSchema),
     // The user the app acts as; changed with the user switcher (mock only).
     currentUserId: z.uuid(),
@@ -28,7 +28,7 @@ export type MockDb = z.infer<typeof mockDbSchema>;
 
 function createSeedDb(): MockDb {
   return {
-    version: 4,
+    version: 5,
     users: structuredClone([...SEED_USERS]),
     currentUserId: DEFAULT_USER_ID,
     cases: [],

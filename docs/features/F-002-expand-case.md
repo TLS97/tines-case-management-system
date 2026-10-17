@@ -50,9 +50,14 @@ flowchart TD
   added twice (409). The form (`forms/healthPersonnelForm.ts`) uses the same rules as the mock API's
   `newHealthPersonnelSchema`, with messages that say what to do.
 - **Remove health personnel:** after a confirmation dialog.
+- **Add company:** organization number (9 digits), name, optional description, and address (street name, zip code,
+  state, country). The same organization number cannot be added twice (409). Rules in `forms/companyForm.ts`,
+  matching the mock API's `newCompanySchema`.
+- **Remove company:** after a confirmation dialog (`ConfirmRemoveButton`, shared with health personnel).
 - **First change:** an Assigned case becomes InProgress ("status changed" is logged).
 - Every change is logged as "case updated" with `details.change` (`FieldChanged`, `HealthPersonnelAdded`,
-  `HealthPersonnelRemoved`) and the party's id, never names or numbers. Denied attempts are logged too.
+  `HealthPersonnelRemoved`, `CompanyAdded`, `CompanyRemoved`) and the party's id, never names or numbers.
+  Denied attempts are logged too.
 - The page updates from each response, so editing never adds a "case opened" entry.
 - Editing a health personnel already on the case is not part of F-002 (remove and add again).
 
@@ -73,7 +78,8 @@ flowchart LR
   a deactivated case worker is shown as "(deactivated)".
 - `GET /api/cases/:id` (mock), using `viewCase` (F-004) and `recordAudit` (F-005).
 - `PATCH /api/cases/:id/field`, `POST /api/cases/:id/health-personnel`, `DELETE /api/cases/:id/health-personnel/:personId`
-  (mock, `handlers/caseEditing.ts`); each returns the updated case.
+  `POST /api/cases/:id/companies`, `DELETE /api/cases/:id/companies/:companyId` (mock, `handlers/caseEditing.ts`);
+  each returns the updated case.
 - Dates are shown with `formatDate` ("1 Jan 2020").
 
 ## Built so far
@@ -81,6 +87,6 @@ flowchart LR
 |---|---|---|
 | Case detail page, read-only, restricted view for Admin, "case opened" logged | T2.2 | Done |
 | Edit field; add and remove health personnel; InProgress on first change | T2.4 | Done |
-| Add and remove companies | T2.5 | *(planned)* |
+| Add and remove companies | T2.5 | Done |
 | Reactions | T2.6 | *(planned)* |
 | Close case | T2.7 | *(planned)* |

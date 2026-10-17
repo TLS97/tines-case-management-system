@@ -9,7 +9,8 @@ MSW keeps data in memory, so everything is lost on page reload. Tine needs data 
 - Seed data is loaded when `localStorage` is empty; a mock-only **Reset mock data** action reloads it.
 - No extra library; a small storage module, `src/mocks/db.ts`, under the key `sak.mockDb`.
   It also stores which user the app acts as (`currentUserId`, version 2 since T0.6), so a reset goes back to Tine Tester,
-  the audit log (`auditLog`, version 3 since T1.4) and cases (`cases`, version 4 since T2.1).
+  the audit log (`auditLog`, version 3 since T1.4) and cases (`cases`, version 4 since T2.1;
+  version 5 since T2.5, when companies got an id).
 - Stored data is checked with the Zod schemas when read. Invalid JSON or data that no longer matches
   (for example after a schema change) is replaced by the seed data, so the app never runs on broken data.
 - MSW 3 runs as a service worker with the classic setup (`public/mockServiceWorker.js` + `setupWorker`),

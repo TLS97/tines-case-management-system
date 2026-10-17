@@ -75,7 +75,12 @@ export function CaseDetailPage() {
             healthPersonnel={data.supervisionCase.healthPersonnel}
             editable={canEdit}
           />
-          <CompaniesSection companies={data.supervisionCase.companies} />
+          <CompaniesSection
+            key={`companies-${data.supervisionCase.id}-${user.id}`}
+            caseId={data.supervisionCase.id}
+            companies={data.supervisionCase.companies}
+            editable={canEdit}
+          />
         </>
       ) : (
         <Alert data-color="info">

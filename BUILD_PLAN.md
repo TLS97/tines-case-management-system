@@ -6,7 +6,7 @@ and only after Tine says to start it ("start T2.1"). Phase 0 has no features.
 Each phase ends when all its tasks are merged and its **Done when** is true.
 
 ## Phase 0: Foundation
-- [ ] **T0.1** `git init` in this folder with `.gitignore` and a repo-local git identity for the Claude GitHub account;
+- [x] **T0.1** `git init` in this folder with `.gitignore` and a repo-local git identity for the Claude GitHub account;
       commit the existing docs to `main` and push it (the only direct push to `main`, done with Tine's OK);
       then, on a branch: scaffold Vite + React + TypeScript (strict mode), latest stable deps, `@/` path alias;
       ESLint (typescript-eslint, react-hooks, jsx-a11y, `no-restricted-imports` for feature boundaries) and Prettier

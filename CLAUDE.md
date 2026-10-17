@@ -17,6 +17,7 @@ All UI text is in English.
 - `npm run test` unit/component tests (Vitest)
 - `npm run test:e2e` Playwright
 - `npm run lint` / `npm run typecheck`
+- `npm run format` (Prettier; Markdown is not formatted)
 
 ## Rules
 - Use Designsystemet components (`@digdir/designsystemet-react`) before writing custom UI.

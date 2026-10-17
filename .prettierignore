@@ -1,0 +1,9 @@
+dist
+coverage
+design-tokens
+playwright-report
+test-results
+package-lock.json
+# Docs are written by hand; Prettier would realign every Markdown table
+*.md
+.claude

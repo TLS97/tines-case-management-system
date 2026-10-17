@@ -47,7 +47,8 @@ flowchart LR
 | "Case updated" (`details.change`: FieldChanged, HealthPersonnelAdded, HealthPersonnelRemoved) | T2.4 | Done |
 | "Case updated" for companies (`CompanyAdded`, `CompanyRemoved`, by company id) | T2.5 | Done |
 | "Reaction given" (`HealthPersonnelReactionGiven` / `CompanyReactionGiven`, by party id, never the reaction) | T2.6 | Done |
-| Entries for the other logged actions | T2.7–T3.6 | *(planned, with each action)* |
+| "Status changed" for closing and reopening (from, to) | T2.7 | Done |
+| Entries for the other logged actions | T3.3–T3.6 | *(planned, with each action)* |
 | Audit log per case (Leader) | T3.7 | *(planned)* |
 | Global audit log with filters (Admin) | T3.8 | *(planned)* |
 

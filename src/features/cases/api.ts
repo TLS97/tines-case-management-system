@@ -119,3 +119,13 @@ export function setCompanyReaction(caseId: string, companyId: string, reaction: 
     { reaction },
   );
 }
+
+/** F-002: closes the case (assigned case worker, every party has a reaction). Returns the updated case. */
+export function closeCase(caseId: string) {
+  return editRequest('POST', `/api/cases/${encodeURIComponent(caseId)}/close`);
+}
+
+/** F-004: reopens a closed case (leader). Returns the updated case. */
+export function reopenCase(caseId: string) {
+  return editRequest('POST', `/api/cases/${encodeURIComponent(caseId)}/reopen`);
+}

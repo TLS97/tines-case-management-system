@@ -39,7 +39,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
 - [x] **T2.4** Edit field; add and remove health personnel with authorizations; `InProgress` on first change (F-002)
 - [x] **T2.5** Add and remove companies with address (F-002)
 - [x] **T2.6** Reactions for health personnel and companies (F-002)
-- [ ] **T2.7** Close case (case worker) and reopen case (Leader) (F-002, F-004)
+- [x] **T2.7** Close case (case worker) and reopen case (Leader) (F-002, F-004)
 - **Done when:** a leader can create and assign a case, the case worker can expand and close it, the leader can
   reopen it, data survives a reload, and every action is in the audit log storage
 

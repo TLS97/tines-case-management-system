@@ -68,8 +68,13 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
 - The case page shows "Assign case" / "Reassign case" only to users `can()` lets assign, and does not offer the
   current case worker.
 
-Checked separately, in later tasks: who can be given read access (T3.3), and whether every party has a reaction
-before closing (T2.7).
+## Reopening a case
+- A leader sees **Reopen case** on a closed case in their department (`can(user, 'reopenCase', case)`); the case
+  becomes In progress so the assigned case worker can change it again.
+- `POST /api/cases/:id/reopen`: 403 + Denied entry otherwise; logged as "status changed" (Closed → InProgress).
+
+Checked separately: whether every party has a reaction before closing (`missingForClosing`, F-002), and, in a later
+task, who can be given read access (T3.3).
 
 ## Built so far
 | Part | Task | Status |
@@ -77,7 +82,7 @@ before closing (T2.7).
 | `can()` for the whole permission table | T1.2 | Done |
 | Restricted case view for Admin | T1.3 | Done |
 | Assign and reassign | T2.3 | Done |
-| Close and reopen | T2.7 | *(planned)* |
+| Close and reopen | T2.7 | Done |
 | Read access | T3.3 | *(planned)* |
 | User admin | T3.4, T3.5, T3.6 | *(planned)* |
 

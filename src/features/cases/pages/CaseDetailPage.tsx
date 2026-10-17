@@ -1,21 +1,28 @@
 import { Alert, Link, Paragraph, Spinner } from '@digdir/designsystemet-react';
+import { useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { can, useCurrentUser } from '@/features/auth';
 import { ApiError } from '@/shared/api/apiRequest';
 import { Page } from '@/shared/components/Page';
 import { AssignCaseSection } from '../components/AssignCaseSection';
 import { ChangeFieldForm } from '../components/ChangeFieldForm';
+import { CloseCaseSection } from '../components/CloseCaseSection';
 import { CaseSummary } from '../components/CaseSummary';
 import { CompaniesSection } from '../components/CompaniesSection';
 import { HealthPersonnelSection } from '../components/HealthPersonnelSection';
+import { ReopenCaseSection } from '../components/ReopenCaseSection';
 import { useCase } from '../hooks/useCase';
 
-// F-002 case detail, read-only for now (editing comes in T2.4-T2.6). Admin gets the restricted
-// view from the mock API (F-004), so sensitive data never reaches the browser for Admin.
+// F-002 case detail: the assigned case worker edits and closes the case, a leader assigns and reopens it,
+// everyone else reads it. Admin gets the restricted view from the mock API (F-004), so sensitive data
+// never reaches the browser for Admin.
 export function CaseDetailPage() {
   const { id = '' } = useParams();
   const user = useCurrentUser();
   const caseQuery = useCase(id);
+  // Closing and reopening remove the section that did it, so the result is announced here. It belongs to
+  // the user who did it, so switching user (mock) does not show it to someone else.
+  const [announcement, setAnnouncement] = useState({ userId: '', text: '' });
 
   if (caseQuery.isPending) {
     return (
@@ -53,8 +60,27 @@ export function CaseDetailPage() {
         supervisionCase={data.supervisionCase}
         assignedCaseWorker={data.assignedCaseWorker}
       />
+      <Paragraph role="status">
+        {announcement.userId === user.id ? announcement.text : ''}
+      </Paragraph>
+      {data.supervisionCase.status === 'Closed' && (
+        <Alert data-color="info">
+          This case is closed. Nobody can change it until a leader reopens it.
+        </Alert>
+      )}
       {data.access === 'full' ? (
         <>
+          {can(user, 'reopenCase', data.supervisionCase) && (
+            <ReopenCaseSection
+              caseId={data.supervisionCase.id}
+              onReopened={() =>
+                setAnnouncement({
+                  userId: user.id,
+                  text: 'The case is reopened. Its status is In progress.',
+                })
+              }
+            />
+          )}
           {can(user, 'assignCase', data.supervisionCase) && (
             // A fresh form per case and per user (mock switcher), so an old choice is never kept.
             <AssignCaseSection
@@ -81,6 +107,13 @@ export function CaseDetailPage() {
             companies={data.supervisionCase.companies}
             editable={canEdit}
           />
+          {can(user, 'closeCase', data.supervisionCase) && (
+            <CloseCaseSection
+              key={`close-${data.supervisionCase.id}-${user.id}`}
+              supervisionCase={data.supervisionCase}
+              onClosed={() => setAnnouncement({ userId: user.id, text: 'The case is closed.' })}
+            />
+          )}
         </>
       ) : (
         <Alert data-color="info">

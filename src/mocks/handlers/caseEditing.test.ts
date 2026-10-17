@@ -346,3 +346,124 @@ describe('F-002 companies', () => {
     ]);
   });
 });
+
+describe('F-002 reactions', () => {
+  const person = makeHealthPersonnel({ firstName: 'Reactfirst' });
+  const company = makeCompany({ name: 'React Clinic' });
+  const personReaction = (caseId: string, personId: string, reaction: string) =>
+    request('PUT', `/api/cases/${caseId}/health-personnel/${personId}/reaction`, { reaction });
+  const companyReaction = (caseId: string, companyId: string, reaction: string) =>
+    request('PUT', `/api/cases/${caseId}/companies/${companyId}/reaction`, { reaction });
+
+  function caseWithParties(overrides = {}) {
+    return assignedCase({ healthPersonnel: [person], companies: [company], ...overrides });
+  }
+
+  it.each(['NoReaction', 'Prohibition', 'RestrictionOfPractice'])(
+    'gives a health personnel the reaction %s',
+    async (reaction) => {
+      const target = caseWithParties();
+      storeCases(target);
+      actAs(MAGNUS);
+
+      const response = await personReaction(target.id, person.id, reaction);
+
+      const people = response.access === 'full' ? response.supervisionCase.healthPersonnel : [];
+      expect(people[0]?.reaction).toBe(reaction);
+    },
+  );
+
+  it.each(['NoReaction', 'SelfAssessment'])('gives a company the reaction %s', async (reaction) => {
+    const target = caseWithParties();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    const response = await companyReaction(target.id, company.id, reaction);
+
+    const companies = response.access === 'full' ? response.supervisionCase.companies : [];
+    expect(companies[0]?.reaction).toBe(reaction);
+  });
+
+  it('logs "reaction given" by id, without the reaction, and moves the case to In progress', async () => {
+    const target = caseWithParties();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await personReaction(target.id, person.id, 'RestrictionOfPractice');
+
+    expect(readDb().cases[0]?.status).toBe('InProgress');
+    expect(readDb().auditLog).toMatchObject([
+      {
+        action: 'ReactionGiven',
+        result: 'Success',
+        details: { change: 'HealthPersonnelReactionGiven', healthPersonnelId: person.id },
+      },
+      { action: 'StatusChanged', details: { from: 'Assigned', to: 'InProgress' } },
+    ]);
+    expect(JSON.stringify(readDb().auditLog)).not.toContain('RestrictionOfPractice');
+  });
+
+  it.each([
+    [
+      'a company reaction for a health personnel',
+      () => personReaction,
+      () => person.id,
+      'SelfAssessment',
+    ],
+    [
+      'a health personnel reaction for a company',
+      () => companyReaction,
+      () => company.id,
+      'Prohibition',
+    ],
+    ['an unknown reaction', () => personReaction, () => person.id, 'Warning'],
+    ['an unknown health personnel', () => personReaction, () => crypto.randomUUID(), 'NoReaction'],
+  ])('rejects %s with 400', async (_label, endpoint, partyId, reaction) => {
+    const target = caseWithParties();
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await expect(endpoint()(target.id, partyId(), reaction)).rejects.toBeInstanceOf(ApiError);
+    expect(readDb().cases[0]).toEqual(target);
+  });
+
+  it('rejects giving the reaction the party already has', async () => {
+    const target = caseWithParties({
+      status: 'InProgress',
+      healthPersonnel: [{ ...person, reaction: 'Prohibition' }],
+    });
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await expect(personReaction(target.id, person.id, 'Prohibition')).rejects.toEqual(
+      new ApiError(400, `/api/cases/${target.id}/health-personnel/${person.id}/reaction`),
+    );
+  });
+
+  it('can change a reaction that was given earlier', async () => {
+    const target = caseWithParties({
+      status: 'InProgress',
+      companies: [{ ...company, reaction: 'NoReaction' }],
+    });
+    storeCases(target);
+    actAs(MAGNUS);
+
+    await companyReaction(target.id, company.id, 'SelfAssessment');
+
+    expect(readDb().cases[0]?.companies[0]?.reaction).toBe('SelfAssessment');
+  });
+
+  it('refuses anyone but the assigned case worker with 403 and logs Denied', async () => {
+    const target = caseWithParties();
+    storeCases(target);
+    const leader = actAs(INGRID_LEADER_DEPT_1);
+
+    await expect(personReaction(target.id, person.id, 'Prohibition')).rejects.toEqual(
+      new ApiError(403, `/api/cases/${target.id}/health-personnel/${person.id}/reaction`),
+    );
+    expect(readDb().auditLog).toMatchObject([
+      { userId: leader.id, action: 'ReactionGiven', result: 'Denied' },
+    ]);
+    expect(JSON.stringify(readDb().auditLog)).not.toContain('Prohibition');
+  });
+});

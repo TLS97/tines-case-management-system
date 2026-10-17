@@ -15,6 +15,7 @@ import { formatDate } from '@/shared/utils/formatDate';
 import { HEALTH_PERSONNEL_REACTION_LABELS } from '../labels';
 import type { HealthPersonnel } from '../types';
 import { AddHealthPersonnelForm } from './AddHealthPersonnelForm';
+import { HealthPersonnelReactionForm } from './PartyReactionForms';
 import styles from './CaseDetail.module.css';
 import { RemoveHealthPersonnelButton } from './RemoveHealthPersonnelButton';
 
@@ -74,12 +75,16 @@ export function HealthPersonnelSection({
                     ))}
                   </TableBody>
                 </Table>
-                <Paragraph>
-                  Reaction:{' '}
-                  {person.reaction
-                    ? HEALTH_PERSONNEL_REACTION_LABELS[person.reaction]
-                    : 'No reaction given yet'}
-                </Paragraph>
+                {editable ? (
+                  <HealthPersonnelReactionForm caseId={caseId} person={person} />
+                ) : (
+                  <Paragraph>
+                    Reaction:{' '}
+                    {person.reaction
+                      ? HEALTH_PERSONNEL_REACTION_LABELS[person.reaction]
+                      : 'No reaction given yet'}
+                  </Paragraph>
+                )}
                 {editable && (
                   <RemoveHealthPersonnelButton
                     caseId={caseId}

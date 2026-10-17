@@ -2,7 +2,7 @@
 
 ## Layers
 Built so far: app shell, routes, the mock API with users, cases and the audit log, the current user, `can()`, and
-creating a case (F-001), the case detail page with assigning (F-004) and editing field, health personnel and companies (F-002).
+creating a case (F-001), the case detail page with assigning (F-004) and editing field, health personnel, companies and reactions (F-002).
 Everything else is *(planned)*.
 
 ```mermaid
@@ -48,6 +48,8 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `DELETE /api/cases/:id/health-personnel/:personId` | Remove a health personnel (F-002) |
 | `POST /api/cases/:id/companies` | Add a company (F-002); 409 if the organization number is already on the case |
 | `DELETE /api/cases/:id/companies/:companyId` | Remove a company (F-002) |
+| `PUT /api/cases/:id/health-personnel/:personId/reaction` | Give a health personnel a reaction, body `{ reaction }` (F-002) |
+| `PUT /api/cases/:id/companies/:companyId/reaction` | Give a company a reaction, body `{ reaction }` (F-002) |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |

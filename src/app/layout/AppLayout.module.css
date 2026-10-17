@@ -1,0 +1,49 @@
+.header {
+  background: var(--ds-color-neutral-background-default);
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+}
+
+.headerInner,
+.main {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: var(--ds-size-6);
+}
+
+.headerInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-size-4) var(--ds-size-8);
+  padding-block: var(--ds-size-4);
+}
+
+.appName {
+  font-size: var(--ds-font-size-5);
+  font-weight: var(--ds-font-weight-semibold);
+  text-decoration: none;
+}
+
+.navList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navList a[aria-current='page'] {
+  font-weight: var(--ds-font-weight-semibold);
+  text-decoration: none;
+}
+
+.main {
+  padding-block: var(--ds-size-8);
+}
+
+/* Programmatic focus after navigation; the heading is not a control, so no outline. */
+.main h1:focus:not(:focus-visible) {
+  outline: none;
+}

@@ -1,13 +1,15 @@
-import { Heading, Paragraph } from '@digdir/designsystemet-react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createBrowserRouter } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
+import { routes } from './routes';
 
-// Placeholder until the app shell (T0.4) is in place.
+const queryClient = new QueryClient();
+const router = createBrowserRouter(routes);
+
 export function App() {
   return (
-    <main>
-      <Heading level={1} data-size="lg">
-        Supervision case management
-      </Heading>
-      <Paragraph>The app shell comes in the next task.</Paragraph>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   );
 }

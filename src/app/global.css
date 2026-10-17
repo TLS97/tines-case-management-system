@@ -1,0 +1,4 @@
+/* Designsystemet components inherit the font; the theme only defines it as a variable. */
+body {
+  font-family: var(--ds-font-family);
+}

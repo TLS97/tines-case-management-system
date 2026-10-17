@@ -8,6 +8,7 @@ npm run dev        # app with mock API
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
 npm run format     # Prettier
+npm run tokens     # regenerate the theme after changing designsystemet.config.json
 npm run test       # unit and component tests
 npm run test:e2e   # Playwright e2e + accessibility (first time: npm run test:e2e:install)
 ```

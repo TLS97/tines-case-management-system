@@ -26,5 +26,5 @@
     "noUncheckedSideEffectImports": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["src"]
+  "include": ["src", "design-tokens-build/types.d.ts"]
 }

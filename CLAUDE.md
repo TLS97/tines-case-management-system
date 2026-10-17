@@ -18,10 +18,12 @@ All UI text is in English.
 - `npm run test:e2e` Playwright (first time: `npm run test:e2e:install` downloads Chromium)
 - `npm run lint` / `npm run typecheck`
 - `npm run format` (Prettier; Markdown is not formatted)
+- `npm run tokens` regenerate the theme from `designsystemet.config.json` (only when the theme changes)
 
 ## Rules
 - Use Designsystemet components (`@digdir/designsystemet-react`) before writing custom UI.
-  Never hardcode colors; use theme tokens from `design-tokens/`.
+  Never hardcode colors or fonts; use Designsystemet's `--ds-*` CSS variables and `data-color`
+  (theme generated into `design-tokens-build/`, see `docs/decisions/0007-theme.md`).
 - Permission checks go through `can()` (in `src/features/auth/permissions.ts`, imported from `@/features/auth`); never inline role checks.
 - Every feature references its ID (F-001 ...) in tests; PR titles start with the task ID and feature ID (`T2.1 F-001: ...`).
 - Update docs in the same PR as the code, per `docs/conventions/documentation.md`
@@ -37,7 +39,7 @@ All UI text is in English.
   **In progress** in a feature's first PR and **Done** in its last PR (see SPEC.md status rules).
 - Never merge a PR, push to `main`, force-push, or rewrite history. Tine reviews and merges.
 - Never skip, disable or delete tests, lint rules or type checks to get green.
-- Never change CI, `tsconfig` strictness, ESLint config, `design-tokens/` or
+- Never change CI, `tsconfig` strictness, ESLint config, `design-tokens/`, `design-tokens-build/` or
   `designsystemet.config.json` without asking first.
 - Never change SPEC.md silently. If behaviour must differ from the spec, ask, or
   change it in the PR and call it out under **Spec changes**.

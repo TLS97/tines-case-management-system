@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/@digdir/designsystemet@1.23.0/dist/config.schema.json",
+  "outDir": "./design-tokens",
+  "themes": {
+    "htil-theme": {
+      "colors": {
+        "accent": "#E2F1E9",
+        "htil-hovedfarge": "#053227",
+        "htil-sekundaerfarge": "#20B89A",
+        "neutral": "#FFFFFF"
+      },
+      "typography": {
+        "fontFamily": "'Inter Variable', system-ui, sans-serif"
+      },
+      "borderRadius": 4
+    }
+  }
+}

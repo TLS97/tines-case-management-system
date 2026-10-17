@@ -11,7 +11,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
       then, on a branch: scaffold Vite + React + TypeScript (strict mode), latest stable deps, `@/` path alias;
       ESLint (typescript-eslint, react-hooks, jsx-a11y, `no-restricted-imports` for feature boundaries) and Prettier
 - [x] **T0.2** Vitest + Testing Library (+ user-event, jest-dom, coverage-v8) and Playwright + `@axe-core/playwright`, one smoke test each
-- [ ] **T0.3** Install `@digdir/designsystemet-react` and `@digdir/designsystemet-css`; generate theme tokens
+- [x] **T0.3** Install `@digdir/designsystemet-react` and `@digdir/designsystemet-css`; generate theme tokens
       from `designsystemet.config.json` into `./design-tokens`
       (theme `htil-theme`, colors `accent #E2F1E9`, `htil-hovedfarge #053227`,
       `htil-sekundaerfarge #20B89A`, `neutral #FFFFFF`, border radius 4)

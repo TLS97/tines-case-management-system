@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { readDb } from '@/mocks/db';
+import { readDb, writeDb } from '@/mocks/db';
 import { actAs, INGRID_LEADER_DEPT_1, LARS_ADMIN, TINE_CASE_WORKER_DEPT_1 } from '@/test/mockUsers';
 import { renderRoute } from '@/test/renderRoute';
 
@@ -156,5 +156,59 @@ describe('F-004 deactivate a user', () => {
     const ownRow = within(table).getByRole('row', { name: /Lars Johansen/ });
     expect(within(ownRow).queryByRole('button', { name: /Deactivate/ })).not.toBeInTheDocument();
     expect(within(ownRow).getByRole('button', { name: 'Edit Lars Johansen' })).toBeInTheDocument();
+  });
+});
+
+describe('F-004 reactivate a user', () => {
+  const deactivateMagnus = () => {
+    const db = readDb();
+    writeDb({
+      ...db,
+      users: db.users.map((u) =>
+        u.email === 'magnus.berg@example.com' ? { ...u, isActive: false } : u,
+      ),
+    });
+  };
+
+  it('reactivates a deactivated user without asking', async () => {
+    deactivateMagnus();
+    const { user, table } = await openAsAdmin();
+    const magnusRow = within(table).getByRole('row', { name: /Magnus Berg/ });
+    expect(magnusRow).toHaveTextContent('Deactivated');
+
+    await user.click(within(magnusRow).getByRole('button', { name: 'Reactivate Magnus Berg' }));
+
+    expect(await screen.findByText('Magnus Berg was reactivated.')).toBeInTheDocument();
+    expect(await within(magnusRow).findByText('Active')).toBeInTheDocument();
+    expect(within(magnusRow).queryByRole('button', { name: /Reactivate/ })).not.toBeInTheDocument();
+    expect(
+      within(magnusRow).getByRole('button', { name: 'Deactivate Magnus Berg' }),
+    ).toBeInTheDocument();
+    expect(readDb().users.find((u) => u.email === 'magnus.berg@example.com')?.isActive).toBe(true);
+    expect(
+      await within(screen.getByLabelText('Acting as')).findByRole('option', {
+        name: 'Magnus Berg – Case worker',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('offers no Reactivate button for active users', async () => {
+    const { table } = await openAsAdmin();
+
+    expect(within(table).queryByRole('button', { name: /Reactivate/ })).not.toBeInTheDocument();
+  });
+
+  it('says so when the user could not be reactivated', async () => {
+    deactivateMagnus();
+    const { user, table } = await openAsAdmin();
+    // Someone else reactivated Magnus in the meantime, so the mock API answers 400.
+    const db = readDb();
+    writeDb({ ...db, users: db.users.map((u) => ({ ...u, isActive: true })) });
+
+    await user.click(within(table).getByRole('button', { name: 'Reactivate Magnus Berg' }));
+
+    expect(
+      await screen.findByText('Magnus Berg could not be reactivated. Try again.'),
+    ).toBeInTheDocument();
   });
 });

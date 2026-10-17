@@ -13,7 +13,7 @@ cases with sensitive data hidden.
 |---|---|
 | CaseWorker | See, read and edit cases assigned to them (not when closed); close them when in progress; read cases they have been given read access to |
 | Leader | Create cases in own fields; see and read all cases in own department; assign and reassign, give and remove read access (not when closed); reopen closed cases; view the audit log per case |
-| Admin | See all cases and open them with sensitive data hidden; view the global audit log; add and deactivate users, change their fields and department |
+| Admin | See all cases and open them with sensitive data hidden; view the global audit log; add, deactivate and reactivate users, change their fields and department |
 
 A deactivated user may do nothing.
 
@@ -43,7 +43,7 @@ flowchart LR
 | `manageReadAccess` | case | Give / remove read access |
 | `viewCaseAuditLog` | case | View audit log per case |
 | `viewGlobalAuditLog` | – | View global audit log |
-| `manageUsers` | – | Add users, deactivate users, change fields and department |
+| `manageUsers` | – | Add users, deactivate and reactivate users, change fields and department |
 
 ## Admin's restricted view
 `viewCase(user, case)` (`features/cases/restrictedView.ts`) gives the full case, the restricted view, or nothing,
@@ -109,6 +109,14 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
   (own department, not closed) and disappears when they reassign the case. Comes from `GET /api/notifications`
   (`features/notifications`), which F-012 can extend.
 
+## Reactivating a user
+- Admin sees **Reactivate** for every deactivated user. Nothing is lost by it, so there is no confirmation; the page
+  says "*name* was reactivated."
+- `POST /api/users/:id/reactivate`: `isActive` true, `updatedAt` set; logged as "user updated"
+  (`updatedUserId`, `isActive: true`). 403 + Denied entry for non-admins; 400 for a user who is already active.
+- They can use the app again and be assigned cases or given read access. Their department and fields are as before.
+  Cases still assigned to them are theirs again, so leaders' "deactivated case worker" notices about them disappear.
+
 ## Changing a user's fields and department
 - **Edit** on each row of the Users page opens an "Edit *name*" panel above the table (focus moves to it).
 - **Fields:** primary field plus other fields (`PUT /api/users/:id/fields`). Changing the primary field keeps the old
@@ -137,7 +145,7 @@ Checked separately: whether every party has a reaction before closing (`missingF
 | User admin: list and add users | T3.4 | Done |
 | User admin: deactivate; leader notification for cases with a deactivated case worker | T3.5 | Done |
 | User admin: change fields and department (moving blocked while they have open cases in their department) | T3.6 | Done |
-| Reactivate a user | T3.9 | *(planned)* |
+| Reactivate a user | T3.9 | Done |
 | Borrow a case worker from another department; "Lent out" list for the home leader | T3.10 | *(planned)* |
 | Navigation: Users and Audit log only for those allowed | T3.4 | Done |
 

@@ -28,6 +28,14 @@ export function deactivateUser(userId: string) {
   });
 }
 
+/** F-004: reactivates a deactivated user (Admin only). Returns the updated user. */
+export function reactivateUser(userId: string) {
+  return apiRequest(`/api/users/${encodeURIComponent(userId)}/reactivate`, {
+    method: 'POST',
+    schema: userSchema,
+  });
+}
+
 /** F-004: changes a user's fields (Admin only). Returns the updated user. */
 export function changeUserFields(userId: string, fields: UserFields) {
   return apiRequest(`/api/users/${encodeURIComponent(userId)}/fields`, {

@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { z } from 'zod';
 import type { BlockingCase } from '@/features/admin';
+import type { AuditDetails } from '@/features/audit-log';
 import {
   can,
   departmentIdSchema,
@@ -29,7 +30,7 @@ function casesBlockingMove(db: MockDb, user: User): BlockingCase[] {
 /** Loads the target user and checks that the current user is Admin; a refusal is logged as Denied. */
 function loadForAdmin(
   userId: unknown,
-  deniedDetails: Record<string, string | number>,
+  deniedDetails: AuditDetails,
 ): { ok: true; db: MockDb; admin: User; target: User } | { ok: false; response: Response } {
   const db = readDb();
   const admin = currentUser(db);
@@ -222,5 +223,27 @@ export const userHandlers = [
     });
     writeDb(next);
     return HttpResponse.json(moved);
+  }),
+
+  // F-004: Admin reactivates a deactivated user. They can use the app again and be assigned cases.
+  http.post('/api/users/:id/reactivate', ({ params }) => {
+    const loaded = loadForAdmin(params.id, { isActive: true });
+    if (!loaded.ok) return loaded.response;
+    const { db, admin, target } = loaded;
+    if (target.isActive) return new HttpResponse(null, { status: 400 });
+
+    const updated: User = { ...target, isActive: true, updatedAt: new Date().toISOString() };
+    writeDb(
+      recordAudit(
+        { ...db, users: db.users.map((user) => (user.id === updated.id ? updated : user)) },
+        {
+          userId: admin.id,
+          action: 'UserUpdated',
+          result: 'Success',
+          details: { updatedUserId: updated.id, isActive: true },
+        },
+      ),
+    );
+    return HttpResponse.json(updated);
   }),
 ];

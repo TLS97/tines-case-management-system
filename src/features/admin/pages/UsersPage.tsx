@@ -1,13 +1,15 @@
 import { Button, Paragraph, Spinner } from '@digdir/designsystemet-react';
 import { useState } from 'react';
 import { can, useCurrentUser } from '@/features/auth';
+import { ApiError } from '@/shared/api/apiRequest';
 import { Page } from '@/shared/components/Page';
 import { AddUserForm } from '../components/AddUserForm';
 import { EditUserPanel } from '../components/EditUserPanel';
 import { UsersTable } from '../components/UsersTable';
 import { useUsers } from '../hooks/useUsers';
 
-// F-004 user admin (Admin only): every user; adding, deactivating, and changing fields and department.
+// F-004 user admin (Admin only): every user; adding, deactivating and reactivating, and changing
+// fields and department.
 export function UsersPage() {
   const user = useCurrentUser();
 
@@ -64,6 +66,16 @@ function UserAdmin({ currentUserId }: { currentUserId: string }) {
           currentUserId={currentUserId}
           onDeactivated={(deactivated) =>
             setStatusMessage(`${deactivated.firstName} ${deactivated.surname} was deactivated.`)
+          }
+          onReactivated={(reactivated) =>
+            setStatusMessage(`${reactivated.firstName} ${reactivated.surname} was reactivated.`)
+          }
+          onReactivateFailed={(failed, error) =>
+            setStatusMessage(
+              error instanceof ApiError && error.status === 403
+                ? 'You are not allowed to reactivate users.'
+                : `${failed.firstName} ${failed.surname} could not be reactivated. Try again.`,
+            )
           }
           onEdit={(selected) => setEditingId(selected.id)}
         />

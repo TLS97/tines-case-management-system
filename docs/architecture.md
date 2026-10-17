@@ -29,7 +29,7 @@ flowchart TD
 | `/` | Case overview (`CaseOverviewPage`), filters in the address (`?field=&status=&reaction=`); leaders' notice about deactivated case workers on top | F-003, F-004 | Yes |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
 | `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin, assign and reassign |
-| `/admin/users` | User admin: list, add, deactivate, change fields and department (`UsersPage`) | F-004 | Yes (reactivate *(planned, T3.9)*) |
+| `/admin/users` | User admin: list, add, deactivate, reactivate, change fields and department (`UsersPage`) | F-004 | Yes |
 | `/admin/audit` | Global audit log (`AuditLogPage`) | F-005 | Empty page |
 | any other | Page not found (`NotFoundPage`) | – | Yes |
 
@@ -60,6 +60,7 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `GET /api/users` | Every user (F-004, Admin) |
 | `POST /api/users` | Add a user (F-004, Admin); 409 if the email is already used |
 | `POST /api/users/:id/deactivate` | Deactivate a user (F-004, Admin; not themselves) |
+| `POST /api/users/:id/reactivate` | Reactivate a deactivated user (F-004, Admin) |
 | `PUT /api/users/:id/fields` | Change a user's fields, body `{ primaryField, fields }` (F-004, Admin) |
 | `GET /api/users/:id/blocking-cases` | Open cases that keep a user from moving department (F-004, Admin) |
 | `PUT /api/users/:id/department` | Move a user, body `{ departmentId }` (F-004, Admin); 409 while open cases block it |

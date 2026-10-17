@@ -50,10 +50,12 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
 - [x] **T3.4** User admin: list and add users (Admin) (F-004)
 - [x] **T3.5** User admin: deactivate a user; deactivated case workers stay on their cases, shown as "(deactivated)";
       leader notification for cases with a deactivated case worker (F-004)
-- [ ] **T3.6** User admin: change a user's fields and department (Admin) (F-004).
-      *Blocked until Tine answers what happens to that user's open cases.*
+- [ ] **T3.6** User admin: change a user's fields and department (Admin) (F-004). Moving is blocked while they are the
+      case worker of open cases in their current department; those cases are listed so a leader can reassign them
 - [ ] **T3.7** Audit log per case (Leader) (F-005)
 - [ ] **T3.8** Global audit log with filters (Admin) (F-005)
+- [ ] **T3.9** Reactivate a deactivated user (Admin) (F-004)
+- [ ] **T3.10** Borrow a case worker from another department for a case; "Lent out" list for the home leader (F-004)
 - **Done when:** F-001 to F-005 meet all acceptance criteria, each has an e2e happy path, and all are **Done** in SPEC.md
 
 ## Phase 4: Follow-up (F-010, F-011)

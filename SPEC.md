@@ -141,7 +141,7 @@ User ids are fixed GUIDs in the seed file. No cases are seeded.
 | Give / remove read access | | Own department | |
 | View audit log per case | | Own department | |
 | View global audit log (filter: case id, action, user, result, date) | | | ✓ |
-| Add users, deactivate users, change a user's fields and department | | | ✓ |
+| Add users, deactivate and reactivate users, change a user's fields and department | | | ✓ |
 
 ## Features
 
@@ -217,15 +217,28 @@ Claude may set **In progress** in the feature's first PR and **Done** in its las
 - Every action in the permissions table is checked through `can()`; hidden in the UI and rejected by the mock API.
 - Leader can assign an `Unassigned` case in their department. Status becomes `Assigned`.
 - Leader can reassign an `Assigned` or `InProgress` case in their department. Status does not change.
-- A case can only be assigned to an active case worker in the leader's department who has access to the case's field.
+- A case can be assigned to an active case worker who has access to the case's field, either from the leader's
+  own department or **borrowed** from another department. A leader can borrow the same case worker for as many
+  cases as needed; the case worker's home department does not have to approve.
+- A borrowed case worker works on the case exactly like on their own cases. Borrowing gives them no other access
+  in that department. The case page shows a borrowed case worker's home department next to their name.
+- The leader of a case worker's home department sees a short read-only "Lent out" list on their Cases page: their
+  case workers' cases (not `Closed`) in other departments, with case number, department and case worker.
 - Leader can give an active case worker in their department read access to a case in their department, and remove it.
 - Leader can reopen a `Closed` case in their department. Status becomes `InProgress`.
 - A `Closed` case cannot be assigned, reassigned or have its read access changed.
 - Admin can open any case in any department in the restricted view
   (see [Sensitive case data](#sensitive-case-data)).
 - Admin can add a user with all User fields; email must be unique.
-- Admin can deactivate a user, change which fields a user has access to, and change a user's department.
-  `fields` must always include `primaryField`; to remove the primary field, Admin picks a new primary field first.
+- Admin can deactivate a user, reactivate a deactivated user, change which fields a user has access to, and change
+  a user's department. `fields` must always include `primaryField`; to remove the primary field, Admin picks a new
+  primary field first.
+- Changing a user's fields does not change their cases: they stay assigned even to a case whose field they no
+  longer have.
+- Moving a user to another department is permanent and only possible when they are not the assigned case worker of
+  any case (not `Closed`) in their current department. Until then, the Users page lists those cases so a leader can
+  reassign them first. Cases they are borrowed for in other departments are not affected. Read access they had to
+  cases in their old department is removed when they move.
 - Inactive users cannot be assigned cases or given read access.
 - Deactivating a user does not remove them from their cases: `assignedTo` keeps the deactivated
   case worker, so the case history stays correct. The UI shows them as "(deactivated)".
@@ -242,7 +255,8 @@ Logged actions: case created, case updated, case assigned, status changed, react
 read access granted/removed, case opened, user added, user updated.
 Each entry: `id`, `timestamp`, `userId`, `action`, `caseId?`, `result` (`Success` | `Denied`), `details`.
 `details` never contains [sensitive case data](#sensitive-case-data); refer to health personnel and companies by their `id`.
-For "case assigned", `details` holds the previous case worker's id (if any) and the new one's.
+For "case assigned", `details` holds the previous case worker's id (if any) and the new one's, and for a borrowed
+case worker their home department.
 Leader sees entries for one case in their department; Admin sees all, filtered by case id, action, user, result and date.
 
 ### F-006 Generate Word documents *(Draft)*

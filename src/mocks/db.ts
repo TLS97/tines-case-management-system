@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { auditEntrySchema } from '@/features/audit-log';
 import { userSchema } from '@/features/auth';
 import { DEFAULT_USER_ID, SEED_USERS } from './seed/users';
 
@@ -9,10 +10,12 @@ export const MOCK_DB_STORAGE_KEY = 'sak.mockDb';
 
 const mockDbSchema = z
   .object({
-    version: z.literal(2),
+    version: z.literal(3),
     users: z.array(userSchema),
     // The user the app acts as; changed with the user switcher (mock only).
     currentUserId: z.uuid(),
+    // F-005: oldest first. Written with recordAudit (mocks/auditLog.ts).
+    auditLog: z.array(auditEntrySchema),
   })
   .refine((db) => db.users.some((user) => user.id === db.currentUserId), {
     message: 'currentUserId must belong to a user',
@@ -22,7 +25,12 @@ const mockDbSchema = z
 export type MockDb = z.infer<typeof mockDbSchema>;
 
 function createSeedDb(): MockDb {
-  return { version: 2, users: structuredClone([...SEED_USERS]), currentUserId: DEFAULT_USER_ID };
+  return {
+    version: 3,
+    users: structuredClone([...SEED_USERS]),
+    currentUserId: DEFAULT_USER_ID,
+    auditLog: [],
+  };
 }
 
 export function writeDb(db: MockDb): void {

@@ -44,8 +44,8 @@ flowchart TD
   classDef approved fill:#d4edda,stroke:#2e7d32,color:#000
   classDef draft fill:#eeeeee,stroke:#888,stroke-dasharray:4 3,color:#000
   classDef inprogress fill:#d6e6f5,stroke:#1f5f99,color:#000
-  class P1b,F001,F002,P2a,F003,P3a,P3b approved
-  class P1a inprogress
+  class F001,F002,P2a,F003,P3a,P3b approved
+  class P1a,P1b inprogress
   class F006,F007,F008,F009,F010,F011,F012 draft
 ```
 
@@ -55,7 +55,7 @@ flowchart TD
 | F-002 Expand case | Approved | Written | 2 | v1 |
 | F-003 Case overview | Approved | Written | 3 | v1 |
 | F-004 Access control | In progress | Written | 1, 2, 3 | v1 |
-| F-005 Audit log | Approved | Written | 1, 3 | v1 |
+| F-005 Audit log | In progress | Written | 1, 3 | v1 |
 | F-010 Follow-up case | Draft | Partly written | 4 | v1 |
 | F-011 Follow-up in overview | Draft | Missing | 4 | v1 |
 | F-012 Notifications | Draft | Partly written | 5 | v1 |

@@ -12,7 +12,8 @@ The app handles information about health personnel and supervision cases. Treat 
   so it never reaches the browser for Admin. Hiding it only in the UI is not enough.
   The view is an allowlist (`toRestrictedCase`); a new case field is hidden from Admin until it is added to
   `ADMIN_VISIBLE_FIELDS` on purpose.
-- Audit log `details` never contain sensitive case data.
+- Audit log `details` never contain sensitive case data. `recordAudit` refuses details that equal or contain a
+  sensitive value from the case (see `docs/features/F-005-audit-log.md`); refer to parties by id.
 - The Excel export (F-007) only includes fields listed as non-sensitive in SPEC.md.
 
 ## Code

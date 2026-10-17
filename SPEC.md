@@ -160,7 +160,7 @@ Claude may set **In progress** in the feature's first PR and **Done** in its las
 | F-002 | Expand supervision case (field, personnel, companies, reactions, close) | Approved |
 | F-003 | Case overview with filters (field, status, reaction) | Approved |
 | F-004 | RBAC: users, roles, permissions | In progress |
-| F-005 | Audit log | Approved |
+| F-005 | Audit log | In progress |
 | F-006 | Generate Word documents | Draft |
 | F-007 | Excel export of non-sensitive data | Draft |
 | F-008 | Create an application | Draft |

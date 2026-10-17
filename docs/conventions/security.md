@@ -10,6 +10,8 @@ The app handles information about health personnel and supervision cases. Treat 
 - MSW request logging stays off (`quiet: true`), and `ApiError` messages never include response bodies.
 - Admin gets the restricted case view: the mock API leaves out the sensitive case data listed in SPEC.md,
   so it never reaches the browser for Admin. Hiding it only in the UI is not enough.
+  The view is an allowlist (`toRestrictedCase`); a new case field is hidden from Admin until it is added to
+  `ADMIN_VISIBLE_FIELDS` on purpose.
 - Audit log `details` never contain sensitive case data.
 - The Excel export (F-007) only includes fields listed as non-sensitive in SPEC.md.
 

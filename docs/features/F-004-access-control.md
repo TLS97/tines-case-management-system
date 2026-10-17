@@ -45,6 +45,17 @@ flowchart LR
 | `viewGlobalAuditLog` | – | View global audit log |
 | `manageUsers` | – | Add users, deactivate users, change fields and department |
 
+## Admin's restricted view
+`viewCase(user, case)` (`features/cases/restrictedView.ts`) gives the full case, the restricted view, or nothing,
+using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `caseNumber`, `status`, `field`,
+`departmentId` and `assignedTo`. Health personnel, companies (and with them authorizations and reactions) and
+`readAccess` are left out.
+
+- `toRestrictedCase` copies the allowed fields one by one, never with a spread, so new case fields stay hidden.
+- `restrictedSupervisionCaseSchema` is strict: data that still contains a hidden field is rejected.
+- A test fails if a case field is in neither `ADMIN_VISIBLE_FIELDS` nor `ADMIN_HIDDEN_FIELDS`, so adding a field forces a decision.
+- From T2.2 the mock API sends Admin only this view.
+
 Checked separately, in later tasks: who a case can be assigned to or given read access (active case worker in the
 leader's department with the case's field), and whether every party has a reaction before closing.
 
@@ -52,7 +63,7 @@ leader's department with the case's field), and whether every party has a reacti
 | Part | Task | Status |
 |---|---|---|
 | `can()` for the whole permission table | T1.2 | Done |
-| Restricted case view for Admin | T1.3 | *(planned)* |
+| Restricted case view for Admin | T1.3 | Done |
 | Assign and reassign | T2.3 | *(planned)* |
 | Close and reopen | T2.7 | *(planned)* |
 | Read access | T3.3 | *(planned)* |

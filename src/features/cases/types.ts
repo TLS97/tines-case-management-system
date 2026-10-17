@@ -67,18 +67,20 @@ export const companySchema = z.object({
   reaction: companyReactionSchema.optional(),
 });
 
-export const supervisionCaseSchema = z
-  .object({
-    id: z.uuid(),
-    caseNumber: caseNumberSchema,
-    status: caseStatusSchema,
-    field: fieldSchema,
-    departmentId: departmentIdSchema,
-    assignedTo: z.uuid().nullable(),
-    readAccess: z.array(z.uuid()),
-    healthPersonnel: z.array(healthPersonnelSchema),
-    companies: z.array(companySchema),
-  })
+/** The fields of a case, without the cross-field checks (used to derive the restricted view). */
+export const supervisionCaseObjectSchema = z.object({
+  id: z.uuid(),
+  caseNumber: caseNumberSchema,
+  status: caseStatusSchema,
+  field: fieldSchema,
+  departmentId: departmentIdSchema,
+  assignedTo: z.uuid().nullable(),
+  readAccess: z.array(z.uuid()),
+  healthPersonnel: z.array(healthPersonnelSchema),
+  companies: z.array(companySchema),
+});
+
+export const supervisionCaseSchema = supervisionCaseObjectSchema
   .refine((c) => isUnique(c.healthPersonnel.map((hp) => hp.healthPersonnelNumber)), {
     message: 'The same health personnel cannot be added to a case more than once',
     path: ['healthPersonnel'],

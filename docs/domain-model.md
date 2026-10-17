@@ -100,4 +100,7 @@ classDiagram
 | `fields` includes `primaryField` | `userSchema` |
 | Audit `details` are flat (no nested data) | `auditDetailsSchema` |
 
+Admin's view of a case is `RestrictedSupervisionCase` (`features/cases/restrictedView.ts`): only `id`, `caseNumber`,
+`status`, `field`, `departmentId` and `assignedTo`.
+
 Rules about *who* may do *what* (permissions, status changes) are not in the schemas; they come with `can()` (T1.2).

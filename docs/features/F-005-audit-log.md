@@ -39,7 +39,9 @@ flowchart LR
 | Part | Task | Status |
 |---|---|---|
 | Writing entries in the mock API | T1.4 | Done |
-| Entries for each logged action | T2.1–T3.6 | *(planned, with each action)* |
+| "Case created" | T2.1 | Done |
+| "Case opened" (details: `view` full or restricted) | T2.2 | Done |
+| Entries for the other logged actions | T2.3–T3.6 | *(planned, with each action)* |
 | Audit log per case (Leader) | T3.7 | *(planned)* |
 | Global audit log with filters (Admin) | T3.8 | *(planned)* |
 

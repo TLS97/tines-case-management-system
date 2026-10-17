@@ -17,7 +17,7 @@ describe('App routes', () => {
   it.each([
     ['/', 'Cases'],
     ['/cases/new', 'New case'],
-    ['/cases/3f2b8c1e-0000-4000-8000-000000000000', 'Case details'],
+    ['/cases/3f2b8c1e-0000-4000-8000-000000000000', 'Case not found'],
     ['/admin/users', 'Users'],
     ['/admin/audit', 'Audit log'],
   ])('shows the page for %s with heading and document title "%s"', async (path, title) => {

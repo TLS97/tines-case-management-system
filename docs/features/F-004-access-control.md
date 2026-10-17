@@ -54,7 +54,7 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
 - `toRestrictedCase` copies the allowed fields one by one, never with a spread, so new case fields stay hidden.
 - `restrictedSupervisionCaseSchema` is strict: data that still contains a hidden field is rejected.
 - A test fails if a case field is in neither `ADMIN_VISIBLE_FIELDS` nor `ADMIN_HIDDEN_FIELDS`, so adding a field forces a decision.
-- From T2.2 the mock API sends Admin only this view.
+- The mock API sends Admin only this view (`GET /api/cases/:id`, since T2.2).
 
 Checked separately, in later tasks: who a case can be assigned to or given read access (active case worker in the
 leader's department with the case's field), and whether every party has a reaction before closing.

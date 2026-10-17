@@ -1,15 +1,28 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test as base, expect, type Page } from '@playwright/test';
 
-// Every e2e test fails on browser console errors or warnings (docs/conventions/definition-of-done.md).
-export const test = base.extend<{ consoleProblems: string[] }>({
+interface ConsoleFixtures {
+  /**
+   * Console errors this test expects, for example the browser's own "Failed to load resource" line
+   * when a test opens a case it may not see. Set with `test.use({ expectedConsoleErrors: [...] })`.
+   */
+  expectedConsoleErrors: RegExp[];
+  consoleProblems: string[];
+}
+
+// Every e2e test fails on browser console errors or warnings (docs/conventions/definition-of-done.md),
+// except errors the test declares as expected.
+export const test = base.extend<ConsoleFixtures>({
+  expectedConsoleErrors: [[], { option: true }],
   consoleProblems: [
-    async ({ page }, use) => {
+    async ({ page, expectedConsoleErrors }, use) => {
       const problems: string[] = [];
       page.on('console', (message) => {
-        if (message.type() === 'error' || message.type() === 'warning') {
-          problems.push(`${message.type()}: ${message.text()}`);
-        }
+        const type = message.type();
+        if (type !== 'error' && type !== 'warning') return;
+        const text = message.text();
+        if (type === 'error' && expectedConsoleErrors.some((pattern) => pattern.test(text))) return;
+        problems.push(`${type}: ${text}`);
       });
       page.on('pageerror', (error) => problems.push(`page error: ${error.message}`));
 
@@ -20,6 +33,11 @@ export const test = base.extend<{ consoleProblems: string[] }>({
     { auto: true },
   ],
 });
+
+/** The browser's console line for a request that was answered with this HTTP status. */
+export function failedRequestLine(status: number): RegExp {
+  return new RegExp(`Failed to load resource: the server responded with a status of ${status}\\b`);
+}
 
 export { expect };
 

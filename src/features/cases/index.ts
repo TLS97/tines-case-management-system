@@ -1,4 +1,10 @@
 export { canCreateCases } from './canCreateCases';
+export {
+  caseResponseSchema,
+  caseWorkerSummarySchema,
+  type CaseResponse,
+  type CaseWorkerSummary,
+} from './caseResponse';
 export { lastSequenceInYear, nextCaseNumber } from './caseNumber';
 export { CaseDetailPage } from './pages/CaseDetailPage';
 export { NewCasePage } from './pages/NewCasePage';

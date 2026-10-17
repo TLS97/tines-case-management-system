@@ -4,8 +4,11 @@ export { FIELD_LABELS, ROLE_LABELS } from './labels';
 export {
   DEPARTMENT_IDS,
   DEPARTMENT_NAMES,
+  departmentIdSchema,
   FIELDS,
+  fieldSchema,
   ROLES,
+  roleSchema,
   userSchema,
   type DepartmentId,
   type Field,

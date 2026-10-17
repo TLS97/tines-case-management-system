@@ -25,7 +25,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
 - **Done when:** `npm run dev` shows the themed shell, the user switcher works and survives a reload, CI runs all checks, `main` is protected
 
 ## Phase 1: Access core (F-004, F-005)
-- [ ] **T1.1** Domain types from SPEC.md (`SupervisionCase`, `CaseStatus`, reactions, ...); `User`, `Role`, `Field`
+- [x] **T1.1** Domain types from SPEC.md (`SupervisionCase`, `CaseStatus`, reactions, ...); `User`, `Role`, `Field`
       and `DepartmentId` already exist in `features/auth/types.ts` since T0.5
 - [ ] **T1.2** `can(user, action, case?)` for every row in the SPEC.md permission table, with a test per row and role (F-004)
 - [ ] **T1.3** Restricted case view: function that removes sensitive case data for Admin, with tests (F-004)

@@ -16,7 +16,7 @@
 - Query by accessible role/label, never by CSS class.
 - Use the MSW mock API, not hand-rolled fetch mocks.
 - E2E tests import `test` and `expect` from `tests/e2e/fixtures.ts`, not from `@playwright/test`.
-  The fixture fails a test on any browser console error or warning.
+  The fixture fails a test on any browser console error or warning. ESLint enforces this import in `*.spec.ts` files.
 - Every Playwright page test calls `expectNoAccessibilityViolations(page)` (axe, WCAG 2.1 AA); violations fail the test.
 - Coverage: at least 80% lines for feature logic: `.ts` files in `src/features/**` (hooks, `api.ts`, `permissions.ts`),
   not counting `types.ts`, `index.ts` and tests. Components are covered by component tests instead.

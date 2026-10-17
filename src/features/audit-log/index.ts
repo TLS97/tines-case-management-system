@@ -1,6 +1,8 @@
 export {
   AUDIT_ACTIONS,
   AUDIT_RESULTS,
+  CASE_CHANGES,
+  caseChangeSchema,
   auditActionSchema,
   auditDetailsSchema,
   auditEntrySchema,
@@ -9,4 +11,5 @@ export {
   type AuditDetails,
   type AuditEntry,
   type AuditResult,
+  type CaseChange,
 } from './types';

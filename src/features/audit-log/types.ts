@@ -17,8 +17,16 @@ export const AUDIT_ACTIONS = [
 
 export const AUDIT_RESULTS = ['Success', 'Denied'] as const;
 
+/** What a "case updated" entry changed (`details.change`). */
+export const CASE_CHANGES = [
+  'FieldChanged',
+  'HealthPersonnelAdded',
+  'HealthPersonnelRemoved',
+] as const;
+
 export const auditActionSchema = z.enum(AUDIT_ACTIONS);
 export const auditResultSchema = z.enum(AUDIT_RESULTS);
+export const caseChangeSchema = z.enum(CASE_CHANGES);
 
 /**
  * Extra facts about the action as flat key-value pairs, for example
@@ -42,5 +50,6 @@ export const auditEntrySchema = z.object({
 
 export type AuditAction = z.infer<typeof auditActionSchema>;
 export type AuditResult = z.infer<typeof auditResultSchema>;
+export type CaseChange = z.infer<typeof caseChangeSchema>;
 export type AuditDetails = z.infer<typeof auditDetailsSchema>;
 export type AuditEntry = z.infer<typeof auditEntrySchema>;

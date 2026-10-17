@@ -197,3 +197,37 @@ describe('audit log storage', () => {
     expect(readDb().auditLog).toEqual([]);
   });
 });
+
+describe('recordAudit and the audit vocabulary', () => {
+  it('allows change codes, statuses and fields even when a name appears inside them', () => {
+    const named = makeCase({
+      healthPersonnel: [makeHealthPersonnel({ firstName: 'Health', surname: 'Field' })],
+    });
+
+    expect(() =>
+      recordAudit(readDb(), {
+        userId: DEFAULT_USER_ID,
+        action: 'CaseUpdated',
+        result: 'Success',
+        supervisionCase: named,
+        details: { change: 'FieldChanged', to: 'Health', status: 'InProgress' },
+      }),
+    ).not.toThrow();
+  });
+
+  it('still refuses reactions, which are sensitive', () => {
+    const withReaction = makeCase({
+      healthPersonnel: [makeHealthPersonnel({ reaction: 'Prohibition' })],
+    });
+
+    expect(() =>
+      recordAudit(readDb(), {
+        userId: DEFAULT_USER_ID,
+        action: 'CaseUpdated',
+        result: 'Success',
+        supervisionCase: withReaction,
+        details: { change: 'FieldChanged', reaction: 'Prohibition' },
+      }),
+    ).toThrow(SensitiveAuditDataError);
+  });
+});

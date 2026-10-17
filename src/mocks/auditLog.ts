@@ -1,11 +1,13 @@
 import {
+  CASE_CHANGES,
   auditEntrySchema,
   type AuditAction,
   type AuditDetails,
   type AuditEntry,
   type AuditResult,
 } from '@/features/audit-log';
-import type { SupervisionCase } from '@/features/cases';
+import { FIELDS } from '@/features/auth';
+import { CASE_STATUSES, type SupervisionCase } from '@/features/cases';
 import type { MockDb } from './db';
 
 // F-005: the mock API writes an audit entry for every logged action, allowed (Success) or
@@ -72,6 +74,16 @@ function sensitiveValues(supervisionCase: SupervisionCase): Set<string> {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// The audit log's own vocabulary is never sensitive, even if a name happens to appear inside it
+// (a surname "Field" in "FieldChanged"). Reactions are deliberately not here: they are sensitive.
+const SAFE_VALUES = new Set<string>([
+  ...CASE_CHANGES,
+  ...CASE_STATUSES,
+  ...FIELDS,
+  'full',
+  'restricted',
+]);
+
 // Shorter values (like a 2-letter name) would match too much ordinary text.
 const MIN_LENGTH_FOR_CONTAINS = 3;
 
@@ -82,7 +94,7 @@ function assertNoSensitiveData(details: AuditDetails, supervisionCase: Supervisi
     // Numbers too: a health personnel number could be stored as one.
     const text = String(value).trim();
     // Ids are how details refer to parties and users (SPEC.md F-005), so they are allowed.
-    if (UUID.test(text)) continue;
+    if (UUID.test(text) || SAFE_VALUES.has(text)) continue;
     const leaks = sensitive.some(
       (item) => item === text || (item.length >= MIN_LENGTH_FOR_CONTAINS && text.includes(item)),
     );

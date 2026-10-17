@@ -13,6 +13,8 @@
   `makeUser`, `makeCase`, `makeHealthPersonnel` and `makeCompany` (`src/test/factories.ts`) build valid fake data;
   every result is checked against its schema. `actAs(email)` (`src/test/mockUsers.ts`) makes the mock API act as a
   seed user, like the user switcher. `storeCases(...)` (`src/test/mockCases.ts`) puts cases into the mock data.
+- Unit and component tests fail on any `console.error` (React key warnings, failed renders), like the e2e check.
+  A test that expects an error silences it with `vi.spyOn(console, 'error').mockImplementation(() => {})`.
 - The e2e console check fails on any error or warning. A test that expects one (for example the browser's
   "Failed to load resource … 403" line when it opens a forbidden case) declares it with
   `test.use({ expectedConsoleErrors: [failedRequestLine(403)] })`.

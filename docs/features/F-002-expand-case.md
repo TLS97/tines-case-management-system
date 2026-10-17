@@ -11,7 +11,7 @@ without its sensitive data.
 ## Who can use it
 | Role | Can |
 |---|---|
-| CaseWorker | Read cases assigned to them or given read access to; edit and close their assigned cases *(planned)* |
+| CaseWorker | Read cases assigned to them or given read access to; edit their assigned cases (not when closed); close them *(planned)* |
 | Leader | Read all cases in own department |
 | Admin | Read any case in the restricted view: summary only, health personnel and companies hidden |
 
@@ -43,18 +43,44 @@ flowchart TD
   CaseDetailPage --> Loading["ds: Spinner"]
 ```
 
+## Editing (assigned case worker)
+- **Change field:** only to one of the case worker's own fields; shown only when they have more than one.
+- **Add health personnel:** health personnel number (7 to 9 digits), first name, surname, and one or more
+  authorizations (description, valid from, optional valid to on or after valid from). The same number cannot be
+  added twice (409). The form (`forms/healthPersonnelForm.ts`) uses the same rules as the mock API's
+  `newHealthPersonnelSchema`, with messages that say what to do.
+- **Remove health personnel:** after a confirmation dialog.
+- **First change:** an Assigned case becomes InProgress ("status changed" is logged).
+- Every change is logged as "case updated" with `details.change` (`FieldChanged`, `HealthPersonnelAdded`,
+  `HealthPersonnelRemoved`) and the party's id, never names or numbers. Denied attempts are logged too.
+- The page updates from each response, so editing never adds a "case opened" entry.
+- Editing a health personnel already on the case is not part of F-002 (remove and add again).
+
+```mermaid
+flowchart LR
+  Edit[Case worker edits] --> Can{"can(user, 'editCase', case)"}
+  Can -- no --> Denied["403; 'case updated' Denied"]
+  Can -- yes --> Valid{Valid?}
+  Valid -- no --> Bad["400 / 409; nothing saved"]
+  Valid -- yes --> Save["Save; 'case updated' Success"]
+  Save --> First{Was Assigned?}
+  First -- yes --> InProgress["Status InProgress; 'status changed'"]
+```
+
 ## Data
 - `useCase(id)` / `caseQuery(id)` (`features/cases`), `caseResponseSchema`: `{ access: 'full' | 'restricted',
   supervisionCase, assignedCaseWorker }`. The assigned case worker's name and active status come with the case;
   a deactivated case worker is shown as "(deactivated)".
 - `GET /api/cases/:id` (mock), using `viewCase` (F-004) and `recordAudit` (F-005).
+- `PATCH /api/cases/:id/field`, `POST /api/cases/:id/health-personnel`, `DELETE /api/cases/:id/health-personnel/:personId`
+  (mock, `handlers/caseEditing.ts`); each returns the updated case.
 - Dates are shown with `formatDate` ("1 Jan 2020").
 
 ## Built so far
 | Part | Task | Status |
 |---|---|---|
 | Case detail page, read-only, restricted view for Admin, "case opened" logged | T2.2 | Done |
-| Edit field; add and remove health personnel; InProgress on first change | T2.4 | *(planned)* |
+| Edit field; add and remove health personnel; InProgress on first change | T2.4 | Done |
 | Add and remove companies | T2.5 | *(planned)* |
 | Reactions | T2.6 | *(planned)* |
 | Close case | T2.7 | *(planned)* |

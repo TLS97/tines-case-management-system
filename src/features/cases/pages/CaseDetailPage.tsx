@@ -4,6 +4,7 @@ import { can, useCurrentUser } from '@/features/auth';
 import { ApiError } from '@/shared/api/apiRequest';
 import { Page } from '@/shared/components/Page';
 import { AssignCaseSection } from '../components/AssignCaseSection';
+import { ChangeFieldForm } from '../components/ChangeFieldForm';
 import { CaseSummary } from '../components/CaseSummary';
 import { CompaniesSection } from '../components/CompaniesSection';
 import { HealthPersonnelSection } from '../components/HealthPersonnelSection';
@@ -45,6 +46,7 @@ export function CaseDetailPage() {
   }
 
   const { data } = caseQuery;
+  const canEdit = data.access === 'full' && can(user, 'editCase', data.supervisionCase);
   return (
     <Page title={`Case ${data.supervisionCase.caseNumber}`}>
       <CaseSummary
@@ -56,11 +58,23 @@ export function CaseDetailPage() {
           {can(user, 'assignCase', data.supervisionCase) && (
             // A fresh form per case and per user (mock switcher), so an old choice is never kept.
             <AssignCaseSection
-              key={`${data.supervisionCase.id}-${user.id}`}
+              key={`assign-${data.supervisionCase.id}-${user.id}`}
               supervisionCase={data.supervisionCase}
             />
           )}
-          <HealthPersonnelSection healthPersonnel={data.supervisionCase.healthPersonnel} />
+          {canEdit && (
+            <ChangeFieldForm
+              key={`field-${data.supervisionCase.id}-${user.id}`}
+              supervisionCase={data.supervisionCase}
+              user={user}
+            />
+          )}
+          <HealthPersonnelSection
+            key={`health-personnel-${data.supervisionCase.id}-${user.id}`}
+            caseId={data.supervisionCase.id}
+            healthPersonnel={data.supervisionCase.healthPersonnel}
+            editable={canEdit}
+          />
           <CompaniesSection companies={data.supervisionCase.companies} />
         </>
       ) : (

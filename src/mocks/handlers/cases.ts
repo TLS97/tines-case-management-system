@@ -1,18 +1,16 @@
 import { http, HttpResponse } from 'msw';
 import { z } from 'zod';
-import { can, fieldSchema, type User } from '@/features/auth';
+import { can, fieldSchema } from '@/features/auth';
 import {
   isEligibleCaseWorker,
   lastSequenceInYear,
   nextCaseNumber,
   viewCase,
-  type CaseResponse,
-  type CaseView,
-  type CaseWorkerSummary,
   type SupervisionCase,
 } from '@/features/cases';
 import { recordAudit } from '../auditLog';
-import { currentUser, readDb, writeDb, type MockDb } from '../db';
+import { caseResponse, toCaseWorkerSummary } from '../caseResponses';
+import { currentUser, readDb, writeDb } from '../db';
 
 const createCaseBodySchema = z.object({ field: fieldSchema });
 const assignBodySchema = z.object({ caseWorkerId: z.uuid() });
@@ -177,13 +175,3 @@ export const caseHandlers = [
     return HttpResponse.json(caseResponse(next, { access: 'full', supervisionCase: updated }));
   }),
 ];
-
-function toCaseWorkerSummary(user: User): CaseWorkerSummary {
-  return { id: user.id, firstName: user.firstName, surname: user.surname, isActive: user.isActive };
-}
-
-/** The case as the user may see it, with the assigned case worker's name. */
-function caseResponse(db: MockDb, view: Exclude<CaseView, { access: 'none' }>): CaseResponse {
-  const caseWorker = db.users.find((candidate) => candidate.id === view.supervisionCase.assignedTo);
-  return { ...view, assignedCaseWorker: caseWorker ? toCaseWorkerSummary(caseWorker) : null };
-}

@@ -1,0 +1,6 @@
+.field {
+  display: grid;
+  gap: var(--ds-size-2);
+  /* The input keeps its own width; a long error message does not stretch it. */
+  justify-items: start;
+}

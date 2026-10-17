@@ -1,5 +1,11 @@
+import { caseEditingHandlers } from './caseEditing';
 import { caseHandlers } from './cases';
 import { currentUserHandlers } from './currentUser';
 import { mockToolHandlers } from './mockTools';
 
-export const handlers = [...currentUserHandlers, ...caseHandlers, ...mockToolHandlers];
+export const handlers = [
+  ...currentUserHandlers,
+  ...caseHandlers,
+  ...caseEditingHandlers,
+  ...mockToolHandlers,
+];

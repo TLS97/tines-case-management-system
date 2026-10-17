@@ -35,7 +35,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
 ## Phase 2: Case flow (F-001, F-002, F-004)
 - [x] **T2.1** Create case (Leader): mock endpoint with the case number sequence, "New case" page (F-001)
 - [x] **T2.2** Case detail page, read-only, including the Admin restricted view; "case opened" is logged (F-002, F-004)
-- [ ] **T2.3** Assign and reassign a case (Leader) (F-004)
+- [x] **T2.3** Assign and reassign a case (Leader) (F-004)
 - [ ] **T2.4** Edit field; add and remove health personnel with authorizations; `InProgress` on first change (F-002)
 - [ ] **T2.5** Add and remove companies with address (F-002)
 - [ ] **T2.6** Reactions for health personnel and companies (F-002)

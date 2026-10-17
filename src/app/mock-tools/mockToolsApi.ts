@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { userSchema } from '@/features/auth';
+import { currentUserQuery, userSchema, type User } from '@/features/auth';
 import { apiRequest } from '@/shared/api/apiRequest';
 
 const mockUsersQuery = {
@@ -13,7 +13,23 @@ export function useMockUsers() {
   return useQuery(mockUsersQuery);
 }
 
-/** Acts as another user. Everything on screen depends on the user, so all data is refetched. */
+/**
+ * After the acting user changes, nothing loaded for the previous user may be shown or refetched
+ * as-is: refetching everything at once would, for example, ask for a leader's assign list as a
+ * case worker (403). So all cached data except the current user is dropped first; then the current
+ * user is updated, and each part of the page that is still shown for the new user loads its data.
+ */
+function startOverForNewUser(queryClient: QueryClient, newUser?: User): Promise<void> {
+  const [currentUserKey] = currentUserQuery.queryKey;
+  queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== currentUserKey });
+  if (newUser) {
+    queryClient.setQueryData(currentUserQuery.queryKey, newUser);
+    return Promise.resolve();
+  }
+  return queryClient.invalidateQueries({ queryKey: currentUserQuery.queryKey });
+}
+
+/** Acts as another user (mock only). */
 export function useSwitchUser() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -24,15 +40,15 @@ export function useSwitchUser() {
         body: JSON.stringify({ userId }),
         schema: userSchema,
       }),
-    onSuccess: () => queryClient.invalidateQueries(),
+    onSuccess: (newUser) => startOverForNewUser(queryClient, newUser),
   });
 }
 
-/** Resets the mock data to the seed data, then refetches everything shown on screen. */
+/** Resets the mock data to the seed data; the app then acts as the default user again. */
 export function useResetMockData() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => apiRequest('/api/mock/reset', { method: 'POST' }),
-    onSuccess: () => queryClient.invalidateQueries(),
+    onSuccess: () => startOverForNewUser(queryClient),
   });
 }

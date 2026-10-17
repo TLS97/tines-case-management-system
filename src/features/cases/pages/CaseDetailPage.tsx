@@ -1,7 +1,9 @@
 import { Alert, Link, Paragraph, Spinner } from '@digdir/designsystemet-react';
 import { Link as RouterLink, useParams } from 'react-router';
+import { can, useCurrentUser } from '@/features/auth';
 import { ApiError } from '@/shared/api/apiRequest';
 import { Page } from '@/shared/components/Page';
+import { AssignCaseSection } from '../components/AssignCaseSection';
 import { CaseSummary } from '../components/CaseSummary';
 import { CompaniesSection } from '../components/CompaniesSection';
 import { HealthPersonnelSection } from '../components/HealthPersonnelSection';
@@ -11,6 +13,7 @@ import { useCase } from '../hooks/useCase';
 // view from the mock API (F-004), so sensitive data never reaches the browser for Admin.
 export function CaseDetailPage() {
   const { id = '' } = useParams();
+  const user = useCurrentUser();
   const caseQuery = useCase(id);
 
   if (caseQuery.isPending) {
@@ -50,6 +53,13 @@ export function CaseDetailPage() {
       />
       {data.access === 'full' ? (
         <>
+          {can(user, 'assignCase', data.supervisionCase) && (
+            // A fresh form per case and per user (mock switcher), so an old choice is never kept.
+            <AssignCaseSection
+              key={`${data.supervisionCase.id}-${user.id}`}
+              supervisionCase={data.supervisionCase}
+            />
+          )}
           <HealthPersonnelSection healthPersonnel={data.supervisionCase.healthPersonnel} />
           <CompaniesSection companies={data.supervisionCase.companies} />
         </>

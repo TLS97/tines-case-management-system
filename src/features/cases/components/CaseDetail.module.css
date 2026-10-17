@@ -32,3 +32,15 @@
   display: grid;
   gap: var(--ds-size-3);
 }
+
+.inlineForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--ds-size-4);
+}
+
+.formField {
+  display: grid;
+  gap: var(--ds-size-2);
+}

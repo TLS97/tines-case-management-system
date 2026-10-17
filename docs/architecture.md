@@ -26,7 +26,7 @@ flowchart TD
 |---|---|---|---|
 | `/` | Case overview (`CaseOverviewPage`) | F-003 | "New case" button for leaders; no table yet |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
-| `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin |
+| `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin, assign and reassign |
 | `/admin/users` | User admin: add, deactivate, change fields and department (`UsersPage`) | F-004 | Empty page |
 | `/admin/audit` | Global audit log (`AuditLogPage`) | F-005 | Empty page |
 | any other | Page not found (`NotFoundPage`) | – | Yes |
@@ -40,6 +40,8 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `GET /api/current-user` | The user the app acts as |
 | `POST /api/cases` | Create a case, body `{ field }` (F-001); 403 and a Denied audit entry if not allowed |
 | `GET /api/cases/:id` | Open a case: full, or restricted for Admin (F-002, F-004); 403 + Denied entry without access; 404 if missing; logs "case opened" |
+| `GET /api/cases/:id/eligible-case-workers` | Case workers the case can be assigned to (F-004, leaders) |
+| `PUT /api/cases/:id/assignee` | Assign or reassign, body `{ caseWorkerId }` (F-004); returns the updated case |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |
@@ -48,7 +50,14 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 `useCurrentUser()` (from `@/features/auth`) returns the user the app acts as. It always returns a user:
 while it loads, the `<Suspense>` around every page in `AppLayout` shows a spinner. The current user is
 stored by the mock API (in `localStorage`), so the choice survives a reload, and the mock API can use it
-for permission checks. Switching user or resetting the mock data refetches all data.
+for permission checks.
+
+Switching user or resetting the mock data drops all cached data except the current user, then updates the
+current user; each part of the page still shown for the new user loads its own data. (Refetching everything at once
+would load the previous user's data as the new user, for example a leader's assign list as a case worker.)
+
+A change to a case (assigning, later editing) updates the page from the mock API's response instead of refetching
+the case, since every fetch of a case is logged as "case opened".
 
 Permission-checked endpoints for cases and users come with their features. All calls go through
 `apiRequest` (`shared/api/apiRequest.ts`), which checks responses with a Zod schema.

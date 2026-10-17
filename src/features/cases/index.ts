@@ -1,3 +1,4 @@
+export { isEligibleCaseWorker } from './assignment';
 export { canCreateCases } from './canCreateCases';
 export {
   caseResponseSchema,

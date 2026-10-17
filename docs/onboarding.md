@@ -1,11 +1,15 @@
 # Onboarding
 
 ## Run the app
+Needs Node 24 or newer.
 ```bash
 npm install
 npm run dev        # app with mock API
-npm run test       # unit and component tests
-npm run test:e2e   # Playwright
+npm run lint       # ESLint
+npm run typecheck  # TypeScript
+npm run format     # Prettier
+npm run test       # unit and component tests (from T0.2)
+npm run test:e2e   # Playwright (from T0.2)
 ```
 v1 has no backend; all data comes from the mock API and is saved in `localStorage`, so it survives a reload.
 You start as the seed user Tine Tester (CaseWorker, Department of Supervision, Health).

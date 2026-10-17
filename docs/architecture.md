@@ -14,7 +14,8 @@ flowchart TD
   Components --> Hooks["Hooks: useCase, useOverview, ... (planned)"]
   Hooks --> Api["features/*/api.ts (planned)"]
   Api --> Mock["MSW mock API (mocks/handlers)"]
-  Mock --> Store["mocks/db.ts: localStorage, seed data"]
+  Mock --> Store["mocks/db.ts: localStorage, seed data, audit log"]
+  Mock --> Audit["mocks/auditLog.ts: recordAudit"]
   Main --> Worker["mocks/browser.ts: startMockApi()"]
   Hooks --> Perm["auth/permissions.ts: can"]
 ```

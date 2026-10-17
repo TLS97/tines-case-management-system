@@ -29,7 +29,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
       and `DepartmentId` already exist in `features/auth/types.ts` since T0.5
 - [x] **T1.2** `can(user, action, case?)` for every row in the SPEC.md permission table, with a test per row and role (F-004)
 - [x] **T1.3** Restricted case view: function that removes sensitive case data for Admin, with tests (F-004)
-- [ ] **T1.4** Audit log writing in the mock API: entries saved in `localStorage`, `Success` and `Denied`, no sensitive data (F-005)
+- [x] **T1.4** Audit log writing in the mock API: entries saved in `localStorage`, `Success` and `Denied`, no sensitive data (F-005)
 - **Done when:** the whole permission table is covered by tests, and the mock API can write audit entries. No screens yet.
 
 ## Phase 2: Case flow (F-001, F-002, F-004)

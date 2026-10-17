@@ -97,6 +97,18 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
 - `GET /api/users` (not logged), `POST /api/users` (logged as "user added" with `addedUserId`; Denied when refused).
 - A new user also appears in the mock user switcher.
 
+## Deactivating a user
+- Admin sees **Deactivate** for every active user except themselves; a dialog explains what happens first.
+- `POST /api/users/:id/deactivate`: `isActive` false, `updatedAt` set; logged as "user updated"
+  (`updatedUserId`, `isActive: false`). 403 + Denied entry for non-admins; 400 for an admin deactivating
+  themselves or a user who is already deactivated.
+- A deactivated user may do nothing (`can()` returns false), cannot be assigned or given read access, and stays as
+  case worker on their cases, shown as "(deactivated)" everywhere.
+- **Leader notification** (placement chosen by Tine): a warning list at the top of the leader's Cases page,
+  "*n* cases have a deactivated case worker", each linking to the case. It lists cases the leader can reassign
+  (own department, not closed) and disappears when they reassign the case. Comes from `GET /api/notifications`
+  (`features/notifications`), which F-012 can extend.
+
 ## Navigation
 F-004 says actions are "hidden in the UI": **Users** shows only when `can(user, 'manageUsers')`, **Audit log** only
 when `can(user, 'viewGlobalAuditLog')`; everyone sees **Cases**. Until the current user has loaded, only Cases shows.
@@ -112,7 +124,8 @@ Checked separately: whether every party has a reaction before closing (`missingF
 | Close and reopen | T2.7 | Done |
 | Read access | T3.3 | Done |
 | User admin: list and add users | T3.4 | Done |
-| User admin: deactivate; change fields and department | T3.5, T3.6 | *(planned)* |
+| User admin: deactivate; leader notification for cases with a deactivated case worker | T3.5 | Done |
+| User admin: change fields and department | T3.6 | *(planned)* |
 | Navigation: Users and Audit log only for those allowed | T3.4 | Done |
 
 ## Data

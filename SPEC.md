@@ -246,8 +246,9 @@ Claude may set **In progress** in the feature's first PR and **Done** in its las
   (same rules as any reassignment). The deactivated case worker is then replaced, and the change
   is logged in the audit log.
 - When a case in a leader's department is not `Closed` and its assigned case worker is deactivated,
-  the leader sees a notification in the app. It links to the case and disappears when the case is
-  reassigned to an active case worker. When F-012 is built, this notification is shown together with F-012's notifications.
+  the leader sees a notification in a short list at the top of their Cases page. It links to the case and
+  disappears when the case is reassigned to an active case worker. When F-012 is built, this notification is
+  shown together with F-012's notifications.
 
 ### F-005 Audit log *(Approved 2026-10-17)*
 Logged actions: case created, case updated, case assigned, status changed, reaction given,

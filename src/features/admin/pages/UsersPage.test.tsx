@@ -30,11 +30,8 @@ describe('F-004 Users page', () => {
 
     expect(within(table).getByText('19 users')).toBeInTheDocument();
     const tine = within(table).getByRole('row', { name: /Tine Tester/ });
-    expect(
-      within(tine)
-        .getAllByRole('cell')
-        .map((cell) => cell.textContent),
-    ).toEqual([
+    const cells = within(tine).getAllByRole('cell');
+    expect(cells.slice(0, 6).map((cell) => cell.textContent)).toEqual([
       'Tine Tester',
       'tine.tester@example.com',
       'Case worker',
@@ -42,6 +39,9 @@ describe('F-004 Users page', () => {
       'Health (primary)',
       'Active',
     ]);
+    expect(
+      within(cells[6] as HTMLElement).getByRole('button', { name: 'Deactivate Tine Tester' }),
+    ).toBeInTheDocument();
   });
 
   it('adds a user, who then appears in the table and the user switcher', async () => {
@@ -113,5 +113,47 @@ describe('F-004 Users page', () => {
 
     expect(await screen.findByText('Only admins can manage users.')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+});
+
+describe('F-004 deactivate a user', () => {
+  it('asks first, then deactivates the user', async () => {
+    const { user, table } = await openAsAdmin();
+    const magnusRow = within(table).getByRole('row', { name: /Magnus Berg/ });
+
+    await user.click(within(magnusRow).getByRole('button', { name: 'Deactivate Magnus Berg' }));
+    const dialog = screen.getByRole('dialog', { name: 'Deactivate Magnus Berg?' });
+    expect(dialog).toHaveTextContent('until a leader reassigns them');
+    await user.click(within(dialog).getByRole('button', { name: 'Deactivate' }));
+
+    expect(await screen.findByText('Magnus Berg was deactivated.')).toBeInTheDocument();
+    expect(await within(magnusRow).findByText('Deactivated')).toBeInTheDocument();
+    expect(within(magnusRow).queryByRole('button', { name: /Deactivate/ })).not.toBeInTheDocument();
+    expect(readDb().users.find((u) => u.email === 'magnus.berg@example.com')?.isActive).toBe(false);
+    expect(
+      await within(screen.getByLabelText('Acting as')).findByRole('option', {
+        name: 'Magnus Berg – Case worker (deactivated)',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps the user active when cancelled', async () => {
+    const { user, table } = await openAsAdmin();
+
+    await user.click(within(table).getByRole('button', { name: 'Deactivate Magnus Berg' }));
+    await user.click(
+      within(screen.getByRole('dialog', { name: 'Deactivate Magnus Berg?' })).getByRole('button', {
+        name: 'Cancel',
+      }),
+    );
+
+    expect(readDb().users.find((u) => u.email === 'magnus.berg@example.com')?.isActive).toBe(true);
+  });
+
+  it('offers Admin no way to deactivate themselves', async () => {
+    const { table } = await openAsAdmin();
+
+    const ownRow = within(table).getByRole('row', { name: /Lars Johansen/ });
+    expect(within(ownRow).queryByRole('button')).not.toBeInTheDocument();
   });
 });

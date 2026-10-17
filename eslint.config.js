@@ -4,6 +4,12 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
+// Features talk to each other only through their index.ts (docs/conventions/folder-structure.md).
+const featureBoundaryPattern = {
+  group: ['@/features/*/*'],
+  message: 'Import another feature through its index.ts: @/features/<name>',
+};
+
 export default defineConfig([
   globalIgnores(['dist', 'coverage', 'design-tokens', 'playwright-report', 'test-results']),
   {
@@ -21,16 +27,25 @@ export default defineConfig([
       },
     },
     rules: {
-      // Features talk to each other only through their index.ts (docs/conventions/folder-structure.md).
+      'no-restricted-imports': ['error', { patterns: [featureBoundaryPattern] }],
+    },
+  },
+  {
+    // E2E specs must use the shared fixtures, or the console and axe checks are skipped
+    // (docs/conventions/testing.md).
+    files: ['tests/e2e/**/*.spec.ts'],
+    rules: {
       'no-restricted-imports': [
         'error',
         {
-          patterns: [
+          paths: [
             {
-              group: ['@/features/*/*'],
-              message: 'Import another feature through its index.ts: @/features/<name>',
+              name: '@playwright/test',
+              importNames: ['test', 'expect'],
+              message: "Import test and expect from './fixtures' instead.",
             },
           ],
+          patterns: [featureBoundaryPattern],
         },
       ],
     },

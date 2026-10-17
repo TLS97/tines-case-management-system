@@ -10,12 +10,13 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
       commit the existing docs to `main` and push it (the only direct push to `main`, done with Tine's OK);
       then, on a branch: scaffold Vite + React + TypeScript (strict mode), latest stable deps, `@/` path alias;
       ESLint (typescript-eslint, react-hooks, jsx-a11y, `no-restricted-imports` for feature boundaries) and Prettier
-- [ ] **T0.2** Vitest + Testing Library (+ user-event, jest-dom, coverage-v8) and Playwright + `@axe-core/playwright`, one smoke test each
+- [x] **T0.2** Vitest + Testing Library (+ user-event, jest-dom, coverage-v8) and Playwright + `@axe-core/playwright`, one smoke test each
 - [ ] **T0.3** Install `@digdir/designsystemet-react` and `@digdir/designsystemet-css`; generate theme tokens
       from `designsystemet.config.json` into `./design-tokens`
       (theme `htil-theme`, colors `accent #E2F1E9`, `htil-hovedfarge #053227`,
       `htil-sekundaerfarge #20B89A`, `neutral #FFFFFF`, border radius 4)
-- [ ] **T0.4** App shell: header, navigation, React Router routes (empty pages), error boundary, TanStack Query provider
+- [ ] **T0.4** App shell: header, navigation, React Router routes (empty pages), error boundary, TanStack Query provider;
+      replace the draft README.md with a real project README
 - [ ] **T0.5** Mock API layer (MSW) with data saved in `localStorage`, the seed users from SPEC.md and **Reset mock data**
 - [ ] **T0.6** Current-user context and the user switcher in the header (mock only)
 - [ ] **T0.7** CI as described in `docs/conventions/testing.md` (lint, types, tests, e2e + axe, build, audit), Dependabot,

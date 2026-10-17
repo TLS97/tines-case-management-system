@@ -3,15 +3,25 @@
 | Level | Tool | What |
 |---|---|---|
 | Unit | Vitest | Pure logic: `can()`, case number generation, filters |
-| Component | Testing Library | Forms and tables, queried by role/label |
-| E2E | Playwright | One happy path per feature ID |
+| Component | Testing Library (jsdom) | Forms and tables, queried by role/label |
+| E2E | Playwright (Chromium only for now) | One happy path per feature ID |
+
+## Where things live
+- Unit and component tests: next to the file, `*.test.ts(x)` in `src/`. Run with `npm run test`.
+- Shared Vitest setup and test helpers (factories like `makeUser`): `src/test/`.
+- E2E tests: `tests/e2e/*.spec.ts`. Run with `npm run test:e2e`; the first time, run `npm run test:e2e:install` to download Chromium.
 
 ## Rules
 - Every permission row in SPEC.md has a test for each role.
 - Query by accessible role/label, never by CSS class.
 - Use the MSW mock API, not hand-rolled fetch mocks.
-- Every Playwright page test runs an axe accessibility check (`@axe-core/playwright`); violations fail the test.
-- Coverage: at least 80% lines for `src/features/**` logic (hooks, `api.ts`, `permissions.ts`).
+- E2E tests import `test` and `expect` from `tests/e2e/fixtures.ts`, not from `@playwright/test`.
+  The fixture fails a test on any browser console error or warning. ESLint enforces this import in `*.spec.ts` files.
+- Every Playwright page test calls `expectNoAccessibilityViolations(page)` (axe, WCAG 2.1 AA); violations fail the test.
+- Coverage: at least 80% lines for feature logic: `.ts` files in `src/features/**` (hooks, `api.ts`, `permissions.ts`),
+  not counting `types.ts`, `index.ts` and tests. Components are covered by component tests instead.
+  Before any feature code exists there is nothing to measure, and the check passes.
+- Browsers: Chromium only for now. Add Firefox and WebKit in `playwright.config.ts` before release.
 
 ## CI (runs on every PR)
 1. `npm ci` (lockfile must match)

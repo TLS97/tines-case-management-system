@@ -1,6 +1,7 @@
 import { SkipLink } from '@digdir/designsystemet-react';
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
 import { Outlet, useLocation } from 'react-router';
+import { MockToolbar } from '../mock-tools/MockToolbar';
 import { AppHeader } from './AppHeader';
 import styles from './AppLayout.module.css';
 
@@ -18,6 +19,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <>
       <SkipLink href={`#${MAIN_CONTENT_ID}`}>Skip to main content</SkipLink>
+      <MockToolbar />
       <AppHeader />
       <main id={MAIN_CONTENT_ID} ref={mainRef} tabIndex={-1} className={styles.main}>
         {children ?? <Outlet />}

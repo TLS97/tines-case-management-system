@@ -7,6 +7,7 @@ The app handles information about health personnel and supervision cases. Treat 
   and organization numbers from obviously invalid ranges. Never copy real data in.
 - Don't log case or personal data to the console.
 - The mock API saves data in `localStorage`. Only fake data may ever be stored there.
+- MSW request logging stays off (`quiet: true`), and `ApiError` messages never include response bodies.
 - Admin gets the restricted case view: the mock API leaves out the sensitive case data listed in SPEC.md,
   so it never reaches the browser for Admin. Hiding it only in the UI is not enough.
 - Audit log `details` never contain sensitive case data.

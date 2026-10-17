@@ -1,0 +1,33 @@
+.toolbar {
+  background: var(--ds-color-neutral-background-tinted);
+  border-bottom: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+}
+
+.inner {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: var(--ds-size-2) var(--ds-size-6);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-size-2) var(--ds-size-6);
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-size-4);
+}
+
+.dialogContent {
+  display: grid;
+  gap: var(--ds-size-4);
+}
+
+.dialogActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-3);
+}

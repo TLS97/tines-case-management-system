@@ -85,6 +85,22 @@ using `can()`. The restricted view is an **allowlist**: Admin gets only `id`, `c
   closed cases), 400 for someone who cannot receive or does not have it.
 - Audit: "read access granted" / "read access removed" with `caseWorkerId`.
 
+## User admin
+- **Users** page (`/admin/users`, `features/admin`), Admin only (`can(user, 'manageUsers')`); others see
+  "Only admins can manage users." and the mock API refuses them.
+- A table of every user: name, email, role, department, fields (primary marked) and status, sorted by department
+  and name.
+- **Add user** with every User field: first name, surname, email, role, department, primary field and other fields.
+  The other-field checkboxes leave out the primary field, so `fields` always includes it (`forms/userForm.ts`, same
+  rules as the mock API's `newUserSchema`). New users are active; id, `createdAt` and `updatedAt` are set by the mock API.
+- Email must be unique, compared without regard to case (409: "A user with this email already exists.").
+- `GET /api/users` (not logged), `POST /api/users` (logged as "user added" with `addedUserId`; Denied when refused).
+- A new user also appears in the mock user switcher.
+
+## Navigation
+F-004 says actions are "hidden in the UI": **Users** shows only when `can(user, 'manageUsers')`, **Audit log** only
+when `can(user, 'viewGlobalAuditLog')`; everyone sees **Cases**. Until the current user has loaded, only Cases shows.
+
 Checked separately: whether every party has a reaction before closing (`missingForClosing`, F-002).
 
 ## Built so far
@@ -95,7 +111,9 @@ Checked separately: whether every party has a reaction before closing (`missingF
 | Assign and reassign | T2.3 | Done |
 | Close and reopen | T2.7 | Done |
 | Read access | T3.3 | Done |
-| User admin | T3.4, T3.5, T3.6 | *(planned)* |
+| User admin: list and add users | T3.4 | Done |
+| User admin: deactivate; change fields and department | T3.5, T3.6 | *(planned)* |
+| Navigation: Users and Audit log only for those allowed | T3.4 | Done |
 
 ## Data
 `User`, `Role` (`features/auth/types.ts`), `SupervisionCase` (`features/cases/types.ts`), `can()`.

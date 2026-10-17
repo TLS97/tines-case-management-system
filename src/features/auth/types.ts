@@ -36,7 +36,30 @@ export const userSchema = z
     path: ['fields'],
   });
 
+/**
+ * F-004: a user as Admin enters them. The mock API adds id, createdAt and updatedAt; new users are active.
+ */
+export const newUserSchema = z
+  .object({
+    firstName: z.string().trim().min(1),
+    surname: z.string().trim().min(1),
+    email: z.email(),
+    departmentId: departmentIdSchema,
+    role: roleSchema,
+    primaryField: fieldSchema,
+    fields: z.array(fieldSchema).min(1),
+  })
+  .refine((user) => user.fields.includes(user.primaryField), {
+    message: 'fields must include primaryField',
+    path: ['fields'],
+  })
+  .refine((user) => new Set(user.fields).size === user.fields.length, {
+    message: 'fields must not repeat',
+    path: ['fields'],
+  });
+
 export type Role = z.infer<typeof roleSchema>;
 export type Field = z.infer<typeof fieldSchema>;
 export type DepartmentId = z.infer<typeof departmentIdSchema>;
 export type User = z.infer<typeof userSchema>;
+export type NewUser = z.infer<typeof newUserSchema>;

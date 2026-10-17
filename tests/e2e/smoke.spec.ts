@@ -38,6 +38,10 @@ test.describe('a case that does not exist', () => {
 
 test('main navigation moves between pages and focuses the new heading', async ({ page }) => {
   await gotoApp(page, '/');
+  // Users is only in the navigation for Admin (F-004).
+  const switcher = page.getByLabel('Acting as');
+  await switcher.selectOption({ label: 'Lars Johansen – Admin' });
+  await expect(switcher).toBeEnabled();
   const nav = page.getByRole('navigation', { name: 'Main' });
 
   await nav.getByRole('link', { name: 'Users' }).click();

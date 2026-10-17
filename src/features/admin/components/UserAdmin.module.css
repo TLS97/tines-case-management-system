@@ -1,0 +1,22 @@
+.tableScroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.form {
+  display: grid;
+  gap: var(--ds-size-4);
+  justify-items: start;
+  max-width: 40rem;
+}
+
+.field {
+  display: grid;
+  gap: var(--ds-size-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-3);
+}

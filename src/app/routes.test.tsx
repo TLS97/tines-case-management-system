@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { actAs, INGRID_LEADER_DEPT_1, LARS_ADMIN } from '@/test/mockUsers';
 import { renderRoute } from '@/test/renderRoute';
 import { RootErrorPage } from './errors/RootErrorPage';
 import { RouteErrorPage } from './errors/RouteErrorPage';
@@ -51,10 +52,11 @@ describe('App routes', () => {
 
 describe('Main navigation', () => {
   it('marks the current page', async () => {
+    actAs(LARS_ADMIN);
     renderRoute('/admin/users');
 
     const nav = await screen.findByRole('navigation', { name: 'Main' });
-    expect(within(nav).getByRole('link', { name: 'Users' })).toHaveAttribute(
+    expect(await within(nav).findByRole('link', { name: 'Users' })).toHaveAttribute(
       'aria-current',
       'page',
     );
@@ -62,13 +64,43 @@ describe('Main navigation', () => {
   });
 
   it('navigates to the clicked page and moves focus to its heading', async () => {
+    actAs(LARS_ADMIN);
     const { user } = renderRoute('/');
     const nav = await screen.findByRole('navigation', { name: 'Main' });
 
-    await user.click(within(nav).getByRole('link', { name: 'Audit log' }));
+    await user.click(await within(nav).findByRole('link', { name: 'Audit log' }));
 
     const heading = await screen.findByRole('heading', { level: 1, name: 'Audit log' });
     await waitFor(() => expect(heading).toHaveFocus());
+  });
+
+  it.each([
+    ['a case worker', null],
+    ['a leader', INGRID_LEADER_DEPT_1],
+  ])('shows %s only Cases (F-004: no Users or Audit log)', async (_label, email) => {
+    if (email) actAs(email);
+    renderRoute('/');
+
+    const nav = await screen.findByRole('navigation', { name: 'Main' });
+    await screen.findByRole('heading', { level: 1, name: 'Cases' });
+    expect(
+      within(nav)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(['Cases']);
+  });
+
+  it('shows Admin Cases, Users and Audit log', async () => {
+    actAs(LARS_ADMIN);
+    renderRoute('/');
+
+    const nav = await screen.findByRole('navigation', { name: 'Main' });
+    expect(await within(nav).findByRole('link', { name: 'Users' })).toBeInTheDocument();
+    expect(
+      within(nav)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(['Cases', 'Users', 'Audit log']);
   });
 
   it('does not move focus on the first page load', async () => {

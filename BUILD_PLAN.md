@@ -47,7 +47,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
 - [x] **T3.1** Case overview table, showing the right cases for each role (F-003)
 - [x] **T3.2** Overview filters: field, status, reaction; combine and clear; empty message (F-003)
 - [x] **T3.3** Give and remove read access (Leader) (F-004)
-- [ ] **T3.4** User admin: list and add users (Admin) (F-004)
+- [x] **T3.4** User admin: list and add users (Admin) (F-004)
 - [ ] **T3.5** User admin: deactivate a user; deactivated case workers stay on their cases, shown as "(deactivated)";
       leader notification for cases with a deactivated case worker (F-004)
 - [ ] **T3.6** User admin: change a user's fields and department (Admin) (F-004).

@@ -56,3 +56,10 @@
   display: grid;
   gap: var(--ds-size-4);
 }
+
+.accessItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-size-3);
+}

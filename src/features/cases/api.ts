@@ -2,7 +2,11 @@ import { queryOptions } from '@tanstack/react-query';
 import type { Field } from '@/features/auth';
 import { apiRequest } from '@/shared/api/apiRequest';
 import { z } from 'zod';
-import { caseResponseSchema, caseWorkerSummarySchema } from './caseResponse';
+import {
+  caseResponseSchema,
+  caseWorkerSummarySchema,
+  readAccessResponseSchema,
+} from './caseResponse';
 import {
   supervisionCaseSchema,
   type CompanyReaction,
@@ -128,4 +132,33 @@ export function closeCase(caseId: string) {
 /** F-004: reopens a closed case (leader). Returns the updated case. */
 export function reopenCase(caseId: string) {
   return editRequest('POST', `/api/cases/${encodeURIComponent(caseId)}/reopen`);
+}
+
+/** F-004: who has read access to the case and who could get it (leaders). Not logged. */
+export function readAccessQuery(caseId: string) {
+  return queryOptions({
+    queryKey: ['cases', caseId, 'read-access'],
+    queryFn: () =>
+      apiRequest(`/api/cases/${encodeURIComponent(caseId)}/read-access`, {
+        schema: readAccessResponseSchema,
+      }),
+  });
+}
+
+/** F-004: gives a case worker read access. Returns the updated read-access lists. */
+export function grantReadAccess(caseId: string, caseWorkerId: string) {
+  return apiRequest(`/api/cases/${encodeURIComponent(caseId)}/read-access`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ caseWorkerId }),
+    schema: readAccessResponseSchema,
+  });
+}
+
+/** F-004: removes a case worker's read access. Returns the updated read-access lists. */
+export function removeReadAccess(caseId: string, caseWorkerId: string) {
+  return apiRequest(
+    `/api/cases/${encodeURIComponent(caseId)}/read-access/${encodeURIComponent(caseWorkerId)}`,
+    { method: 'DELETE', schema: readAccessResponseSchema },
+  );
 }

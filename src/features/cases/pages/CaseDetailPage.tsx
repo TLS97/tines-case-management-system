@@ -10,6 +10,7 @@ import { CloseCaseSection } from '../components/CloseCaseSection';
 import { CaseSummary } from '../components/CaseSummary';
 import { CompaniesSection } from '../components/CompaniesSection';
 import { HealthPersonnelSection } from '../components/HealthPersonnelSection';
+import { ReadAccessSection } from '../components/ReadAccessSection';
 import { ReopenCaseSection } from '../components/ReopenCaseSection';
 import { useCase } from '../hooks/useCase';
 
@@ -86,6 +87,12 @@ export function CaseDetailPage() {
             <AssignCaseSection
               key={`assign-${data.supervisionCase.id}-${user.id}`}
               supervisionCase={data.supervisionCase}
+            />
+          )}
+          {can(user, 'manageReadAccess', data.supervisionCase) && (
+            <ReadAccessSection
+              key={`read-access-${data.supervisionCase.id}-${user.id}`}
+              caseId={data.supervisionCase.id}
             />
           )}
           {canEdit && (

@@ -26,7 +26,14 @@ export const caseResponseSchema = z.discriminatedUnion('access', [
   }),
 ]);
 
+/** F-004: who has read access to a case, and who the leader could give it to. */
+export const readAccessResponseSchema = z.object({
+  granted: z.array(caseWorkerSummarySchema),
+  candidates: z.array(caseWorkerSummarySchema),
+});
+
 export type CaseWorkerSummary = z.infer<typeof caseWorkerSummarySchema>;
+export type ReadAccessResponse = z.infer<typeof readAccessResponseSchema>;
 export type CaseResponse = z.infer<typeof caseResponseSchema>;
 
 /** "Magnus Berg", "Magnus Berg (deactivated)" (F-004: a deactivated case worker stays on the case) or "Not assigned". */

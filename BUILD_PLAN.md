@@ -44,7 +44,7 @@ Each phase ends when all its tasks are merged and its **Done when** is true.
   reopen it, data survives a reload, and every action is in the audit log storage
 
 ## Phase 3: Overview and admin (F-003, F-004, F-005)
-- [ ] **T3.1** Case overview table, showing the right cases for each role (F-003)
+- [x] **T3.1** Case overview table, showing the right cases for each role (F-003)
 - [ ] **T3.2** Overview filters: field, status, reaction; combine and clear; empty message (F-003)
 - [ ] **T3.3** Give and remove read access (Leader) (F-004)
 - [ ] **T3.4** User admin: list and add users (Admin) (F-004)

@@ -5,9 +5,11 @@ import {
   isEligibleCaseWorker,
   lastSequenceInYear,
   nextCaseNumber,
+  reactionsInCase,
   viewCase,
   type SupervisionCase,
 } from '@/features/cases';
+import type { OverviewRow } from '@/features/overview';
 import { recordAudit } from '../auditLog';
 import { caseResponse, toCaseWorkerSummary } from '../caseResponses';
 import { currentUser, readDb, writeDb } from '../db';
@@ -16,6 +18,31 @@ const createCaseBodySchema = z.object({ field: fieldSchema });
 const assignBodySchema = z.object({ caseWorkerId: z.uuid() });
 
 export const caseHandlers = [
+  // F-003: the cases the current user may see in the overview, newest first. Not an audit action:
+  // listing is not opening a case. Admin gets rows without reactions (F-004).
+  http.get('/api/cases', () => {
+    const db = readDb();
+    const user = currentUser(db);
+    const rows = db.cases
+      .filter((supervisionCase) => can(user, 'seeCaseInOverview', supervisionCase))
+      .sort((a, b) => b.caseNumber.localeCompare(a.caseNumber, 'en', { numeric: true }))
+      .map((supervisionCase): OverviewRow => {
+        const caseWorker = db.users.find((u) => u.id === supervisionCase.assignedTo);
+        const row = {
+          id: supervisionCase.id,
+          caseNumber: supervisionCase.caseNumber,
+          field: supervisionCase.field,
+          status: supervisionCase.status,
+          departmentId: supervisionCase.departmentId,
+          assignedCaseWorker: caseWorker ? toCaseWorkerSummary(caseWorker) : null,
+        };
+        return can(user, 'readCase', supervisionCase)
+          ? { access: 'full', ...row, reactions: reactionsInCase(supervisionCase) }
+          : { access: 'restricted', ...row };
+      });
+    return HttpResponse.json(rows);
+  }),
+
   // F-001: a leader creates a case in one of their fields, in their own department.
   http.post('/api/cases', async ({ request }) => {
     const body = createCaseBodySchema.safeParse(await request.json().catch(() => undefined));

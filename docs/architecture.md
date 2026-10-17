@@ -26,7 +26,7 @@ flowchart TD
 ## Routes
 | Route | Page | Feature | Built |
 |---|---|---|---|
-| `/` | Case overview (`CaseOverviewPage`) | F-003 | "New case" button for leaders; no table yet |
+| `/` | Case overview (`CaseOverviewPage`) | F-003 | Table per role; "New case" for leaders; filters *(planned, T3.2)* |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
 | `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin, assign and reassign |
 | `/admin/users` | User admin: add, deactivate, change fields and department (`UsersPage`) | F-004 | Empty page |
@@ -40,6 +40,7 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | Endpoint | What it does |
 |---|---|
 | `GET /api/current-user` | The user the app acts as |
+| `GET /api/cases` | The cases the user may see, newest first (F-003); restricted rows without reactions for Admin |
 | `POST /api/cases` | Create a case, body `{ field }` (F-001); 403 and a Denied audit entry if not allowed |
 | `GET /api/cases/:id` | Open a case: full, or restricted for Admin (F-002, F-004); 403 + Denied entry without access; 404 if missing; logs "case opened" |
 | `GET /api/cases/:id/eligible-case-workers` | Case workers the case can be assigned to (F-004, leaders) |

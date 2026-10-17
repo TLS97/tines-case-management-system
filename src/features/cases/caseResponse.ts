@@ -28,3 +28,10 @@ export const caseResponseSchema = z.discriminatedUnion('access', [
 
 export type CaseWorkerSummary = z.infer<typeof caseWorkerSummarySchema>;
 export type CaseResponse = z.infer<typeof caseResponseSchema>;
+
+/** "Magnus Berg", "Magnus Berg (deactivated)" (F-004: a deactivated case worker stays on the case) or "Not assigned". */
+export function caseWorkerDisplayName(caseWorker: CaseWorkerSummary | null): string {
+  if (!caseWorker) return 'Not assigned';
+  const name = `${caseWorker.firstName} ${caseWorker.surname}`;
+  return caseWorker.isActive ? name : `${name} (deactivated)`;
+}

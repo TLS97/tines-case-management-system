@@ -1,3 +1,7 @@
+import '@fontsource-variable/inter';
+import '@digdir/designsystemet-css';
+import '../design-tokens-build/htil-theme.css';
+import './app/global.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from '@/app/App';

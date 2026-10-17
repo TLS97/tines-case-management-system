@@ -1,6 +1,7 @@
 dist
 coverage
 design-tokens
+design-tokens-build
 playwright-report
 test-results
 package-lock.json

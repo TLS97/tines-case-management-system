@@ -1,0 +1,66 @@
+{
+  "background-default": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.background-default}"
+  },
+  "background-tinted": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.background-tinted}"
+  },
+  "surface-default": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.surface-default}"
+  },
+  "surface-tinted": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.surface-tinted}"
+  },
+  "surface-hover": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.surface-hover}"
+  },
+  "surface-active": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.surface-active}"
+  },
+  "border-subtle": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.border-subtle}"
+  },
+  "border-default": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.border-default}"
+  },
+  "border-strong": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.border-strong}"
+  },
+  "text-subtle": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.text-subtle}"
+  },
+  "text-default": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.text-default}"
+  },
+  "base-default": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.base-default}"
+  },
+  "base-hover": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.base-hover}"
+  },
+  "base-active": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.base-active}"
+  },
+  "base-contrast-subtle": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.base-contrast-subtle}"
+  },
+  "base-contrast-default": {
+    "$type": "color",
+    "$value": "{color.htil-hovedfarge.base-contrast-default}"
+  }
+}

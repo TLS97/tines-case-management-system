@@ -1,8 +1,13 @@
-// Placeholder until the app shell (T0.4) and Designsystemet (T0.3) are in place.
+import { Heading, Paragraph } from '@digdir/designsystemet-react';
+
+// Placeholder until the app shell (T0.4) is in place.
 export function App() {
   return (
     <main>
-      <h1>Supervision case management</h1>
+      <Heading level={1} data-size="lg">
+        Supervision case management
+      </Heading>
+      <Paragraph>The app shell comes in the next task.</Paragraph>
     </main>
   );
 }

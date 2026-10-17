@@ -11,7 +11,14 @@ const featureBoundaryPattern = {
 };
 
 export default defineConfig([
-  globalIgnores(['dist', 'coverage', 'design-tokens', 'playwright-report', 'test-results']),
+  globalIgnores([
+    'dist',
+    'coverage',
+    'design-tokens',
+    'design-tokens-build',
+    'playwright-report',
+    'test-results',
+  ]),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

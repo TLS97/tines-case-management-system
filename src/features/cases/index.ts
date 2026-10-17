@@ -2,18 +2,21 @@ export { isEligibleCaseWorker } from './assignment';
 export { canCreateCases } from './canCreateCases';
 export {
   caseResponseSchema,
+  caseWorkerDisplayName,
   caseWorkerSummarySchema,
   type CaseResponse,
   type CaseWorkerSummary,
 } from './caseResponse';
 export { lastSequenceInYear, nextCaseNumber } from './caseNumber';
 export { isReadyToClose, missingForClosing, type MissingForClosing } from './closing';
+export { reactionsInCase } from './reactions';
 export { CaseDetailPage } from './pages/CaseDetailPage';
 export { NewCasePage } from './pages/NewCasePage';
 export {
   CASE_STATUS_LABELS,
   COMPANY_REACTION_LABELS,
   HEALTH_PERSONNEL_REACTION_LABELS,
+  REACTION_LABELS,
 } from './labels';
 export {
   ADMIN_HIDDEN_FIELDS,
@@ -40,6 +43,8 @@ export {
   newCompanySchema,
   newHealthPersonnelSchema,
   organizationNumberSchema,
+  REACTIONS,
+  reactionSchema,
   supervisionCaseObjectSchema,
   supervisionCaseSchema,
   type Address,
@@ -51,5 +56,6 @@ export {
   type HealthPersonnelReaction,
   type NewCompany,
   type NewHealthPersonnel,
+  type Reaction,
   type SupervisionCase,
 } from './types';

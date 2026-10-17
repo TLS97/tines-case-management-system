@@ -1,5 +1,5 @@
 import { DEPARTMENT_NAMES, FIELD_LABELS } from '@/features/auth';
-import type { CaseWorkerSummary } from '../caseResponse';
+import { caseWorkerDisplayName, type CaseWorkerSummary } from '../caseResponse';
 import { CASE_STATUS_LABELS } from '../labels';
 import type { RestrictedSupervisionCase } from '../restrictedView';
 import styles from './CaseDetail.module.css';
@@ -22,14 +22,7 @@ export function CaseSummary({ supervisionCase, assignedCaseWorker }: CaseSummary
       <dt>Department</dt>
       <dd>{DEPARTMENT_NAMES[supervisionCase.departmentId]}</dd>
       <dt>Case worker</dt>
-      <dd>{caseWorkerName(assignedCaseWorker)}</dd>
+      <dd>{caseWorkerDisplayName(assignedCaseWorker)}</dd>
     </dl>
   );
-}
-
-function caseWorkerName(caseWorker: CaseWorkerSummary | null): string {
-  if (!caseWorker) return 'Not assigned';
-  const name = `${caseWorker.firstName} ${caseWorker.surname}`;
-  // F-004: a deactivated case worker stays on the case and is shown as deactivated.
-  return caseWorker.isActive ? name : `${name} (deactivated)`;
 }

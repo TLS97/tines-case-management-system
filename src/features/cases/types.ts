@@ -11,10 +11,18 @@ export const HEALTH_PERSONNEL_REACTIONS = [
   'RestrictionOfPractice',
 ] as const;
 export const COMPANY_REACTIONS = ['NoReaction', 'SelfAssessment'] as const;
+/** Every reaction, for the overview and its reaction filter (F-003). */
+export const REACTIONS = [
+  'NoReaction',
+  'Prohibition',
+  'RestrictionOfPractice',
+  'SelfAssessment',
+] as const;
 
 export const caseStatusSchema = z.enum(CASE_STATUSES);
 export const healthPersonnelReactionSchema = z.enum(HEALTH_PERSONNEL_REACTIONS);
 export const companyReactionSchema = z.enum(COMPANY_REACTIONS);
+export const reactionSchema = z.enum(REACTIONS);
 
 /** `yyyy/nnnn`: year created, then a sequence zero-padded to 4 digits (SPEC.md "Case number"). */
 export const caseNumberSchema = z
@@ -108,6 +116,7 @@ function isUnique(values: readonly string[]): boolean {
 export type CaseStatus = z.infer<typeof caseStatusSchema>;
 export type HealthPersonnelReaction = z.infer<typeof healthPersonnelReactionSchema>;
 export type CompanyReaction = z.infer<typeof companyReactionSchema>;
+export type Reaction = z.infer<typeof reactionSchema>;
 export type Authorization = z.infer<typeof authorizationSchema>;
 export type HealthPersonnel = z.infer<typeof healthPersonnelSchema>;
 export type NewHealthPersonnel = z.infer<typeof newHealthPersonnelSchema>;

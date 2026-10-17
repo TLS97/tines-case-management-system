@@ -1,4 +1,4 @@
-import type { CaseStatus, CompanyReaction, HealthPersonnelReaction } from './types';
+import type { CaseStatus, CompanyReaction, HealthPersonnelReaction, Reaction } from './types';
 
 // UI text for the enum values in SPEC.md.
 
@@ -18,4 +18,9 @@ export const HEALTH_PERSONNEL_REACTION_LABELS: Record<HealthPersonnelReaction, s
 export const COMPANY_REACTION_LABELS: Record<CompanyReaction, string> = {
   NoReaction: 'No reaction',
   SelfAssessment: 'Self-assessment',
+};
+
+export const REACTION_LABELS: Record<Reaction, string> = {
+  ...HEALTH_PERSONNEL_REACTION_LABELS,
+  ...COMPANY_REACTION_LABELS,
 };

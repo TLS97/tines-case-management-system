@@ -1,7 +1,7 @@
 import { Button, Dialog, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { useRef } from 'react';
 import styles from './MockToolbar.module.css';
-import { useResetMockData } from './resetMockData';
+import { useResetMockData } from './mockToolsApi';
 
 // Resetting deletes all data, so it asks for confirmation first.
 export function ResetMockDataButton() {

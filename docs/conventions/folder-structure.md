@@ -20,7 +20,7 @@ src/
       api.ts
       types.ts
     overview/             # F-003 case overview + filters
-    auth/                 # current user, roles, permissions.ts (F-004)
+    auth/                 # types.ts (User...), api.ts + hooks/useCurrentUser, labels.ts, permissions.ts (F-004)
     follow-up/            # F-010, F-011
     notifications/        # F-012
     admin/                # users (F-004), global audit log (F-005)

@@ -18,6 +18,9 @@
 - Use the MSW mock API, not hand-rolled fetch mocks. Vitest runs the same handlers (`src/mocks/node.ts`),
   fails on unhandled API requests, and starts every test from the seed data (`localStorage` is cleared).
 - E2E tests open pages with `gotoApp(page, path)`, which waits until the app (and so the mock API) is ready.
+  They run on their own dev server on port 5174, so they never reuse the one you run on 5173.
+- jsdom lacks `<dialog>` and `document.getAnimations()`; `src/test/setup.ts` has small stand-ins.
+  Behaviour that depends on them is checked in the e2e tests.
 - E2E tests import `test` and `expect` from `tests/e2e/fixtures.ts`, not from `@playwright/test`.
   The fixture fails a test on any browser console error or warning. ESLint enforces this import in `*.spec.ts` files.
 - Every Playwright page test calls `expectNoAccessibilityViolations(page)` (axe, WCAG 2.1 AA); violations fail the test.

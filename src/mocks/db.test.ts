@@ -31,18 +31,36 @@ describe('mock database', () => {
   });
 
   it('loads the seed data again when the stored data does not match the schema', () => {
-    localStorage.setItem(MOCK_DB_STORAGE_KEY, JSON.stringify({ version: 1, users: [{ id: 'x' }] }));
+    localStorage.setItem(MOCK_DB_STORAGE_KEY, JSON.stringify({ version: 2, users: [{ id: 'x' }] }));
 
     expect(readDb().users).toHaveLength(19);
-    expect(storedDb()).toMatchObject({ version: 1 });
+    expect(storedDb()).toMatchObject({ version: 2 });
+  });
+
+  it('loads the seed data again when the stored data has an older version', () => {
+    localStorage.setItem(MOCK_DB_STORAGE_KEY, JSON.stringify({ version: 1, users: SEED_USERS }));
+
+    expect(readDb()).toMatchObject({ version: 2, currentUserId: DEFAULT_USER_ID });
+  });
+
+  it('starts as the default user, Tine Tester', () => {
+    expect(readDb().currentUserId).toBe(DEFAULT_USER_ID);
+  });
+
+  it('loads the seed data again when the current user does not exist', () => {
+    writeDb({ ...readDb(), currentUserId: '00000000-0000-4000-8000-000000000000' });
+
+    expect(readDb().currentUserId).toBe(DEFAULT_USER_ID);
   });
 
   it('resetDb replaces all changes with the seed data', () => {
-    writeDb({ version: 1, users: [] });
+    const [, second] = SEED_USERS;
+    writeDb({ ...readDb(), users: [...SEED_USERS].reverse(), currentUserId: second?.id ?? '' });
 
     resetDb();
 
     expect(readDb().users).toEqual(SEED_USERS);
+    expect(readDb().currentUserId).toBe(DEFAULT_USER_ID);
   });
 });
 

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addUser, usersQuery } from '../api';
+import { addUser, deactivateUser, usersQuery } from '../api';
 
 export function useUsers() {
   return useQuery(usersQuery);
@@ -14,6 +14,20 @@ export function useAddUser() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: usersQuery.queryKey }),
         queryClient.invalidateQueries({ queryKey: ['mock', 'users'] }),
+      ]),
+  });
+}
+
+/** Deactivates a user; the user list, the switcher and leaders' notifications are refreshed. */
+export function useDeactivateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deactivateUser,
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: usersQuery.queryKey }),
+        queryClient.invalidateQueries({ queryKey: ['mock', 'users'] }),
+        queryClient.invalidateQueries({ queryKey: ['notifications'] }),
       ]),
   });
 }

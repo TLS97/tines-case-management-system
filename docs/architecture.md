@@ -26,10 +26,10 @@ flowchart TD
 ## Routes
 | Route | Page | Feature | Built |
 |---|---|---|---|
-| `/` | Case overview (`CaseOverviewPage`), filters in the address (`?field=&status=&reaction=`) | F-003 | Yes |
+| `/` | Case overview (`CaseOverviewPage`), filters in the address (`?field=&status=&reaction=`); leaders' notice about deactivated case workers on top | F-003, F-004 | Yes |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
 | `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin, assign and reassign |
-| `/admin/users` | User admin: list and add users; deactivate, change fields and department *(planned)* (`UsersPage`) | F-004 | List and add |
+| `/admin/users` | User admin: list, add and deactivate users; change fields and department *(planned)* (`UsersPage`) | F-004 | List, add, deactivate |
 | `/admin/audit` | Global audit log (`AuditLogPage`) | F-005 | Empty page |
 | any other | Page not found (`NotFoundPage`) | – | Yes |
 
@@ -59,6 +59,8 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `DELETE /api/cases/:id/read-access/:caseWorkerId` | Remove read access (F-004) |
 | `GET /api/users` | Every user (F-004, Admin) |
 | `POST /api/users` | Add a user (F-004, Admin); 409 if the email is already used |
+| `POST /api/users/:id/deactivate` | Deactivate a user (F-004, Admin; not themselves) |
+| `GET /api/notifications` | The current user's notifications (F-004: cases with a deactivated case worker, for leaders) |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |

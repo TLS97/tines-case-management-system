@@ -27,7 +27,7 @@ src/
     follow-up/            # F-010, F-011
     notifications/        # F-012
     audit-log/            # F-005: AuditEntry types; later the per-case and global audit log views
-    admin/                # users (F-004), global audit log page (F-005)
+    admin/                # user admin (F-004): pages/UsersPage, forms/userForm, api; global audit log page (F-005)
   shared/
     components/           # reusable wrappers around Designsystemet, e.g. Page
     api/                  # apiRequest: the one way to call the API

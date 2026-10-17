@@ -49,7 +49,8 @@ flowchart LR
 | "Reaction given" (`HealthPersonnelReactionGiven` / `CompanyReactionGiven`, by party id, never the reaction) | T2.6 | Done |
 | "Status changed" for closing and reopening (from, to) | T2.7 | Done |
 | "Read access granted" / "read access removed" (by case worker id) | T3.3 | Done |
-| "User added" / "user updated" | T3.4–T3.6 | *(planned, with each action)* |
+| "User added" (`addedUserId`) | T3.4 | Done |
+| "User updated" | T3.5, T3.6 | *(planned, with each action)* |
 | Audit log per case (Leader) | T3.7 | *(planned)* |
 | Global audit log with filters (Admin) | T3.8 | *(planned)* |
 

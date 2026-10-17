@@ -29,11 +29,11 @@ flowchart TD
 | `/` | Case overview (`CaseOverviewPage`), filters in the address (`?field=&status=&reaction=`) | F-003 | Yes |
 | `/cases/new` | New case, Leader only (`NewCasePage`) | F-001 | Yes |
 | `/cases/:id` | Case detail; assign, read access and per-case audit log for Leader; restricted view for Admin (`CaseDetailPage`) | F-002, F-004, F-005 | Read-only view, restricted view for Admin, assign and reassign |
-| `/admin/users` | User admin: add, deactivate, change fields and department (`UsersPage`) | F-004 | Empty page |
+| `/admin/users` | User admin: list and add users; deactivate, change fields and department *(planned)* (`UsersPage`) | F-004 | List and add |
 | `/admin/audit` | Global audit log (`AuditLogPage`) | F-005 | Empty page |
 | any other | Page not found (`NotFoundPage`) | – | Yes |
 
-The main navigation links to Cases, Users and Audit log. Hiding links by role comes with `can()` (F-004).
+The main navigation links to Cases, and for those `can()` allows, to Users and Audit log (F-004).
 A mock-only **Test environment** bar above the header holds the user switcher ("Acting as") and **Reset mock data**.
 
 ## Mock API
@@ -57,6 +57,8 @@ A mock-only **Test environment** bar above the header holds the user switcher ("
 | `GET /api/cases/:id/read-access` | Who has read access and who could get it (F-004, leader) |
 | `POST /api/cases/:id/read-access` | Give read access, body `{ caseWorkerId }` (F-004) |
 | `DELETE /api/cases/:id/read-access/:caseWorkerId` | Remove read access (F-004) |
+| `GET /api/users` | Every user (F-004, Admin) |
+| `POST /api/users` | Add a user (F-004, Admin); 409 if the email is already used |
 | `GET /api/mock/users` | All users (mock only; for the user switcher) |
 | `PUT /api/mock/current-user` | Act as another user, body `{ userId }` (mock only) |
 | `POST /api/mock/reset` | Replace all data with the seed data (mock only) |

@@ -1,0 +1,9 @@
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+}
+
+.label {
+  font-weight: var(--ds-font-weight-regular);
+}
